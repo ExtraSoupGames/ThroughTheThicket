@@ -10,6 +10,7 @@ public enum BiomeType
 //A biome is a section of land
 public class Biome
 {
+    public bool MarkedForDeletion { get; set; }
     //the type of biome
     public BiomeType Type { get; }
     //the serializable data of the biome
@@ -24,14 +25,37 @@ public class Biome
     {
 
     }
+    //check to see if a tile with given coordinates is contained within this biome
+    public bool ContainsTile(int X, int Y)
+    {
+        bool tileIsContained = false;
+        foreach(Tile t in Data.Tiles)
+        {
+            if(t.X == X && t.Y == Y)
+            {
+                tileIsContained = true;
+            }
+        }
+        return tileIsContained;
+    }
 }
 [System.Serializable]
 public class BiomeData
 {
     public List<Tile> Tiles;
+    public int CentreX;
+    public int CentreY;
     public BiomeData()
     {
         Tiles = new List<Tile>();
-        Tiles.Add(new Tile());
+        for(int i = 0; i < 10; i++)
+        {
+            for(int j = 0;j < 10; j++)
+            {
+                Tiles.Add(new Tile(i,j));
+            }
+        }
+        CentreX = 5;
+        CentreY = 5;
     }
 }

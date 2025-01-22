@@ -5,11 +5,11 @@ using UnityEngine.UIElements;
 
 public class TesterScript : MonoBehaviour
 {
+    public WorldLoading worldLoading;
     // Start is called before the first frame update
     void Start()
     {
-        WorldLoading loading = new WorldLoading();
-        loading.Testing();
+        worldLoading.Testing();
     }
 
     // Update is called once per frame

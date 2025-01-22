@@ -132,6 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 691494004}
   - component: {fileID: 691494003}
+  - component: {fileID: 691494005}
   m_Layer: 0
   m_Name: Tester
   m_TagString: Untagged
@@ -151,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0f60abe8ea2e05419c1df675829b5c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  worldLoading: {fileID: 691494005}
 --- !u!4 &691494004
 Transform:
   m_ObjectHideFlags: 0
@@ -166,6 +168,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &691494005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 691494002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f97560f911f85c347959d7bee5049aec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TilePrefab: {fileID: 5963659114633419349, guid: db3cc5551af141f429a0a588d54e3a2c, type: 3}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,7 +13,18 @@ public class Tile
     public TileTypes Type;
     public Tile()
     {
-        X = 5;
-        Y = 10;
+        X = 0;
+        Y = 5;
+    }
+    public Tile(int PX, int PY)
+    {
+        X = PX;
+        Y = PY;
+    }
+    public void ConfigureTileObject(GameObject TileObject)
+    {
+        //TODO add texture assignment and height differences
+        TileObject.transform.SetPositionAndRotation(new Vector3(X, 0, Y), Quaternion.identity);
+
     }
 }

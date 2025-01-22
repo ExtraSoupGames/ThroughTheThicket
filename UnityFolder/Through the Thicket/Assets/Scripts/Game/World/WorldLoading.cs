@@ -5,40 +5,70 @@ using System.IO;
 using Unity.VisualScripting;
 public class WorldLoading : MonoBehaviour
 {
+    //reference to player for coordinates
+    public Transform player;
+    //amount of tiles needed in tile pool to display all tiles in biome distance
+    private int tilePoolSize;
     //Prefab of empty tile to generate
     public GameObject TilePrefab;
     //list of gameobjects instantiated when the world is loaded
-    private List<GameObject> _tileObjects;
+    private List<GameObject> tilePool;
+    //parent object for all tiles to be parented to
+    [SerializeField] private GameObject TileParent;
     //all loaded biomes
-    private List<Biome> _loadedBiomes;
+    private List<Biome> activeBiomes;
     //the range in which biomes are loaded around the player
     private int biomeRange;
     //the maximum distance from a biome's centre where a tile can be
     private int biomeSize;
     public WorldLoading() {
-        _tileObjects = new List<GameObject>();
-        _loadedBiomes = new List<Biome>();
+    }
+    public void InitializeLoader()
+    {
+        activeBiomes = new List<Biome>();
         biomeRange = 10;
         biomeSize = 5;
+        InitializeTilePool();
+    }
+    private void InitializeTilePool()
+    {
+        //find area of circle and add a few to be safe
+        tilePoolSize = (int)((float)biomeRange * (float)biomeRange * Mathf.PI) + 5;
+        Debug.Log("Tile pool size: " + tilePoolSize);
+        tilePool = new List<GameObject>();
+        for(int i = 0;i < tilePoolSize; i++)
+        {
+            GameObject newTile = Instantiate(TilePrefab);
+            tilePool.Add(newTile);
+        }
     }
     public void Testing()
     {
         Biome biome = new Biome();
         SaveBiome(biome);
-        LoadBiomeAt(0, 5);
-        InstantiateTiles();
+        LoadBiomeAt(5, 5);
+        UpdateTilePool();
     }
     //create game objects for tiles for all loaded biomes
-    private void InstantiateTiles()
+    public void UpdateTilePool()
     {
-        _tileObjects.Clear();
-        foreach(Biome biome in _loadedBiomes)
+        int PlayerX = (int)player.position.x;
+        int PlayerY = (int)player.position.z;
+        List<Tile> requiredTiles = new List<Tile>();
+        foreach(Biome biome in activeBiomes)
         {
-            foreach(Tile tile in biome.Data.Tiles)
+            requiredTiles.AddRange(biome.GetActiveTiles(PlayerX, PlayerY, biomeRange));
+        }
+        for(int tileIndex = 0;tileIndex < tilePoolSize; tileIndex++)
+        {
+            if(requiredTiles.Count <= tileIndex)
             {
-                GameObject newTile = Instantiate(TilePrefab);
-                tile.ConfigureTileObject(newTile);
-                _tileObjects.Add(newTile);
+                tilePool[tileIndex].SetActive(false);
+            }
+            else
+            {
+                tilePool[tileIndex].SetActive(true);
+                requiredTiles[tileIndex].ApplyTileProperties(tilePool[tileIndex]);
             }
         }
     }
@@ -75,7 +105,7 @@ public class WorldLoading : MonoBehaviour
                 if(biomeCandidate.ContainsTile(X, Y))
                 {
                     foundBiome = true;
-                    _loadedBiomes.Add(biomeCandidate);
+                    activeBiomes.Add(biomeCandidate);
                     break;
                 }
             }
@@ -94,14 +124,14 @@ public class WorldLoading : MonoBehaviour
     //unload and save biomes that are too far away to be needed right now
     private void TrimLoadedBiomes(int playerX, int playerY)
     {
-        foreach(Biome loadedBiome in _loadedBiomes)
+        foreach(Biome loadedBiome in activeBiomes)
         {
             if(MathsHelper.FindDistance(loadedBiome.Data.CentreX, loadedBiome.Data.CentreY, playerX, playerY) < biomeRange)
             {
                 loadedBiome.MarkedForDeletion = true;
             }
         }
-        _loadedBiomes.RemoveAll(biome => biome.MarkedForDeletion);
+        activeBiomes.RemoveAll(biome => biome.MarkedForDeletion);
     }
     //save a biome
     private void SaveBiome(Biome biome)

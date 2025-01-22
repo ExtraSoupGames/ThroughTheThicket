@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,6 +38,18 @@ public class Biome
             }
         }
         return tileIsContained;
+    }
+    public List<Tile> GetActiveTiles(int PlayerX, int PlayerY, int biomeRange)
+    {
+        List<Tile > activeTiles = new List<Tile>();
+        foreach (Tile tile in Data.Tiles)
+        {
+            if(MathsHelper.FindDistance(tile.X, tile.Y, PlayerX, PlayerY) < biomeRange)
+            {
+                activeTiles.Add(tile);
+            }
+        }
+        return activeTiles;
     }
 }
 [System.Serializable]

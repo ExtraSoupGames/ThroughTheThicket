@@ -21,7 +21,7 @@ public class Tile
         X = PX;
         Y = PY;
     }
-    public void ConfigureTileObject(GameObject TileObject)
+    public void ApplyTileProperties(GameObject TileObject)
     {
         //TODO add texture assignment and height differences
         TileObject.transform.SetPositionAndRotation(new Vector3(X, 0, Y), Quaternion.identity);

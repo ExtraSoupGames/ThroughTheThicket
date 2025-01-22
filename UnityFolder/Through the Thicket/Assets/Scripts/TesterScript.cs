@@ -9,12 +9,13 @@ public class TesterScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        worldLoading.InitializeLoader();
         worldLoading.Testing();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        worldLoading.UpdateTilePool();
     }
 }

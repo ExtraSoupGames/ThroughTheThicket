@@ -38,7 +38,7 @@ public class WorldLoading : MonoBehaviour
         tilePool = new List<GameObject>();
         for(int i = 0;i < tilePoolSize; i++)
         {
-            GameObject newTile = Instantiate(TilePrefab);
+            GameObject newTile = Instantiate(TilePrefab, TileParent.transform);
             tilePool.Add(newTile);
         }
     }
@@ -126,7 +126,7 @@ public class WorldLoading : MonoBehaviour
     {
         foreach(Biome loadedBiome in activeBiomes)
         {
-            if(MathsHelper.FindDistance(loadedBiome.Data.CentreX, loadedBiome.Data.CentreY, playerX, playerY) < biomeRange)
+            if(MathsHelper.FindDistance(loadedBiome.CentreX, loadedBiome.CentreY, playerX, playerY) < biomeRange)
             {
                 loadedBiome.MarkedForDeletion = true;
             }
@@ -136,8 +136,8 @@ public class WorldLoading : MonoBehaviour
     //save a biome
     private void SaveBiome(Biome biome)
     {
-        string biomeAsJSON = JsonUtility.ToJson(biome.Data);
-        string fileName = "/biomes/biome" + biome.Data.CentreX + "-" + biome.Data.CentreY;
+        string biomeAsJSON = JsonUtility.ToJson(biome);
+        string fileName = "/biomes/biome" + biome.CentreX + "-" + biome.CentreY;
         File.WriteAllText(Application.persistentDataPath + fileName + ".json", biomeAsJSON);
     }
     private Biome LoadBiome(int X, int Y)

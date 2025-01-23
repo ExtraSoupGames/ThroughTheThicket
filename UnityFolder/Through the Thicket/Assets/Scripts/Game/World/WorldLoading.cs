@@ -27,13 +27,13 @@ public class WorldLoading : MonoBehaviour
     {
         activeBiomes = new List<Biome>();
         biomeRange = 10;
-        biomeSize = 5;
+        biomeSize = 7;
         InitializeTilePool();
     }
     private void InitializeTilePool()
     {
         //find area of circle and add a few to be safe
-        tilePoolSize = (int)((float)biomeRange * (float)biomeRange * Mathf.PI) + 5;
+        tilePoolSize = (int)(((float)biomeRange * (float)biomeRange * Mathf.PI) + 5);
         Debug.Log("Tile pool size: " + tilePoolSize);
         tilePool = new List<GameObject>();
         for(int i = 0;i < tilePoolSize; i++)
@@ -44,10 +44,29 @@ public class WorldLoading : MonoBehaviour
     }
     public void Testing()
     {
-        Biome biome = new Biome();
-        SaveBiome(biome);
-        LoadBiomeAt(5, 5);
+        Biome biome1 = new Biome(0, 0);
+        Biome biome2 = new Biome(10, 0);
+        Biome biome3 = new Biome(20, 0);
+        Biome biome4 = new Biome(0, 10);
+        Biome biome5 = new Biome(10, 10);
+        Biome biome6 = new Biome(20, 10);
+        SaveBiome(biome1);
+        SaveBiome(biome2);
+        SaveBiome(biome3);
+        SaveBiome(biome4);
+        SaveBiome(biome5);
+        SaveBiome(biome6);
+        WorldUpdate();
+    }
+    //do a full biome update remove unused tiles, update new ones
+    public void WorldUpdate()
+    {
         UpdateTilePool();
+    }
+    public void BiomeReload()
+    {
+        AddNeededBiomes();
+        TrimLoadedBiomes();
     }
     //create game objects for tiles for all loaded biomes
     public void UpdateTilePool()
@@ -55,7 +74,8 @@ public class WorldLoading : MonoBehaviour
         int PlayerX = (int)player.position.x;
         int PlayerY = (int)player.position.z;
         List<Tile> requiredTiles = new List<Tile>();
-        foreach(Biome biome in activeBiomes)
+        Debug.Log("loaded biomes length: " + activeBiomes.Count);
+        foreach (Biome biome in activeBiomes)
         {
             requiredTiles.AddRange(biome.GetActiveTiles(PlayerX, PlayerY, biomeRange));
         }
@@ -71,21 +91,43 @@ public class WorldLoading : MonoBehaviour
                 requiredTiles[tileIndex].ApplyTileProperties(tilePool[tileIndex]);
             }
         }
+        if(tilePoolSize < requiredTiles.Count)
+        {
+            Debug.Log("Insufficient tile pool size to display loaded biome tiles");
+        }
     }
     //load and generate any biomes that are needed to be shown
-    private void AddNeededBiomes(int PlayerX, int PlayerY)
+    private void AddNeededBiomes()
     {
-        //TODO search for tiles in range
-        //TODO Load required biomes
-        for(int xOffset = -biomeRange; xOffset <= biomeRange; xOffset++)
+        int PlayerX = (int)player.position.x;
+        int PlayerY = (int)player.position.y;
+        string[] allBiomes = Directory.GetFiles(Application.persistentDataPath + "/biomes");
+        int neededBiomes = 0;
+        Debug.Log("All biomes length: " + allBiomes.Length);
+        foreach (string biome in allBiomes)
         {
-            for (int yOffset = -biomeRange; yOffset <= biomeRange; yOffset++)
+            //removes the path from the filename
+            string biomeLocation = biome.Substring(biome.IndexOf("biomes\\biome") + 12);
+            //split the coordinates into an array of strings, and remove the .json from the end
+            string[] biomeCoordinates = biomeLocation.Substring(0, biomeLocation.IndexOf(".")).Split("-");
+            int biomeX = int.Parse(biomeCoordinates[0]);
+            int biomeY = int.Parse(biomeCoordinates[1]);
+            //check if is in range, add a few to prevent any tiles not appearing if the biome is juuuuussssttt out of range
+            if (!IsInRange(biomeX, biomeY, PlayerX, PlayerY, biomeSize + biomeRange + 1))
             {
-                //TODO Check if tile is in loaded biomes
-                //TODO if not then call LoadBiomeAt()
-                //check if tile is loaded at X: PlayerX + xOffset and Y: PlayerY + yOffset
+                continue;
             }
+            if (activeBiomes.FindIndex(b => b.CentreX == biomeX && b.CentreY == biomeY) != -1)
+            {
+                continue;
+            }
+            neededBiomes++;
+            activeBiomes.Add(LoadBiome(biomeX, biomeY));
+
+
         }
+        activeBiomes.RemoveAll(biome => biome.MarkedForDeletion);
+        Debug.Log("needed biomes: " + neededBiomes);
     }
     private void LoadBiomeAt(int X, int Y)
     {
@@ -99,7 +141,7 @@ public class WorldLoading : MonoBehaviour
             string[] biomeCoordinates = biomeLocation.Substring(0, biomeLocation.IndexOf(".")).Split("-");
             int biomeX = int.Parse(biomeCoordinates[0]);
             int biomeY = int.Parse(biomeCoordinates[1]);
-            if (IsInRange(biomeX, biomeY, X, Y))
+            if (IsInRange(biomeX, biomeY, X, Y, biomeSize + biomeRange))
             {
                 Biome biomeCandidate = LoadBiome(biomeX, biomeY);
                 if(biomeCandidate.ContainsTile(X, Y))
@@ -116,17 +158,19 @@ public class WorldLoading : MonoBehaviour
             Debug.Log("Unloaded world region reached, world generation not yet implemented");
         }
     }
-    private bool IsInRange(int biomeCentreX, int biomeCentreY, int TileX, int TileY)
+    private bool IsInRange(int biomeCentreX, int biomeCentreY, int TileX, int TileY, int Range)
     {
         float distance = MathsHelper.FindDistance(biomeCentreX, biomeCentreY, TileX, TileY);
-        return distance < biomeSize + biomeRange;
+        return distance < Range;
     }
     //unload and save biomes that are too far away to be needed right now
-    private void TrimLoadedBiomes(int playerX, int playerY)
+    private void TrimLoadedBiomes()
     {
+        int PlayerX = (int)player.position.x;
+        int PlayerY = (int)player.position.y;
         foreach(Biome loadedBiome in activeBiomes)
         {
-            if(MathsHelper.FindDistance(loadedBiome.CentreX, loadedBiome.CentreY, playerX, playerY) < biomeRange)
+            if(!IsInRange(loadedBiome.CentreX, loadedBiome.CentreY, PlayerX, PlayerY, biomeSize + biomeRange))
             {
                 loadedBiome.MarkedForDeletion = true;
             }

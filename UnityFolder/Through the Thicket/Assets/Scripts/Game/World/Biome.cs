@@ -33,6 +33,22 @@ public class Biome
         CentreY = 5;
         Type = BiomeType.Forest;
     }
+    //JUST FOR TESTING TODO remove this
+    public Biome(int x, int y)
+    {
+        //initiate tile list
+        Tiles = new List<Tile>();
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 10; j++)
+            {
+                Tiles.Add(new Tile(x + i, y + j));
+            }
+        }
+        CentreX = x;
+        CentreY = y;
+        Type = BiomeType.Forest;
+    }
     public Biome() : this("DefaultBiomeDataGoesHere") // TODO add default biome data for testing
     {
 

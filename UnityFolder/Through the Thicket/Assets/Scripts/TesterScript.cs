@@ -16,6 +16,7 @@ public class TesterScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        worldLoading.UpdateTilePool();
+        worldLoading.WorldUpdate();
+        worldLoading.BiomeReload();
     }
 }

@@ -17,21 +17,10 @@ public class Biome
     public bool MarkedForDeletion { get; set; }
     //the type of biome
     public BiomeType Type { get; }
-    //the default biome constructor to load a biome from a string of data
-    public Biome(string biomeData)
+    //the default biome constructor to generate a biome with requirements about location and size, as well as anything else
+    public Biome(string requirements)
     {
-        //initiate tile list
-        Tiles = new List<Tile>();
-        for (int i = 0; i < 10; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                Tiles.Add(new Tile(i, j));
-            }
-        }
-        CentreX = 5;
-        CentreY = 5;
-        Type = BiomeType.Forest;
+        //TODO process
     }
     //JUST FOR TESTING TODO remove this
     public Biome(int x, int y)
@@ -42,7 +31,7 @@ public class Biome
         {
             for (int j = 0; j < 10; j++)
             {
-                Tiles.Add(new Tile(x + i, y + j));
+                Tiles.Add(new Tile(x + i - 5, y + j - 5));
             }
         }
         CentreX = x;

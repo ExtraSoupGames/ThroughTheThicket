@@ -17,6 +17,5 @@ public class TesterScript : MonoBehaviour
     void Update()
     {
         worldLoading.WorldUpdate();
-        worldLoading.BiomeReload();
     }
 }

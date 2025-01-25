@@ -9,7 +9,7 @@ public enum BiomeType
 }
 //A biome is a section of land
 [System.Serializable]
-public class Biome
+public struct Biome
 {
     public List<Tile> Tiles;
     public int CentreX;
@@ -18,29 +18,29 @@ public class Biome
     //the type of biome
     public BiomeType Type { get; }
     //the default biome constructor to generate a biome with requirements about location and size, as well as anything else
+    /*
     public Biome(string requirements)
     {
         //TODO process
     }
+    */
     //JUST FOR TESTING TODO remove this
-    public Biome(int x, int y)
+    public Biome(int x, int y, int biomeSpacing)
     {
         //initiate tile list
         Tiles = new List<Tile>();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < biomeSpacing; i++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < biomeSpacing; j++)
             {
-                Tiles.Add(new Tile(x + i - 5, y + j - 5));
+                int biomeCentreOffset = biomeSpacing / 2;
+                Tiles.Add(new Tile(x + i - biomeCentreOffset, y + j - biomeCentreOffset, UnityEngine.Random.Range(0, 2)));
             }
         }
         CentreX = x;
         CentreY = y;
         Type = BiomeType.Forest;
-    }
-    public Biome() : this("DefaultBiomeDataGoesHere") // TODO add default biome data for testing
-    {
-
+        MarkedForDeletion = false;
     }
     //check to see if a tile with given coordinates is contained within this biome
     public bool ContainsTile(int X, int Y)
@@ -66,5 +66,9 @@ public class Biome
             }
         }
         return activeTiles;
+    }
+    public void SetMarkedForDeletion()
+    {
+        MarkedForDeletion = true;
     }
 }

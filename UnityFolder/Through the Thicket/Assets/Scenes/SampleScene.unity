@@ -131,8 +131,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 691494004}
-  - component: {fileID: 691494003}
   - component: {fileID: 691494005}
+  - component: {fileID: 691494006}
   m_Layer: 0
   m_Name: Tester
   m_TagString: Untagged
@@ -140,19 +140,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &691494003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 691494002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0f60abe8ea2e05419c1df675829b5c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  worldLoading: {fileID: 691494005}
 --- !u!4 &691494004
 Transform:
   m_ObjectHideFlags: 0
@@ -183,6 +170,21 @@ MonoBehaviour:
   player: {fileID: 1702590686}
   TilePrefab: {fileID: 5963659114633419349, guid: db3cc5551af141f429a0a588d54e3a2c, type: 3}
   TileParent: {fileID: 1958121276}
+--- !u!114 &691494006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 691494002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4764748ad4beee499cef967bd180e49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  worldLoading: {fileID: 691494005}
+  playerTransform: {fileID: 1702590686}
+  maxReloadDistance: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -394,7 +396,7 @@ Transform:
   m_GameObject: {fileID: 1702590685}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 128.6, y: 0, z: 61.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

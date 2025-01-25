@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using Unity.VisualScripting;
+using System;
+using Unity.Collections;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using Unity.Jobs;
+using System.Diagnostics;
 public class WorldLoading : MonoBehaviour
 {
     //reference to player for coordinates
@@ -16,40 +21,69 @@ public class WorldLoading : MonoBehaviour
     //parent object for all tiles to be parented to
     [SerializeField] private GameObject TileParent;
     //all loaded biomes
-    private List<Biome> activeBiomes;
+    private NativeArray<BiomeData> loadedBiomes;
     //the range in which biomes are loaded around the player
     private int biomeRange;
     //the maximum distance from a biome's centre where a tile can be
     private int biomeSize;
+    //the space inbetween biomes
+    private int biomeSpacing;
+    //the length of memory to dedicate to store loaded biomes, I.E. the max amount of biomes loaded at once
+    private int loadedBiomeCap;
+    //native array reference for the tiles generated each frame
+    private NativeArray<Tile> tiles;
+    //persisten data path to pass into jobs to allow file manipulation
+    private NativeArray<char> persistentDataPath;
+    //reference to keep track of currently running tile loader job
+    private JobHandle tileJob;
     public WorldLoading() {
+    }
+    public void OnDestroy()
+    {
+        persistentDataPath.Dispose();
     }
     //initialize world loader variables
     public void InitializeLoader()
     {
-        activeBiomes = new List<Biome>();
-        biomeRange = 10;
-        biomeSize = 7;
+        persistentDataPath = new NativeArray<char>(Application.persistentDataPath.ToCharArray(), Allocator.Persistent);
+        biomeRange = 50;
+        biomeSize = 10;
+        biomeSpacing = 2 * biomeSize;
+        UnityEngine.Debug.Log(biomeSpacing + " is the biomeSpacing");
+        int loadedBiomeCapSqrt = Mathf.CeilToInt((biomeRange * 2 + biomeSpacing)  /  (biomeSpacing));
+        loadedBiomeCap = (loadedBiomeCapSqrt * loadedBiomeCapSqrt);
+        UnityEngine.Debug.Log("loadedBiomeCap is: " + loadedBiomeCap);
+
         InitializeTilePool();
     }
-    public void Testing()
+    public void CreateTestingWorld()
     {
-        for(int i = 0;i < 10; i++)
+        DeleteAllBiomes();
+        UnityEngine.Debug.Log("biomeSpacing: " + biomeSpacing);
+        int biomeCount = 10;
+        for(int i = 0;i < biomeCount; i++)
         {
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < biomeCount; j++)
             {
-                Debug.Log("Generating biome at: " + i + " - " + j);
-                Biome newBiome = new Biome(i * 10, j * 10);
+                UnityEngine.Debug.Log("Generating biome at: " + i * biomeSpacing + " - " + j * biomeSpacing);
+                Biome newBiome = new Biome(i * biomeSpacing, j * biomeSpacing, biomeSpacing);
                 SaveBiome(newBiome);
             }
         }
-        WorldUpdate();
+        WorldUpdateBegin();
+        WorldUpdateEnd();
     }
     //do a full biome update remove unused tiles, update new ones
-    public void WorldUpdate()
+    public void WorldUpdateBegin()
     {
-        AddNeededBiomes();
-        TrimLoadedBiomes();
-        UpdateTilePool();
+        JobHandle biomeJob = StartBiomeLoading();
+        biomeJob.Complete();
+        tileJob = StartUpdatingTiles();
+    }
+    public void WorldUpdateEnd()
+    {
+        UpdateTilePool(tileJob);
+        loadedBiomes.Dispose();
     }
     #region tileManagement
     //create game objects for tiles for all loaded biomes
@@ -57,7 +91,7 @@ public class WorldLoading : MonoBehaviour
     {
         //find area of circle and add a few to be safe
         tilePoolSize = (int)(((float)biomeRange * (float)biomeRange * Mathf.PI) + 5);
-        Debug.Log("Tile pool size: " + tilePoolSize);
+        UnityEngine.Debug.Log("Tile pool size: " + tilePoolSize);
         tilePool = new List<GameObject>();
         for (int i = 0; i < tilePoolSize; i++)
         {
@@ -65,79 +99,51 @@ public class WorldLoading : MonoBehaviour
             tilePool.Add(newTile);
         }
     }
-    //update the tile pool to display tiles from active biomes that are in range
-    public void UpdateTilePool()
+    private JobHandle StartUpdatingTiles()
     {
         int PlayerX = (int)player.position.x;
         int PlayerY = (int)player.position.z;
-        List<Tile> requiredTiles = new List<Tile>();
-        foreach (Biome biome in activeBiomes)
+        tiles = new NativeArray<Tile>(tilePoolSize, Allocator.TempJob);
+        ThreadedTileGetter tileGetter = new ThreadedTileGetter
         {
-            requiredTiles.AddRange(biome.GetActiveTiles(PlayerX, PlayerY, biomeRange));
-        }
+            tiles = tiles,
+            PlayerX = PlayerX,
+            PlayerY = PlayerY,
+            BiomeRange = biomeRange,
+            activeBiomes = loadedBiomes,
+            persistentDataPath = persistentDataPath
+        };
+        return tileGetter.Schedule();
+    }
+    //update the tile pool to display tiles from active biomes that are in range
+    private void UpdateTilePool(JobHandle tileGetterJob)
+    {
+        tileGetterJob.Complete();
         for(int tileIndex = 0;tileIndex < tilePoolSize; tileIndex++)
         {
-            if(requiredTiles.Count <= tileIndex)
-            {
-                tilePool[tileIndex].SetActive(false);
-            }
-            else
-            {
-                tilePool[tileIndex].SetActive(true);
-                requiredTiles[tileIndex].ApplyTileProperties(tilePool[tileIndex]);
-            }
+            tiles[tileIndex].ApplyTileProperties(tilePool[tileIndex]);
         }
-        if(tilePoolSize < requiredTiles.Count)
-        {
-            Debug.Log("Insufficient tile pool size to display loaded biome tiles");
-        }
+        tiles.Dispose();
     }
     #endregion tileManagement
     #region activeBiomeCleaning
-    //load and generate any biomes that are needed to be shown
-    private void AddNeededBiomes()
+    private JobHandle StartBiomeLoading()
     {
         int PlayerX = (int)player.position.x;
-        int PlayerY = (int)player.position.y;
-        string[] allBiomes = Directory.GetFiles(Application.persistentDataPath + "/biomes");
-        foreach (string biome in allBiomes)
+        int PlayerY = (int)player.position.z;
+        loadedBiomes = new NativeArray<BiomeData>(loadedBiomeCap, Allocator.TempJob);
+        ThreadedBiomeTrimmer biomeJob = new ThreadedBiomeTrimmer
         {
-            //removes the path from the filename
-            string biomeLocation = biome.Substring(biome.IndexOf("biomes\\biome") + 12);
-            //split the coordinates into an array of strings, and remove the .json from the end
-            string[] biomeCoordinates = biomeLocation.Substring(0, biomeLocation.IndexOf(".")).Split("-");
-            int biomeX = int.Parse(biomeCoordinates[0]);
-            int biomeY = int.Parse(biomeCoordinates[1]);
-            //check if is in range, add a few to prevent any tiles not appearing if the biome is juuuuussssttt out of range
-            if (!IsInRange(biomeX, biomeY, PlayerX, PlayerY, biomeSize + biomeRange + 1))
-            {
-                continue;
-            }
-            if (activeBiomes.FindIndex(b => b.CentreX == biomeX && b.CentreY == biomeY) != -1)
-            {
-                continue;
-            }
-            activeBiomes.Add(LoadBiome(biomeX, biomeY));
-
-
-        }
-        activeBiomes.RemoveAll(biome => biome.MarkedForDeletion);
+            PlayerX = PlayerX,
+            PlayerY = PlayerY,
+            BiomeSize = biomeSize,
+            BiomeRange = biomeRange,
+            activeBiomes = loadedBiomes,
+            persistentDataPath = persistentDataPath
+        };
+        return biomeJob.Schedule();
     }
-    //unload and save biomes that are too far away to be needed right now
-    private void TrimLoadedBiomes()
-    {
-        int PlayerX = (int)player.position.x;
-        int PlayerY = (int)player.position.y;
-        foreach(Biome loadedBiome in activeBiomes)
-        {
-            if(!IsInRange(loadedBiome.CentreX, loadedBiome.CentreY, PlayerX, PlayerY, biomeSize + biomeRange))
-            {
-                loadedBiome.MarkedForDeletion = true;
-            }
-        }
-        activeBiomes.RemoveAll(biome => biome.MarkedForDeletion);
-    }
-#endregion activeBiomeCleaning
+    #endregion activeBiomeCleaning
     #region fileInteraction
     //save a biome
     private void SaveBiome(Biome biome)
@@ -146,23 +152,15 @@ public class WorldLoading : MonoBehaviour
         string fileName = "/biomes/biome" + biome.CentreX + "-" + biome.CentreY;
         File.WriteAllText(Application.persistentDataPath + fileName + ".json", biomeAsJSON);
     }
-    private Biome LoadBiome(int X, int Y)
+    void DeleteAllBiomes()
     {
-        if (!File.Exists(Application.persistentDataPath + "/biomes/biome" + X + "-" + Y + ".json"))
+        string path = Application.persistentDataPath + "/biomes";
+        // Delete all files
+        string[] files = Directory.GetFiles(path);
+        foreach (string file in files)
         {
-            Debug.Log("Invalid biome attempted to be loaded");
-            return null;
+            File.Delete(file);
         }
-        string biomeAsJSON = File.ReadAllText(Application.persistentDataPath + "/biomes/biome" + X + "-" + Y + ".json");
-        Biome biome = JsonUtility.FromJson<Biome>(biomeAsJSON);
-        return biome;
     }
     #endregion fileInteraction
-    #region helpers
-    private bool IsInRange(int biomeCentreX, int biomeCentreY, int TileX, int TileY, int Range)
-    {
-        float distance = MathsHelper.FindDistance(biomeCentreX, biomeCentreY, TileX, TileY);
-        return distance < Range;
-    }
-    #endregion helpers
 }

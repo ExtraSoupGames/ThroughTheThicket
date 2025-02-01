@@ -40,6 +40,9 @@ public class ChunkManager : MonoBehaviour
     private GameObject[] tilePool;
     //all chunks being currently loaded
     List<ChunkPos> activeChunks;
+    //JobHandles to track other threads
+    JobHandle ChunkGrabber;
+    JobHandle TileProcessor;
     public void Start()
     {
         int tilePoolSize = 1280;
@@ -69,10 +72,33 @@ public class ChunkManager : MonoBehaviour
     }
     public void QueueManage()
     {
-        UpdateRequiredChunks();
-        ManageChunkQueue();
-        ManageTileQueue();
-        ManageTileRenderQueue();
+        //This is a mess that ensures things happen in the correct order
+        //ENSURE UPDATE REQUIRED CHUNKS ONLY HAPPENS WHEN ALL AVAILABLE CHUNKS HAVE GONE THROUGH THE ENTIRE PROCESSING STAGE IE NO JOBS AND EMPTY NATIVE QUEUES
+        //TODO rewrite for readability
+        if (TileProcessor.IsCompleted)
+        {
+            TileProcessor.Complete();
+            ManageTileRenderQueue();
+        }
+        if (ChunkGrabber.IsCompleted && TileProcessor.IsCompleted)
+        {
+            ChunkGrabber.Complete();
+            TileProcessor.Complete();
+            ManageTileQueue();
+        }
+        if (TileProcessor.IsCompleted && ChunkGrabber.IsCompleted)
+        {
+            ChunkGrabber.Complete();
+            TileProcessor.Complete();
+            ManageChunkQueue();
+        }
+        if (TileProcessor.IsCompleted && ChunkGrabber.IsCompleted)
+        {
+            ChunkGrabber.Complete();
+            TileProcessor.Complete();
+            UpdateRequiredChunks();
+        }
+
     }
     //Update the list of chunks to keep only required chunks loaded
     public void UpdateRequiredChunks()
@@ -158,8 +184,7 @@ public class ChunkManager : MonoBehaviour
                 Y = newChunkPos.Y,
                 persistentDataPath = persistentDataPath
             };
-            JobHandle ChunkQueueManagement = newChunkJob.Schedule();
-            ChunkQueueManagement.Complete();
+            ChunkGrabber = newChunkJob.Schedule();
         }
     }
     private void ManageTileQueue()
@@ -178,8 +203,7 @@ public class ChunkManager : MonoBehaviour
                 tilesToProcess = tilesToProcess,
                 tileRenderQueue = tilesToRender
             };
-            JobHandle tileProcessing = tileProcessorJob.Schedule();
-            tileProcessing.Complete();
+            TileProcessor = tileProcessorJob.Schedule();
         }
     }
     private void ManageTileRenderQueue()

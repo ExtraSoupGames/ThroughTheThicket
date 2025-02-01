@@ -1,0 +1,229 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Unity.Collections;
+using Unity.Jobs;
+using System.Drawing;
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Linq;
+using System.Diagnostics.CodeAnalysis;
+public struct ChunkPos
+{
+    public int X;
+    public int Y;
+
+    public ChunkPos(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+}
+public class ChunkManager : MonoBehaviour
+{
+    //the persistent data path, in native array format, to be passed to jobs
+    NativeArray<char> persistentDataPath;
+    //track players location to determine which chunks need to be loaded
+    [SerializeField] private Transform playerTransform;
+    [SerializeField] private Transform tileParent;
+    [SerializeField] private GameObject tilePrefab;
+    //locations where chunks are needed
+    private Queue<ChunkPos> chunksToLoad;
+    //queue for tiles that need to be loaded
+    private NativeQueue<Tile> tilesToLoad;
+    //queue for tiles that have been loaded and need to be rendered
+    private NativeQueue<ProcessedTileData> tilesToRender;
+    //list of every currently loaded tile being rendered
+    private List<ProcessedTileData> loadedTiles;
+    //pool of tile objects to render the world with
+    private GameObject[] tilePool;
+    //all chunks being currently loaded
+    List<ChunkPos> activeChunks;
+    public void Start()
+    {
+        int tilePoolSize = 1280;
+        persistentDataPath = new NativeArray<char>(Application.persistentDataPath.ToCharArray(), Allocator.Persistent);
+        chunksToLoad = new Queue<ChunkPos>();
+        tilesToLoad = new NativeQueue<Tile>(Allocator.Persistent);
+        tilesToRender = new NativeQueue<ProcessedTileData>(Allocator.Persistent);
+        loadedTiles = new List<ProcessedTileData>();
+        tilePool = new GameObject[tilePoolSize];
+        for(int i = 0;i < tilePoolSize; i++)
+        {
+            tilePool[i] = Instantiate(tilePrefab, tileParent);
+        }
+        activeChunks = new List<ChunkPos>();
+    }
+    public void Tests()
+    {
+        DeleteAllChunks();
+        for(int i = 0; i < 5; i++)
+        {
+            for(int j = 0; j < 5; j++)
+            {
+                Chunk chunk = new Chunk(i, j);
+                SaveChunk(chunk);
+            }
+        }
+    }
+    public void QueueManage()
+    {
+        UpdateRequiredChunks();
+        ManageChunkQueue();
+        ManageTileQueue();
+        ManageTileRenderQueue();
+    }
+    //Update the list of chunks to keep only required chunks loaded
+    public void UpdateRequiredChunks()
+    {
+        //add all chunks that are needed but not active
+        ChunkPos[] neededChunks = GetNeededChunks();
+        foreach(ChunkPos neededChunk in neededChunks)
+        {
+            if (activeChunks.Contains<ChunkPos>(neededChunk))
+            {
+                continue;
+            }
+            LoadChunk(neededChunk);
+
+        }
+        //remove all chunks that are active but not needed
+        Queue<ChunkPos> chunksToRemove = new Queue<ChunkPos>();
+        foreach(ChunkPos activeChunk in activeChunks)
+        {
+            if (neededChunks.Contains<ChunkPos>(activeChunk))
+            {
+                continue;
+            }
+            chunksToRemove.Enqueue(activeChunk);
+        }
+        while (chunksToRemove.Count > 0)
+        {
+            UnloadChunk(chunksToRemove.Dequeue());
+        }
+    }
+    //add a chunk to active loaded list, and queue its tiles to be loaded
+    private void LoadChunk(ChunkPos chunkPosition)
+    {
+        activeChunks.Add(chunkPosition);
+        chunksToLoad.Enqueue(chunkPosition);
+    }
+    //remove a chunk from active loaded list, and remove its associated tiles
+    private void UnloadChunk(ChunkPos chunkToRemove)
+    {
+        activeChunks.Remove(chunkToRemove);
+        RemoveTilesFromChunk(chunkToRemove);
+    }
+    //remove the tiles associated with a single chunk
+    private void RemoveTilesFromChunk(ChunkPos chunkToRemoveTiles)
+    {
+        int removalChunkX = chunkToRemoveTiles.X;
+        int removalChunkY = chunkToRemoveTiles.Y;
+        Queue<ProcessedTileData> tilesToRemove = new Queue<ProcessedTileData>();
+        foreach (ProcessedTileData tile in loadedTiles)
+        {
+            if(tile.ChunkX == removalChunkX && tile.ChunkY == removalChunkY)
+            {
+                tilesToRemove.Enqueue(tile);
+            }
+        }
+        while (tilesToRemove.Count > 0)
+        {
+            loadedTiles.Remove(tilesToRemove.Dequeue());
+        }
+    }
+    private ChunkPos[] GetNeededChunks()
+    {
+        //eventually will calculate required amount of chunks based on render distance
+        ChunkPos[] neededChunks = new ChunkPos[5];
+        int playerChunkX = (int)MathF.Round(playerTransform.position.x / Chunk.ChunkSize());
+        int playerChunkY = (int)MathF.Round(playerTransform.position.z / Chunk.ChunkSize());
+        neededChunks[0] = new ChunkPos(playerChunkX, playerChunkY);
+        neededChunks[1] = new ChunkPos(playerChunkX + 1, playerChunkY);
+        neededChunks[2] = new ChunkPos(playerChunkX - 1, playerChunkY);
+        neededChunks[3] = new ChunkPos(playerChunkX, playerChunkY + 1);
+        neededChunks[4] = new ChunkPos(playerChunkX, playerChunkY - 1);
+        return neededChunks;
+    }
+    private void ManageChunkQueue()
+    {
+        if(chunksToLoad.Count > 0)
+        {
+            ChunkPos newChunkPos = chunksToLoad.Dequeue();
+            ChunkGrabberJob newChunkJob = new ChunkGrabberJob()
+            {
+                tileQueue = tilesToLoad,
+                X = newChunkPos.X,
+                Y = newChunkPos.Y,
+                persistentDataPath = persistentDataPath
+            };
+            JobHandle ChunkQueueManagement = newChunkJob.Schedule();
+            ChunkQueueManagement.Complete();
+        }
+    }
+    private void ManageTileQueue()
+    {
+        //this is the number of tiles each tilesProccessorJob takes on, higher = less overhead, lower = less chance that some tiles will be left unloaded
+        int tilesAtATime = 32;
+        if(tilesToLoad.Count >= tilesAtATime) // this causes problems, Count()
+        {
+            NativeQueue<Tile> tilesToProcess = new NativeQueue<Tile>(Allocator.TempJob);
+            for(int i = 0;i< tilesAtATime; i++)
+            {
+                tilesToProcess.Enqueue(tilesToLoad.Dequeue());
+            }
+            TileProcessorJob tileProcessorJob = new TileProcessorJob()
+            {
+                tilesToProcess = tilesToProcess,
+                tileRenderQueue = tilesToRender
+            };
+            JobHandle tileProcessing = tileProcessorJob.Schedule();
+            tileProcessing.Complete();
+        }
+    }
+    private void ManageTileRenderQueue()
+    {
+        while (tilesToRender.Count >= 1)
+        {
+            loadedTiles.Add(tilesToRender.Dequeue());
+        }
+        UpdateTilePool();
+    }
+    private void UpdateTilePool()
+    {
+        if(tilePool.Length < loadedTiles.Count)
+        {
+            Debug.LogWarning("Tile pool size possibly inadequate, by " + (loadedTiles.Count - tilePool.Length));
+        }
+        for(int i = 0;i < tilePool.Length; i++)
+        {
+            if(i >= loadedTiles.Count || !loadedTiles[i].IsInPlayerRange(playerTransform.position.x, playerTransform.position.z, 1000))
+            {
+                tilePool[i].SetActive(false);
+                continue;
+            }
+            loadedTiles[i].ApplyTileProperties(tilePool[i]);
+        }
+    }
+    //save a chunk
+    private void SaveChunk(Chunk chunk)
+    {
+        FileHelper.DirectoryCheck();
+        string chunkAsJSON = JsonUtility.ToJson(chunk.GetChunkForSerialization());
+        string fileName = "/chunks/chunk" + chunk.X + "-" + chunk.Y;
+        File.WriteAllText(Application.persistentDataPath + fileName + ".json", chunkAsJSON);
+        Debug.Log("Successfully saved chunk at: " + chunk.GetPos().X + "-" + chunk.GetPos().Y);
+    }
+    //clear the biomes directory
+    private void DeleteAllChunks()
+    {
+        string path = Application.persistentDataPath + "/chunks";
+        // Delete all files
+        string[] files = Directory.GetFiles(path);
+        foreach (string file in files)
+        {
+            File.Delete(file);
+        }
+    }
+}

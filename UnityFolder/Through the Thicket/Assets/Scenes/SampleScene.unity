@@ -164,12 +164,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 691494002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f97560f911f85c347959d7bee5049aec, type: 3}
+  m_Script: {fileID: 11500000, guid: 836dcbb894eddad458294bbd51124c5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1702590686}
-  TilePrefab: {fileID: 5963659114633419349, guid: db3cc5551af141f429a0a588d54e3a2c, type: 3}
-  TileParent: {fileID: 1958121276}
+  playerTransform: {fileID: 1702590686}
+  tileParent: {fileID: 1958121277}
+  tilePrefab: {fileID: 5963659114633419349, guid: db3cc5551af141f429a0a588d54e3a2c, type: 3}
 --- !u!114 &691494006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,12 +179,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 691494002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4764748ad4beee499cef967bd180e49, type: 3}
+  m_Script: {fileID: 11500000, guid: a769e3c7a8052824ebc4f4a48fa0a4f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldLoading: {fileID: 691494005}
-  playerTransform: {fileID: 1702590686}
-  maxReloadDistance: 0
+  chunkManager: {fileID: 691494005}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,7 +394,7 @@ Transform:
   m_GameObject: {fileID: 1702590685}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 128.6, y: 0, z: 61.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

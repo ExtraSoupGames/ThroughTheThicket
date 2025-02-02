@@ -1,14 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Jobs;
-using System.Drawing;
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Linq;
-using System.Diagnostics.CodeAnalysis;
 public struct ChunkPos
 {
     public int X;
@@ -22,6 +18,8 @@ public struct ChunkPos
 }
 public class ChunkManager : MonoBehaviour
 {
+    //the distance, in tiles, around the player in which to render tiles
+    [SerializeField] private int RenderDistance;
     //the persistent data path, in native array format, to be passed to jobs
     NativeArray<char> persistentDataPath;
     //track players location to determine which chunks need to be loaded
@@ -45,7 +43,7 @@ public class ChunkManager : MonoBehaviour
     JobHandle TileProcessor;
     public void Start()
     {
-        int tilePoolSize = 1280;
+        int tilePoolSize = (RenderDistance * 2) * (RenderDistance * 2);
         persistentDataPath = new NativeArray<char>(Application.persistentDataPath.ToCharArray(), Allocator.Persistent);
         chunksToLoad = new Queue<ChunkPos>();
         tilesToLoad = new NativeQueue<Tile>(Allocator.Persistent);
@@ -57,6 +55,14 @@ public class ChunkManager : MonoBehaviour
             tilePool[i] = Instantiate(tilePrefab, tileParent);
         }
         activeChunks = new List<ChunkPos>();
+    }
+    public void OnDestroy()
+    {
+        TileProcessor.Complete();
+        ChunkGrabber.Complete();
+        tilesToLoad.Dispose();
+        tilesToRender.Dispose();
+        persistentDataPath.Dispose();
     }
     public void Tests()
     {
@@ -73,14 +79,12 @@ public class ChunkManager : MonoBehaviour
     public void QueueManage()
     {
         //This is a mess that ensures things happen in the correct order
-        //ENSURE UPDATE REQUIRED CHUNKS ONLY HAPPENS WHEN ALL AVAILABLE CHUNKS HAVE GONE THROUGH THE ENTIRE PROCESSING STAGE IE NO JOBS AND EMPTY NATIVE QUEUES
-        //TODO rewrite for readability
         if (TileProcessor.IsCompleted)
         {
             TileProcessor.Complete();
             ManageTileRenderQueue();
         }
-        if (ChunkGrabber.IsCompleted && TileProcessor.IsCompleted)
+        if (TileProcessor.IsCompleted && ChunkGrabber.IsCompleted)
         {
             ChunkGrabber.Complete();
             TileProcessor.Complete();
@@ -162,14 +166,18 @@ public class ChunkManager : MonoBehaviour
     private ChunkPos[] GetNeededChunks()
     {
         //eventually will calculate required amount of chunks based on render distance
-        ChunkPos[] neededChunks = new ChunkPos[5];
+        ChunkPos[] neededChunks = new ChunkPos[9];
         int playerChunkX = (int)MathF.Round(playerTransform.position.x / Chunk.ChunkSize());
         int playerChunkY = (int)MathF.Round(playerTransform.position.z / Chunk.ChunkSize());
-        neededChunks[0] = new ChunkPos(playerChunkX, playerChunkY);
-        neededChunks[1] = new ChunkPos(playerChunkX + 1, playerChunkY);
-        neededChunks[2] = new ChunkPos(playerChunkX - 1, playerChunkY);
-        neededChunks[3] = new ChunkPos(playerChunkX, playerChunkY + 1);
-        neededChunks[4] = new ChunkPos(playerChunkX, playerChunkY - 1);
+        neededChunks[0] = new ChunkPos(playerChunkX - 1, playerChunkY - 1);
+        neededChunks[1] = new ChunkPos(playerChunkX - 1, playerChunkY);
+        neededChunks[2] = new ChunkPos(playerChunkX - 1, playerChunkY + 1);
+        neededChunks[3] = new ChunkPos(playerChunkX, playerChunkY - 1);
+        neededChunks[4] = new ChunkPos(playerChunkX, playerChunkY);
+        neededChunks[5] = new ChunkPos(playerChunkX, playerChunkY + 1);
+        neededChunks[6] = new ChunkPos(playerChunkX + 1, playerChunkY - 1);
+        neededChunks[7] = new ChunkPos(playerChunkX + 1, playerChunkY);
+        neededChunks[8] = new ChunkPos(playerChunkX + 1, playerChunkY + 1);
         return neededChunks;
     }
     private void ManageChunkQueue()
@@ -216,18 +224,24 @@ public class ChunkManager : MonoBehaviour
     }
     private void UpdateTilePool()
     {
-        if(tilePool.Length < loadedTiles.Count)
+        int tilePoolIndex = 0;
+        int loadedTileIndex = 0;
+        while(tilePoolIndex < tilePool.Length)
         {
-            Debug.LogWarning("Tile pool size possibly inadequate, by " + (loadedTiles.Count - tilePool.Length));
-        }
-        for(int i = 0;i < tilePool.Length; i++)
-        {
-            if(i >= loadedTiles.Count || !loadedTiles[i].IsInPlayerRange(playerTransform.position.x, playerTransform.position.z, 1000))
+            if(loadedTileIndex >= loadedTiles.Count)
             {
-                tilePool[i].SetActive(false);
+                tilePool[tilePoolIndex].SetActive(false);
+                tilePoolIndex++;
                 continue;
             }
-            loadedTiles[i].ApplyTileProperties(tilePool[i]);
+            if (!loadedTiles[loadedTileIndex].IsInPlayerRange(playerTransform.position.x, playerTransform.position.z, RenderDistance))
+            {
+                loadedTileIndex++;
+                continue;
+            }
+            loadedTiles[loadedTileIndex].ApplyTileProperties(tilePool[tilePoolIndex]);
+            loadedTileIndex++;
+            tilePoolIndex++;
         }
     }
     //save a chunk

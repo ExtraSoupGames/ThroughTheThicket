@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections;
-using UnityEngine;
 public struct Chunk
 {
     public NativeArray<Tile> tiles;
@@ -52,6 +49,6 @@ public struct SerializableChunk
     }
     public Chunk ToChunk()
     {
-        return new Chunk(new NativeArray<Tile>(tiles, Allocator.Temp), X, Y);
+        return new Chunk(new NativeArray<Tile>(tiles, Allocator.TempJob), X, Y);
     }
 }

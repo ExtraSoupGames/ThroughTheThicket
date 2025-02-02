@@ -14,15 +14,24 @@ public struct Tile
     public int Height;
     public TileTypes Type;
     public bool initialized;
-    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY)
+    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, TileTypes tileType)
     {
         X = PX;
         Y = PY;
         ChunkX = PChunkX;
         ChunkY = PChunkY;
         Height = PHeight;
-        Type = TileTypes.Grass;
+        Type = tileType;
         initialized = true;
+    }
+    //unsure if these chunk coordinate calculations work or not
+    public Tile(int PX, int PY, int PHeight, TileTypes tileType) : this(PX, PY, PHeight, (int)(PX / 16), (int)(PY / 16), tileType)
+    {
+
+    }
+    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY) : this(PX, PY, PHeight, PChunkX, PChunkY, TileTypes.Grass)
+    {
+
     }
     public Tile(int PX, int PY, int PChunkX, int PChunkY) : this(PX, PY, 1, PChunkX, PChunkY)
     {

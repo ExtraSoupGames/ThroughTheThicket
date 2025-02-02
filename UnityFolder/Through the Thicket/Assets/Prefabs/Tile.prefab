@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8390302872266070187}
   - component: {fileID: 4613635717470475876}
   - component: {fileID: 6352111710892211933}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0

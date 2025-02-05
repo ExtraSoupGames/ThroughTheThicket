@@ -44,6 +44,7 @@ public struct ProcessedTileData
     public int ChunkX;
     public int ChunkY;
     public int Height;
+    public int TravelCost;
     //ID to retrieve texture from a big dictionary somewhere
     public int textureID;
 
@@ -55,6 +56,7 @@ public struct ProcessedTileData
         ChunkY = tile.ChunkY;
         Height = tile.Height;
         textureID = 1;
+        TravelCost = 1;
     }
 
     public void ApplyTileProperties(GameObject TileObject)

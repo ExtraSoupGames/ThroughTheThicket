@@ -105,7 +105,7 @@ public class ChunkManager : MonoBehaviour
 
     }
     //Update the list of chunks to keep only required chunks loaded
-    public void UpdateRequiredChunks()
+    private void UpdateRequiredChunks()
     {
         //add all chunks that are needed but not active
         ChunkPos[] neededChunks = GetNeededChunks();
@@ -253,7 +253,7 @@ public class ChunkManager : MonoBehaviour
         File.WriteAllText(Application.persistentDataPath + fileName + ".json", chunkAsJSON);
         Debug.Log("Successfully saved chunk at: " + chunk.GetPos().X + "-" + chunk.GetPos().Y);
     }
-    //clear the biomes directory
+    //clear the chunks directory
     private void DeleteAllChunks()
     {
         string path = Application.persistentDataPath + "/chunks";
@@ -263,5 +263,15 @@ public class ChunkManager : MonoBehaviour
         {
             File.Delete(file);
         }
+    }
+    public PathContext GrabPathContext()
+    {
+        //returns all loaded tiles as a list of tile travel costs
+        List<TileTravelValue> surroundingTileCosts = new List<TileTravelValue>();
+        foreach(ProcessedTileData tile in loadedTiles)
+        {
+            surroundingTileCosts.Add(new TileTravelValue(tile.X, tile.Y, tile.TravelCost));
+        }
+        return new PathContext(surroundingTileCosts);
     }
 }

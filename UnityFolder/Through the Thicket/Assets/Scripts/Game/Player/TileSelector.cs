@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +12,7 @@ public class TileSelector : MonoBehaviour
     private GameObject hoveredObject;
     private GameObject selectedObject;
     [SerializeField] LayerMask tileMask;
+    [SerializeField] private PlayerController playerController;
     public void Update()
     {
         UpdateSelectedTile();
@@ -22,14 +25,20 @@ public class TileSelector : MonoBehaviour
         selectedHighlight.transform.position = hoverHighlight.transform.position;
         //make the selected highlight show / hide depending on if a tile is hovered
         selectedHighlight.SetActive(hoverHighlight.activeSelf);
+
+        if (hoverHighlight.activeSelf)
+        {
+            playerController.StartMovingPlayer();
+        }
     }
     public void UpdateSelectedTile()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileMask))
         {
             hoveredObject = hit.collider.gameObject;
+            hoverHighlight.SetActive(true);
             hoverHighlight.transform.position = new Vector3(hoveredObject.transform.position.x, 1.5f, hoveredObject.transform.position.z);
         }
         else

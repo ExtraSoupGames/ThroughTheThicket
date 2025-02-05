@@ -264,14 +264,14 @@ public class ChunkManager : MonoBehaviour
             File.Delete(file);
         }
     }
-    public PathContext GrabPathContext()
+    public List<TravelTile> GrabPathContext()
     {
         //returns all loaded tiles as a list of tile travel costs
-        List<TileTravelValue> surroundingTileCosts = new List<TileTravelValue>();
+        List<TravelTile> surroundingTileCosts = new List<TravelTile>();
         foreach(ProcessedTileData tile in loadedTiles)
         {
-            surroundingTileCosts.Add(new TileTravelValue(tile.X, tile.Y, tile.TravelCost));
+            surroundingTileCosts.Add(new TravelTile(tile));
         }
-        return new PathContext(surroundingTileCosts);
+        return surroundingTileCosts;
     }
 }

@@ -4,52 +4,28 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
-public class Path
+//Wrapper to make tile data nullable
+public class TravelTile
 {
-    public List<TileTravelValue> path;
-    public Path(List<TileTravelValue> path)
+    public ProcessedTileData tile;
+    public int X => tile.X;
+    public int Y => tile.Y;
+    public int TravelCost => tile.TravelCost;
+    public TravelTile(ProcessedTileData tile)
     {
-        this.path = path;
+        this.tile = tile;
     }
-}
-public class TileTravelValue
-{
-    public int X;
-    public int Y;
-    public int TravelCost;
-    public TileTravelValue(int X, int Y, int TileTravelCost)
-    {
-        this.X = X;
-        this.Y = Y;
-        TravelCost = TileTravelCost;
-    }
-}
-public struct PathContext
-{
-    public List<TileTravelValue> surroundingTileCosts;
-    public PathContext(List<TileTravelValue> tileCosts)
-    {
-        surroundingTileCosts = tileCosts;
-    }
-    public override string ToString()
-    {
-        string output = "";
-        foreach(TileTravelValue tile in surroundingTileCosts)
-        {
-            output = output + "Tile at: " + tile.X.ToString() + " - " + tile.Y.ToString() + " ";
-        }
-        return output;
-    }
+
 }
 public class Pathfinder : MonoBehaviour
 {
     [SerializeField] private ChunkManager chunkManager;
-    private PathContext? currentContext;
+    private List<TravelTile> currentContext;
     public void Awake()
     {
         currentContext = null;
     }
-    public Path FindPath(Vector2Int start, Vector2Int end)
+    public List<TravelTile> FindPath(Vector2Int start, Vector2Int end)
     {
         if (currentContext == null)
         {
@@ -57,26 +33,26 @@ public class Pathfinder : MonoBehaviour
         }
         RefreshContext();
         // Priority queue for A*
-        PriorityQueue<TileTravelValue> openSet = new PriorityQueue<TileTravelValue>();
-        Dictionary<TileTravelValue, int> gCosts = new Dictionary<TileTravelValue, int>();
-        Dictionary<TileTravelValue, TileTravelValue> cameFrom = new Dictionary<TileTravelValue, TileTravelValue>();
+        PriorityQueue<TravelTile> openSet = new PriorityQueue<TravelTile>();
+        Dictionary<TravelTile, int> gCosts = new Dictionary<TravelTile, int>();
+        Dictionary<TravelTile, TravelTile> cameFrom = new Dictionary<TravelTile, TravelTile>();
 
-        TileTravelValue startTile = FindTileAt(start, currentContext.Value.surroundingTileCosts);
-        TileTravelValue endTile = FindTileAt(end, currentContext.Value.surroundingTileCosts);
+        TravelTile startTile = FindTileAt(start, currentContext);
+        TravelTile endTile = FindTileAt(end, currentContext);
 
         openSet.Enqueue(startTile, 0);
         gCosts[startTile] = 0;
 
         while (openSet.Count > 0)
         {
-            TileTravelValue current = openSet.Dequeue();
+            TravelTile current = openSet.Dequeue();
 
             if (current.Equals(endTile))
             {
                 return ReconstructPath(cameFrom, current);
             }
 
-            foreach (TileTravelValue neighbor in GetNeighbors(current))
+            foreach (TravelTile neighbor in GetNeighbors(current))
             {
                 int tentativeGCost = gCosts[current] + neighbor.TravelCost;
 
@@ -94,43 +70,44 @@ public class Pathfinder : MonoBehaviour
         return null;
     }
 
-    private int Heuristic(TileTravelValue a, TileTravelValue b)
+    private int Heuristic(TravelTile a, TravelTile b)
     {
-        return Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y); // Manhattan distance
+        //uses manhattan distance
+        return Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);
     }
 
-    private List<TileTravelValue> GetNeighbors(TileTravelValue tile)
+    private List<TravelTile> GetNeighbors(TravelTile tile)
     {
-        List<TileTravelValue> neighbors = new List<TileTravelValue>
+        List<TravelTile> neighbors = new List<TravelTile>
         {
-            FindTileAt(new Vector2Int(tile.X + 1, tile.Y), currentContext.Value.surroundingTileCosts),
-            FindTileAt(new Vector2Int(tile.X - 1, tile.Y), currentContext.Value.surroundingTileCosts),
-            FindTileAt(new Vector2Int(tile.X, tile.Y + 1), currentContext.Value.surroundingTileCosts),
-            FindTileAt(new Vector2Int(tile.X, tile.Y - 1), currentContext.Value.surroundingTileCosts)
+            FindTileAt(new Vector2Int(tile.X + 1, tile.Y), currentContext),
+            FindTileAt(new Vector2Int(tile.X - 1, tile.Y), currentContext),
+            FindTileAt(new Vector2Int(tile.X, tile.Y + 1), currentContext),
+            FindTileAt(new Vector2Int(tile.X, tile.Y - 1), currentContext)
         };
-
-        return neighbors.FindAll(n => n != null); // Remove null tiles
+        //some of these returned could be null so we filter them out
+        return neighbors.FindAll(n => n != null);
     }
 
-    private Path ReconstructPath(Dictionary<TileTravelValue, TileTravelValue> cameFrom, TileTravelValue current)
+    private List<TravelTile> ReconstructPath(Dictionary<TravelTile, TravelTile> cameFrom, TravelTile current)
     {
-        List<TileTravelValue> path = new List<TileTravelValue> { current };
+        List<TravelTile> path = new List<TravelTile> { current };
         while (cameFrom.ContainsKey(current))
         {
             current = cameFrom[current];
             path.Add(current);
         }
         path.Reverse();
-        return new Path(path);
+        return path;
     }
-    private TileTravelValue FindTileAt(Vector2Int location, List<TileTravelValue> tilesToSearch)
+    private TravelTile FindTileAt(Vector2Int location, List<TravelTile> tilesToSearch)
     {
         if (tilesToSearch == null)
         {
             throw new ArgumentNullException(nameof(tilesToSearch), "Tile list cannot be null");
         }
 
-        TileTravelValue tile = tilesToSearch.Find(t => t.X == location.x && t.Y == location.y);
+        TravelTile tile = tilesToSearch.Find(t => t.X == location.x && t.Y == location.y);
 
         if (tile == null)
         {
@@ -139,7 +116,7 @@ public class Pathfinder : MonoBehaviour
 
         return tile;
     }
-    public void RefreshContext()
+    private void RefreshContext()
     {
         currentContext = chunkManager.GrabPathContext();
     }

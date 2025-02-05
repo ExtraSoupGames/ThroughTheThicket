@@ -2,7 +2,8 @@ using System;
 using UnityEngine;
 public enum TileTypes
 {
-    Grass
+    Grass,
+    Stone
 }
 [System.Serializable]
 public struct Tile
@@ -56,7 +57,7 @@ public struct ProcessedTileData
         ChunkY = tile.ChunkY;
         Height = tile.Height;
         textureID = 1;
-        TravelCost = 1;
+        TravelCost = tile.Type == TileTypes.Grass ? 1 : 10;
     }
 
     public void ApplyTileProperties(GameObject TileObject)

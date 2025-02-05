@@ -17,7 +17,11 @@ public struct Chunk
         {
             for(int j = 0; j < ChunkSize(); j++)
             {
-                tiles[i * ChunkSize() + j] = new Tile((X * ChunkSize()) - chunkRad + i, (Y * ChunkSize()) - chunkRad + j, 1, X ,Y);
+                //just for testing I change the height
+                int TileX = (X * ChunkSize()) - chunkRad + i;
+                int TileY = (Y * ChunkSize()) - chunkRad + j;
+                int height = i % 4 == 2 && j % 3 == 1 ? 1 : 0;
+                tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X ,Y, height == 0 ? TileTypes.Grass : TileTypes.Stone);
             }
         }
     }

@@ -9,44 +9,49 @@ public class PlayerController : MonoBehaviour
     private int pathIndex;
     private int pathLength;
     private float moveTimer;
-    private Path path;
+    private Queue<ProcessedTileData> path;
     public void Awake()
     {
         moveTimer = 0;
-        pathIndex = 0;
-        pathLength = 0;
     }
     public void StartMovingPlayer()
     {
-        if(pathIndex < pathLength)
-        {
-            //dont move if moving
-            return;
-        }
+        //empties the path queue if a new movement is selected
+        path = new Queue<ProcessedTileData>();
         Vector2Int playerPosition = new Vector2Int((int)gameObject.transform.position.x, (int)gameObject.transform.position.z);
         Vector2Int targetPosition = new Vector2Int(tileSelector.GetSelectedTile().X, tileSelector.GetSelectedTile().Y);
-        path = pathFinder.FindPath(playerPosition, targetPosition);
-        pathIndex = 0;
+        List<TravelTile> pathFound = pathFinder.FindPath(playerPosition, targetPosition);
+        foreach(TravelTile tile in pathFound)
+        {
+            path.Enqueue(tile.tile);
+        }
         moveTimer = 0.5f;
-        pathLength = path.path.Count;
     }
     public void FixedUpdate()
     {
-        if (pathIndex >= pathLength)
-        {
-            if(path != null)
-            {
-                gameObject.transform.position = new Vector3(path.path[pathLength - 1].X, 1, path.path[pathLength - 1].Y);
-            }
-            return;
-        }
+        TryMoveAlongPath();
+    }
+    private void TryMoveAlongPath()
+    {
+        //TODO this should be fixed to work with animation system
         moveTimer -= Time.fixedDeltaTime;
         if (moveTimer > 0)
         {
             return;
         }
-        moveTimer += 0.1f;
-        gameObject.transform.position = new Vector3(path.path[pathIndex].X, 1, path.path[pathIndex].Y);
-        pathIndex++;
+        moveTimer += 0.3f;
+        //if the path queue is empty, then stop
+        //TODO make this more readable
+        if (path == null)
+        {
+            return;
+        }
+        if (path.Count == 0)
+        {
+            return;
+        }
+        ProcessedTileData travelToTile = path.Dequeue();
+        //TODO get the tile height
+        gameObject.transform.position = new Vector3(travelToTile.X, travelToTile.Height, travelToTile.Y);
     }
 }

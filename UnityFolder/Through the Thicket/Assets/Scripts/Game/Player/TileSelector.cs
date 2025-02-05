@@ -39,7 +39,7 @@ public class TileSelector : MonoBehaviour
         {
             hoveredObject = hit.collider.gameObject;
             hoverHighlight.SetActive(true);
-            hoverHighlight.transform.position = new Vector3(hoveredObject.transform.position.x, 1.5f, hoveredObject.transform.position.z);
+            hoverHighlight.transform.position = new Vector3(hoveredObject.transform.position.x, hoveredObject.transform.position.y + 0.5f, hoveredObject.transform.position.z);
         }
         else
         {

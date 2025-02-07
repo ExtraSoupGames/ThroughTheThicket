@@ -4,10 +4,15 @@ using UnityEngine;
 public class Tester : MonoBehaviour
 {
     public ChunkManager chunkManager;
-    // Start is called before the first frame update
+    public UIRenderer inventoryRenderer;
+
     void Start()
     {
         chunkManager.Tests();
+
+        UIHolder holder = new UIHolder();
+        inventoryRenderer.ApplyUIHolder(holder);
+        inventoryRenderer.Refresh();
     }
 
     // Update is called once per frame

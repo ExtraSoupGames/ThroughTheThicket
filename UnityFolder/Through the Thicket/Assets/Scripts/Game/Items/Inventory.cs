@@ -11,18 +11,20 @@ public abstract class Inventory
     public string name;
     private int x;
     private int y;
-    public Inventory(bool[,] shape, int topLeftX, int topLeftY)
+    private HashSet<Items> allowedItems;
+    public Inventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed)
     {
         slots = new InventorySlot[shape.GetLength(0), shape.GetLength(1)];
         for (int itemX = 0; itemX < shape.GetLength(0); itemX++)
         {
             for (int itemY = 0; itemY < shape.GetLength(1); itemY++)
             {
-                slots[itemX, itemY] = new InventorySlot(shape[itemX, itemY]);
+                slots[itemX, itemY] = new InventorySlot(shape[itemX, itemY], itemX, itemY);
             }
         }
         x = topLeftX;
         y = topLeftY;
+        allowedItems = itemsAllowed;
     }
     public int SlotSize()
     {
@@ -67,23 +69,57 @@ public abstract class Inventory
         }
         return slots[gridX, gridY];
     }
+
+    public void ClickAt(ref GrabbedItem heldItem, InventorySlot hoveredSlot)
+    {
+        if(heldItem != null && heldItem.item != null)
+        {
+            if (!allowedItems.Contains(heldItem.item.GetItemType()))
+            {
+                //TODO possible feedback / advice to player - this is the wrong inventory for this item
+                return;
+            }
+            if (!ItemCanFit(hoveredSlot.x, hoveredSlot.y, heldItem, out _))
+            {
+                //TODO possible feedback / advice to player - this item cannot fit
+                return;
+            }
+        }
+
+        Item tempItem = hoveredSlot.item == null ? null : hoveredSlot.item;
+        hoveredSlot.item = heldItem == null ? null : heldItem.item;
+        heldItem = new GrabbedItem(tempItem);
+        Debug.Log("Item SWAPPED");
+    }
+    public abstract bool ItemCanFit(int slotX, int slotY, GrabbedItem item, out GrabbedItem snappedItem);
 }
 public abstract class StackInventory : Inventory
 {
-    private HashSet<Items> allowedItems;
+    //TODO convert to inventory slot
     private StackItem[] items;
-    public StackInventory(HashSet<Items> itemsAllowed, bool[,] shape, int topLeftX, int topLeftY) : base(shape, topLeftX, topLeftY)
+    public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed) : base(shape, topLeftX, topLeftY, itemsAllowed)
     {
-        //initialize the parameter values
-        allowedItems = itemsAllowed;
+    }
+    public override bool ItemCanFit(int slotX, int slotY, GrabbedItem item, out GrabbedItem snappedItem)
+    {
+        //TODO IMPLEMENT
+        throw new NotImplementedException();
     }
 }
 public abstract class ShapeInventory : Inventory
 {
-    public ShapeInventory(bool[,] shape, int topLeftX, int topLeftY) : base(shape, topLeftX, topLeftY)
+    bool[,] filledSlots;
+    public ShapeInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed) : base(shape, topLeftX, topLeftY, itemsAllowed)
     {
+        filledSlots = new bool[shape.GetLength(0), shape.GetLength(1)];
+        for(int i = 0; i < shape.GetLength(0); i++)
+        {
+            Array.Copy(shape, i * shape.GetLength(1),
+                       filledSlots, i * shape.GetLength(1),
+                       shape.GetLength(1));
+        }
     }
-    public bool ItemCanFit(int itemX, int itemY, GrabbedItem item, out GrabbedItem snappedToFit)
+    public override bool ItemCanFit(int itemX, int itemY, GrabbedItem item, out GrabbedItem snappedToFit)
     {
         //ensure the item being held is shaped and not a stack item
         if(!(item.item is ShapeItem))
@@ -116,11 +152,16 @@ public abstract class ShapeInventory : Inventory
 public class InventorySlot
 {
     bool isValid;
-    Item item;
-    public InventorySlot(bool valid)
+    public Item item;
+    //relative coordinates of the grid of the inventory it is contained in
+    public int x;
+    public int y;
+    public InventorySlot(bool valid, int X, int Y)
     {
         isValid = valid;
         item = null;
+        x = X;
+        y = Y;
     }
     public bool IsEmpty()
     {
@@ -129,5 +170,10 @@ public class InventorySlot
     public bool IsValid()
     {
         return isValid;
+    }
+
+    internal void TestFill()
+    {
+        item = new TestShapeItem(Items.ShapeItem1);
     }
 }

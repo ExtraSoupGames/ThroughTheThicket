@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class UIRenderer : Graphic
 {
     public UIHolder UIHolder; // Reference to the inventory system
+    private UIItemManipulator itemManipulator;
+    public RectTransform canv;
+    public Camera cam;
     public Color availableColor = new Color(0.2f, 0.2f, 0.2f, 1f); // Empty slots
     public Color occupiedColor = new Color(0.8f, 0.1f, 0.1f, 1f); // Items placed
     public float cellSize = 30f; // Size of each grid cell
@@ -37,8 +40,9 @@ public class UIRenderer : Graphic
 
     private void DrawCell(VertexHelper vh, Vector2 startPos, int x, int y, Color color)
     {
-        float xPos = startPos.x + x * (cellSize + padding);
-        float yPos = startPos.y + y * (cellSize + padding);
+        Vector2 localPos = startPos;
+        float xPos = localPos.x + x * (cellSize + padding);
+        float yPos = localPos.y + y * (cellSize + padding);
 
         Vector3 v0 = new Vector3(xPos, yPos);
         Vector3 v1 = new Vector3(xPos, yPos + cellSize);
@@ -58,7 +62,6 @@ public class UIRenderer : Graphic
         vh.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
         vh.AddTriangle(startIndex + 2, startIndex + 3, startIndex);
     }
-
     public void Refresh()
     {
         SetVerticesDirty(); // Forces Unity to re-render the UI
@@ -67,5 +70,14 @@ public class UIRenderer : Graphic
     public void ApplyUIHolder(UIHolder holder)
     {
         UIHolder = holder;
+    }
+    public void StartManipulator()
+    {
+        itemManipulator = new UIItemManipulator();
+        itemManipulator.ApplyUIHolder(UIHolder, canv, cam);
+    }
+    public void OnClick()
+    {
+        itemManipulator.OnClick();
     }
 }

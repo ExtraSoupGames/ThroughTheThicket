@@ -12,6 +12,7 @@ public class Tester : MonoBehaviour
 
         UIHolder holder = new UIHolder();
         inventoryRenderer.ApplyUIHolder(holder);
+        inventoryRenderer.StartManipulator();
         inventoryRenderer.Refresh();
     }
 

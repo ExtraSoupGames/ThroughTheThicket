@@ -3,13 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 public abstract class Item
 {
-
+    protected Items itemType;
+    public Item(Items item)
+    {
+        itemType = item;
+    }
+    public Items GetItemType()
+    {
+        return itemType;
+    }
 }
 public abstract class StackItem : Item
 {
     int count;
     int maxStackCount;
     //bool returned is true if any items were moved
+    public StackItem(Items item) : base(item)
+    {
+
+    }
     public bool AddToStack(StackItem inItem, out StackItem outItem)
     {
         count += inItem.count;
@@ -28,5 +40,24 @@ public abstract class StackItem : Item
 }
 public abstract class ShapeItem : Item
 {
+    public ShapeItem(Items item) : base(item)
+    {
+
+    }
     public abstract bool[,] GetShape();
+}
+public class TestShapeItem : ShapeItem
+{
+    public TestShapeItem(Items item) : base(item)
+    {
+
+    }
+    public override bool[,] GetShape()
+    {
+        return new bool[,]
+        {
+            { true, false },
+            { true, true }
+        };
+    }
 }

@@ -12,8 +12,9 @@ public abstract class Item
     {
         return itemType;
     }
+    public abstract Sprite GetSprite();
 }
-public abstract class StackItem : Item
+public class StackItem : Item
 {
     int count;
     int maxStackCount;
@@ -37,6 +38,11 @@ public abstract class StackItem : Item
         outItem.count = overflow;
         return count != oldCount;
     }
+
+    public override Sprite GetSprite()
+    {
+        return Resources.Load<Sprite>("TestSprite");
+    }
 }
 public abstract class ShapeItem : Item
 {
@@ -59,5 +65,9 @@ public class TestShapeItem : ShapeItem
             { true, false },
             { true, true }
         };
+    }
+    public override Sprite GetSprite()
+    {
+        return Resources.Load<Sprite>("TestSprite");
     }
 }

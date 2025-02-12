@@ -1,0 +1,75 @@
+.root-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.inventory-container {
+    width: 400px;
+    height: 500px;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.inventory-title {
+    font-size: 24px;
+    color: white;
+    -unity-text-align: middle-center;
+    margin-bottom: 10px;
+    align-self: flex-start;
+}
+
+.inventory-grid {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+    justify-content: center;
+}
+
+.close-button {
+    width: 30px;
+    height: 30px;
+    border-width: 2px;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-top: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    margin-left: 4px;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    align-self: center;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.header {
+}
+
+.item-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.item-row {
+    align-items: flex-start;
+    flex-direction: row;
+}
+
+.item-slot-placeholder {
+    width: 50px;
+    height: 50px;
+}
+
+.item-slot {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+    border-color: gray;
+    background-color: rgba(255, 255, 255, 0.5);
+}

@@ -19,6 +19,10 @@ public class TileSelector : MonoBehaviour
     }
     public void Click()
     {
+        if (!playerController.IsTakingInput())
+        {
+            return;
+        }
         //select the hovered object - even if it is null - this way clicking off of anything will deselect
         selectedObject = hoveredObject;
         //move selected highlight to hover highlight
@@ -33,6 +37,10 @@ public class TileSelector : MonoBehaviour
     }
     public void UpdateSelectedTile()
     {
+        if (!playerController.IsTakingInput())
+        {
+            return;
+        }
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileMask))

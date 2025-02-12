@@ -10,8 +10,11 @@ public class PlayerController : MonoBehaviour
     private int pathLength;
     private float moveTimer;
     private Queue<ProcessedTileData> path;
-    public void Awake()
+    private bool takingInput;
+    private GameManager gameManager;
+    public void Initialize(GameManager manager)
     {
+        gameManager = manager;
         moveTimer = 0;
     }
     public void StartMovingPlayer()
@@ -53,5 +56,18 @@ public class PlayerController : MonoBehaviour
         ProcessedTileData travelToTile = path.Dequeue();
         //TODO get the tile height
         gameObject.transform.position = new Vector3(travelToTile.X, travelToTile.Height, travelToTile.Y);
+    }
+    public void OpenInventoryPressed()
+    {
+        if(IsTakingInput())
+        gameManager.OpenInventory();
+    }
+    public void SetIsTakingInput(bool value)
+    {
+        takingInput = value;
+    }
+    public bool IsTakingInput()
+    {
+        return takingInput;
     }
 }

@@ -251,7 +251,6 @@ public class ChunkManager : MonoBehaviour
         string chunkAsJSON = JsonUtility.ToJson(chunk.GetChunkForSerialization());
         string fileName = "/chunks/chunk" + chunk.X + "-" + chunk.Y;
         File.WriteAllText(Application.persistentDataPath + fileName + ".json", chunkAsJSON);
-        Debug.Log("Successfully saved chunk at: " + chunk.GetPos().X + "-" + chunk.GetPos().Y);
     }
     //clear the chunks directory
     private void DeleteAllChunks()

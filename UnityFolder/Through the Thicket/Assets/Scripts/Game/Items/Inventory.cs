@@ -30,7 +30,7 @@ public abstract class Inventory
     {
         //this determines the slot size in pixels ( including padding ect ) as this is used to determine which slot is being hovered
         //also defined in UIRenderer
-        return 32;
+        return 64;
     }
     public void ScreenCoordsToInventory(int inX, int inY, out int invenX, out int invenY)
     {
@@ -47,11 +47,11 @@ public abstract class Inventory
     }
     public bool ContainsSlotAt(int gridX, int gridY)
     {
-        if(!(0 <= gridX && gridX <= slots.GetLength(0)))
+        if(!(0 <= gridX && gridX < slots.GetLength(0)))
         {
             return false;
         }
-        if (!(0 <= gridY && gridY <= slots.GetLength(1)))
+        if (!(0 <= gridY && gridY < slots.GetLength(1)))
         {
             return false;
         }
@@ -59,27 +59,27 @@ public abstract class Inventory
     }
     public InventorySlot GetSlot(int gridX, int gridY)
     {
-        if (!(0 <= gridX && gridX <= slots.GetLength(0)))
+        if (!(0 <= gridX && gridX < slots.GetLength(0)))
         {
             return null;
         }
-        if (!(0 <= gridY && gridY <= slots.GetLength(1)))
+        if (!(0 <= gridY && gridY < slots.GetLength(1)))
         {
             return null;
         }
         return slots[gridX, gridY];
     }
 
-    public void ClickAt(ref GrabbedItem heldItem, InventorySlot hoveredSlot)
+    public void ClickAt(ref Item heldItem, InventorySlot hoveredSlot)
     {
-        if(heldItem != null && heldItem.item != null)
+        if(heldItem != null && heldItem != null)
         {
-            if (!allowedItems.Contains(heldItem.item.GetItemType()))
+            if (!allowedItems.Contains(heldItem.GetItemType()))
             {
                 //TODO possible feedback / advice to player - this is the wrong inventory for this item
                 return;
             }
-            if (!ItemCanFit(hoveredSlot.x, hoveredSlot.y, heldItem, out _))
+            if (!ItemCanFit(hoveredSlot.x, hoveredSlot.y, heldItem))
             {
                 //TODO possible feedback / advice to player - this item cannot fit
                 return;
@@ -87,11 +87,12 @@ public abstract class Inventory
         }
 
         Item tempItem = hoveredSlot.item == null ? null : hoveredSlot.item;
-        hoveredSlot.item = heldItem == null ? null : heldItem.item;
-        heldItem = new GrabbedItem(tempItem);
+        hoveredSlot.item = heldItem == null ? null : heldItem;
+        heldItem = tempItem;
         Debug.Log("Item SWAPPED");
     }
-    public abstract bool ItemCanFit(int slotX, int slotY, GrabbedItem item, out GrabbedItem snappedItem);
+    public abstract bool ItemCanFit(int slotX, int slotY, Item item);
+
 }
 public abstract class StackInventory : Inventory
 {
@@ -100,10 +101,10 @@ public abstract class StackInventory : Inventory
     public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed) : base(shape, topLeftX, topLeftY, itemsAllowed)
     {
     }
-    public override bool ItemCanFit(int slotX, int slotY, GrabbedItem item, out GrabbedItem snappedItem)
+    public override bool ItemCanFit(int slotX, int slotY, Item item)
     {
         //TODO IMPLEMENT
-        throw new NotImplementedException();
+        return true;
     }
 }
 public abstract class ShapeInventory : Inventory
@@ -119,18 +120,16 @@ public abstract class ShapeInventory : Inventory
                        shape.GetLength(1));
         }
     }
-    public override bool ItemCanFit(int itemX, int itemY, GrabbedItem item, out GrabbedItem snappedToFit)
+    public override bool ItemCanFit(int itemX, int itemY, Item item)
     {
         //ensure the item being held is shaped and not a stack item
-        if(!(item.item is ShapeItem))
+        if(!(item is ShapeItem))
         {
-            snappedToFit = item;
             return false;
         }
         //cast the grabbed item to a shape item
-        bool[,] itemShape = ((ShapeItem)(item.item)).GetShape();
+        bool[,] itemShape = ((ShapeItem)(item)).GetShape();
         //TODO snap the item to the grid and or snap it to a valid location in the inventory
-        snappedToFit = item;
         for (int x = 0;x< itemShape.GetLength(0); x++)
         {
             for(int y = 0; y < itemShape.GetLength(1); y++)
@@ -171,9 +170,8 @@ public class InventorySlot
     {
         return isValid;
     }
-
-    internal void TestFill()
+    public void TestFill()
     {
-        item = new TestShapeItem(Items.ShapeItem1);
+        item = new StackItem(Items.Stone);
     }
 }

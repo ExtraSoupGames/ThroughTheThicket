@@ -72,7 +72,8 @@ public abstract class Inventory
 
     public void ClickAt(ref Item heldItem, ref InventorySlot hoveredSlot)
     {
-        if(heldItem != null && heldItem != null)
+        Debug.Log("Click happening");
+        if(heldItem != null)
         {
             if (!allowedItems.Contains(heldItem.GetItemType()))
             {
@@ -94,14 +95,12 @@ public abstract class Inventory
 }
 public abstract class StackInventory : Inventory
 {
-    //TODO convert to inventory slot
-    private StackItem[] items;
     public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed) : base(shape, topLeftX, topLeftY, itemsAllowed)
     {
     }
     public override bool ItemCanFit(int slotX, int slotY, Item item)
     {
-        //TODO IMPLEMENT
+        //In a stack inventory, if the slot is valid, then it can fit
         return true;
     }
     public override void SwapItem(ref Item heldItem, InventorySlot hoveredSlot)
@@ -142,7 +141,6 @@ public abstract class ShapeInventory : Inventory
         }
         //cast the grabbed item to a shape item
         bool[,] itemShape = ((ShapeItem)(item)).GetShape();
-        //TODO snap the item to the grid and or snap it to a valid location in the inventory
         for (int x = 0;x< itemShape.GetLength(0); x++)
         {
             for(int y = 0; y < itemShape.GetLength(1); y++)

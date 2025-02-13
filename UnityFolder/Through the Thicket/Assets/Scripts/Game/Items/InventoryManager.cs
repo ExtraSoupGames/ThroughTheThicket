@@ -54,27 +54,45 @@ public class InventoryManager : MonoBehaviour
             //Populate it with slots
             for (int j = 0; j < inventory.GetSlots().GetLength(1); j++)
             {
+                InventorySlot currentSlot = inventory.GetSlots()[i, j];
                 //Create a new slot (or placeholder if no slot is present)
-                VisualElement newSlot = new VisualElement();
-                if (inventory.GetSlots()[i, j].IsValid())
+                if (currentSlot.IsValid())
                 {
+                    Button newSlot = new Button();
+                    newSlot.clicked += (() => ClickAtSlot(inventory, currentSlot, newSlot));
                     newSlot.AddToClassList("item-slot");
-                    if (!inventory.GetSlots()[i, j].IsEmpty())
+
+                    if (!currentSlot.IsEmpty())
                     {
                         VisualElement slotItem = new VisualElement();
                         slotItem.AddToClassList("item-image");
-                        Debug.Log(inventory.GetSlots()[i, j].item.GetSprite().texture);
-                        slotItem.style.backgroundImage = inventory.GetSlots()[i, j].item.GetSprite().texture;
+                        slotItem.style.backgroundImage = currentSlot.item.GetSprite().texture;
                         newSlot.Add(slotItem);
                     }
+                    newRow.Add(newSlot);
                 }
                 else
                 {
+                    VisualElement newSlot = new VisualElement();
                     newSlot.AddToClassList("item-slot-placeholder");
+                    newRow.Add(newSlot);
                 }
-                newRow.Add(newSlot);
             }
         }
+    }
+    private void ClickAtSlot(Inventory inven, InventorySlot slot, VisualElement slotVisual)
+    {
+        inven.ClickAt(ref heldItem, slot);
+        //update the slot visual
+        slotVisual.Clear();
+        if (!slot.IsEmpty())
+        {
+            VisualElement slotItem = new VisualElement();
+            slotItem.AddToClassList("item-image");
+            slotItem.style.backgroundImage = slot.item.GetSprite().texture;
+            slotVisual.Add(slotItem);
+        }
+        UpdateHeldItem();
     }
     public void Hide()
     {
@@ -99,7 +117,6 @@ public class InventoryManager : MonoBehaviour
     private void OnPointerMove(PointerMoveEvent evt)
     {
 
-        Debug.Log("OnPointerMove from " + evt.pointerId);
         // Get mouse position relative to the UI element (not screen space)
         Vector2 localMousePos = evt.localPosition;
 
@@ -110,6 +127,5 @@ public class InventoryManager : MonoBehaviour
         // Apply the position to the element (centering it on the cursor)
         heldItemVisual.style.left = localMousePos.x - (width / 2);
         heldItemVisual.style.top = localMousePos.y + (height / 2) - heldItemVisual.parent.resolvedStyle.height;
-        Debug.Log($"Width was {width}, Height was {height}");
     }
 }

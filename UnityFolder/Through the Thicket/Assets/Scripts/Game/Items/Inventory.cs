@@ -19,7 +19,7 @@ public abstract class Inventory
         {
             for (int itemY = 0; itemY < shape.GetLength(1); itemY++)
             {
-                slots[itemX, itemY] = new InventorySlot(shape[itemX, itemY], itemX, itemY);
+                slots[itemX, itemY] = new InventorySlot(this, shape[itemX, itemY], itemX, itemY);
             }
         }
         x = topLeftX;
@@ -155,12 +155,14 @@ public class InventorySlot
     //relative coordinates of the grid of the inventory it is contained in
     public int x;
     public int y;
-    public InventorySlot(bool valid, int X, int Y)
+    private Inventory inven;
+    public InventorySlot(Inventory inventory, bool valid, int X, int Y)
     {
         isValid = valid;
         item = null;
         x = X;
         y = Y;
+        inven = inventory;
     }
     public bool IsEmpty()
     {
@@ -173,5 +175,9 @@ public class InventorySlot
     public void TestFill()
     {
         item = new StackItem(Items.Stone);
+    }
+    public Inventory GetInventory()
+    {
+        return inven;
     }
 }

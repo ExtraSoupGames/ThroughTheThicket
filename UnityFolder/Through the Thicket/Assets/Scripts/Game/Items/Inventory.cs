@@ -70,29 +70,27 @@ public abstract class Inventory
         return slots[gridX, gridY];
     }
 
-    public void ClickAt(ref Item heldItem, InventorySlot hoveredSlot)
+    public void ClickAt(ref Item heldItem, ref InventorySlot hoveredSlot)
     {
         if(heldItem != null && heldItem != null)
         {
             if (!allowedItems.Contains(heldItem.GetItemType()))
             {
                 //TODO possible feedback / advice to player - this is the wrong inventory for this item
+                Debug.Log("Cancelling click - item not allowed");
                 return;
             }
             if (!ItemCanFit(hoveredSlot.x, hoveredSlot.y, heldItem))
             {
                 //TODO possible feedback / advice to player - this item cannot fit
+                Debug.Log("Cancelling click - item does not fit");
                 return;
             }
         }
-
-        Item tempItem = hoveredSlot.item == null ? null : hoveredSlot.item;
-        hoveredSlot.item = heldItem == null ? null : heldItem;
-        heldItem = tempItem;
-        Debug.Log("Item SWAPPED");
+        SwapItem(ref heldItem, hoveredSlot);
     }
     public abstract bool ItemCanFit(int slotX, int slotY, Item item);
-
+    public abstract void SwapItem(ref Item heldItem, InventorySlot hoveredSlot);
 }
 public abstract class StackInventory : Inventory
 {
@@ -105,6 +103,21 @@ public abstract class StackInventory : Inventory
     {
         //TODO IMPLEMENT
         return true;
+    }
+    public override void SwapItem(ref Item heldItem, InventorySlot hoveredSlot)
+    {
+        //if the items are the same, add them to the stack
+        if (heldItem != null && hoveredSlot.item != null && heldItem.GetItemType() == hoveredSlot.item.GetItemType())
+        {
+            StackItem item = (StackItem)heldItem;
+            ((StackItem)hoveredSlot.item).AddToStack(ref item);
+            heldItem = item;
+            return;
+        }
+        
+        Item tempItem = hoveredSlot.item == null ? null : hoveredSlot.item;
+        hoveredSlot.item = heldItem == null ? null : heldItem;
+        heldItem = tempItem;
     }
 }
 public abstract class ShapeInventory : Inventory

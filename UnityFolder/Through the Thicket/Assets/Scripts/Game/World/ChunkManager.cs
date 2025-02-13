@@ -30,6 +30,8 @@ public class ChunkManager : MonoBehaviour
     private Queue<ChunkPos> chunksToLoad;
     //queue for tiles that need to be loaded
     private NativeQueue<Tile> tilesToLoad;
+    //queue of tiles to process into render ready structs
+    private NativeQueue<Tile> tilesToProcess;
     //queue for tiles that have been loaded and need to be rendered
     private NativeQueue<ProcessedTileData> tilesToRender;
     //list of every currently loaded tile being rendered
@@ -82,6 +84,10 @@ public class ChunkManager : MonoBehaviour
         if (TileProcessor.IsCompleted)
         {
             TileProcessor.Complete();
+            if (tilesToProcess.IsCreated)
+            {
+                tilesToProcess.Dispose();
+            }
             ManageTileRenderQueue();
         }
         if (TileProcessor.IsCompleted && ChunkGrabber.IsCompleted)
@@ -197,11 +203,13 @@ public class ChunkManager : MonoBehaviour
     }
     private void ManageTileQueue()
     {
+        TileProcessor.Complete();
+        ChunkGrabber.Complete();
         //this is the number of tiles each tilesProccessorJob takes on, higher = less overhead, lower = less chance that some tiles will be left unloaded
         int tilesAtATime = 32;
         if(tilesToLoad.Count >= tilesAtATime) // this causes problems, Count()
         {
-            NativeQueue<Tile> tilesToProcess = new NativeQueue<Tile>(Allocator.TempJob);
+            tilesToProcess = new NativeQueue<Tile>(Allocator.Persistent);
             for(int i = 0;i< tilesAtATime; i++)
             {
                 tilesToProcess.Enqueue(tilesToLoad.Dequeue());

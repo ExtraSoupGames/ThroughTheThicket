@@ -8,7 +8,9 @@
             </ui:VisualElement>
             <ui:VisualElement name="ItemGrid" class="inventory-grid">
                 <ui:VisualElement name="ItemRow" class="item-row" style="flex-grow: 1; flex-direction: row;">
-                    <ui:VisualElement name="ItemSlot" class="item-slot" style="flex-grow: 0; flex-shrink: 0;" />
+                    <ui:VisualElement name="ItemSlot" class="item-slot" style="flex-grow: 0; flex-shrink: 0;">
+                        <ui:Label tabindex="-1" text="2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemCountLabel" enable-rich-text="false" class="count-label" style="-unity-text-align: lower-right; flex-direction: column; justify-content: flex-start; color: rgb(255, 255, 255);" />
+                    </ui:VisualElement>
                     <ui:VisualElement name="ItemSlot" class="item-slot" style="flex-grow: 0; flex-shrink: 0;" />
                 </ui:VisualElement>
                 <ui:VisualElement name="ItemRow" class="item-row" style="flex-grow: 1;">

@@ -29,16 +29,19 @@ public class InventoryManager : MonoBehaviour
         Inventory inventory = new TestInventory(shape, 0, 0);
         //creates the held item, and places it into the inventory
         heldItem = new StackItem(Items.Stone);
-        inventory.ClickAt(ref heldItem, inventory.GetSlot(0, 1));
+        InventorySlot tempSlot = inventory.GetSlot(0, 1);
+        inventory.ClickAt(ref heldItem, ref tempSlot);
         PopulateInventory(inventory);
         //creates a UIElement to display the held item
         heldItem = new StackItem(Items.Stone);
         heldItemVisual = new VisualElement();
         heldItemVisual.AddToClassList("item-image");
-        heldItemVisual.style.position = Position.Relative;
+        heldItemVisual.AddToClassList("held-item");
+        //disable interaction to allow clicking on things in the inventory even when an item is held
         heldItemVisual.pickingMode = PickingMode.Ignore;
         root.Add(heldItemVisual);
         heldItemVisual.parent.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+        heldItemVisual.ReleaseMouse();
         UpdateHeldItem();
     }
 
@@ -64,10 +67,7 @@ public class InventoryManager : MonoBehaviour
 
                     if (!currentSlot.IsEmpty())
                     {
-                        VisualElement slotItem = new VisualElement();
-                        slotItem.AddToClassList("item-image");
-                        slotItem.style.backgroundImage = currentSlot.item.GetSprite().texture;
-                        newSlot.Add(slotItem);
+                        currentSlot.item.PopulateSlot(newSlot);
                     }
                     newRow.Add(newSlot);
                 }
@@ -82,15 +82,12 @@ public class InventoryManager : MonoBehaviour
     }
     private void ClickAtSlot(Inventory inven, InventorySlot slot, VisualElement slotVisual)
     {
-        inven.ClickAt(ref heldItem, slot);
+        inven.ClickAt(ref heldItem, ref slot);
         //update the slot visual
         slotVisual.Clear();
         if (!slot.IsEmpty())
         {
-            VisualElement slotItem = new VisualElement();
-            slotItem.AddToClassList("item-image");
-            slotItem.style.backgroundImage = slot.item.GetSprite().texture;
-            slotVisual.Add(slotItem);
+            slot.item.PopulateSlot(slotVisual);
         }
         UpdateHeldItem();
     }
@@ -109,10 +106,10 @@ public class InventoryManager : MonoBehaviour
     {
         if(heldItem == null)
         {
-            heldItemVisual.style.backgroundImage = null;
+            heldItemVisual.Clear();
             return;
         }
-        heldItemVisual.style.backgroundImage = heldItem.GetSprite().texture;
+        heldItem.PopulateSlot(heldItemVisual);
     }
     private void OnPointerMove(PointerMoveEvent evt)
     {

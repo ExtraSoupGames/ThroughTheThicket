@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 public abstract class Item
 {
     protected Items itemType;
@@ -12,7 +13,7 @@ public abstract class Item
     {
         return itemType;
     }
-    public abstract Sprite GetSprite();
+    public abstract void PopulateSlot(VisualElement slot);
 }
 public class StackItem : Item
 {
@@ -21,27 +22,41 @@ public class StackItem : Item
     //bool returned is true if any items were moved
     public StackItem(Items item) : base(item)
     {
-
+        count = 1;
+        maxStackCount = 5;
     }
-    public bool AddToStack(StackItem inItem, out StackItem outItem)
+    public bool AddToStack(ref StackItem inItem)
     {
         count += inItem.count;
         if(count <= maxStackCount)
         {
-            outItem = null;
+            //if the whole item fit inside the stack, the item will be put in and held item will be set to null
+            inItem = null;
             return true;
         }
+        //otherwise, remove the overflow and return it to the held item
         int oldCount = count;
-        outItem = inItem;
         int overflow = (count - maxStackCount);
         count -= overflow;
-        outItem.count = overflow;
+        inItem.count = overflow;
         return count != oldCount;
     }
 
-    public override Sprite GetSprite()
+    public override void PopulateSlot(VisualElement slot)
     {
-        return Resources.Load<Sprite>("TestSprite");
+        //display the item
+        VisualElement slotItem = new VisualElement();
+        slotItem.pickingMode = PickingMode.Ignore;
+        slotItem.AddToClassList("item-image");
+        slotItem.style.backgroundImage = Resources.Load<Sprite>("TestSprite").texture;
+        slot.Add(slotItem);
+        if(count != 1)
+        {
+            Debug.Log("Trying to create count label");
+            Label countLabel = new Label(count.ToString());
+            countLabel.AddToClassList("count-label");
+            slot.Add(countLabel);
+        }
     }
 }
 public abstract class ShapeItem : Item
@@ -66,8 +81,12 @@ public class TestShapeItem : ShapeItem
             { true, true }
         };
     }
-    public override Sprite GetSprite()
+    public override void PopulateSlot(VisualElement slot)
     {
-        return Resources.Load<Sprite>("TestSprite");
+        //TODO fix this lol
+        VisualElement slotItem = new VisualElement();
+        slotItem.AddToClassList("item-image");
+        slotItem.style.backgroundImage = Resources.Load<Sprite>("TestSprite").texture;
+        slot.Add(slotItem);
     }
 }

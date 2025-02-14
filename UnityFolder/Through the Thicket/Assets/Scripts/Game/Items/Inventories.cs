@@ -23,6 +23,7 @@ public class TestShapeInventory : ShapeInventory
             int x = hoveredSlot.x;
             int y = hoveredSlot.y;
             bool[,] insertItemShape = insertItem.GetShape();
+            insertItem.SetSourceSlot(x, y);
             for (int i = 0; i < insertItemShape.GetLength(0); i++)
             {
                 for (int j = 0; j < insertItemShape.GetLength(1); j++)
@@ -40,8 +41,7 @@ public class TestShapeInventory : ShapeInventory
         if (!hoveredSlot.IsEmpty())
         {
             // if no item is held and the hovered slot is filled, pick it up
-            int x = hoveredSlot.x;
-            int y = hoveredSlot.y;
+            (hoveredSlot.item as ShapeItem).GetSourceSLot(out int x, out int y);
             heldItem = hoveredSlot.item;
             bool[,] removeItemShape = (hoveredSlot.item as ShapeItem).GetShape();
             for (int i = 0; i < removeItemShape.GetLength(0); i++)

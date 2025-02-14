@@ -61,6 +61,8 @@ public class StackItem : Item
 }
 public abstract class ShapeItem : Item
 {
+    int sourceSlotX;
+    int sourceSlotY;
     public ShapeItem(Items item) : base(item)
     {
 
@@ -74,6 +76,16 @@ public abstract class ShapeItem : Item
         slotItem.AddToClassList("item-image");
         slotItem.style.backgroundImage = Resources.Load<Sprite>("TestSprite").texture;
         slot.Add(slotItem);
+    }
+    public void SetSourceSlot(int x, int y)
+    {
+        sourceSlotX = x;
+        sourceSlotY = y;
+    }
+    public void GetSourceSLot(out int x, out int y)
+    {
+        x = sourceSlotX;
+        y = sourceSlotY;
     }
 }
 public class TestShapeItem : ShapeItem

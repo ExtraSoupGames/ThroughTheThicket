@@ -59,22 +59,41 @@ public class StackItem : Item
         }
     }
 }
-public abstract class ShapeItem : Item
+public class ShapeItem : Item
 {
     int sourceSlotX;
     int sourceSlotY;
-    public ShapeItem(Items item) : base(item)
+    int offsetX;
+    int offsetY;
+    public ShapeItem(Items item, int offsetX, int offsetY) : base(item)
     {
-
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
     }
-    public abstract bool[,] GetShape();
+    public bool[,] GetShape()
+    {
+        switch (itemType)
+        {
+            case Items.ShapeItem1:
+                return new bool[2, 2]
+                {
+                    {true, true },
+                    {true, true }
+                };
+        }
+        return null;
+    }
     public override void PopulateSlot(VisualElement slot)
     {
         //display the item
+        //TODO find relevant sprite for the section
         VisualElement slotItem = new VisualElement();
         slotItem.pickingMode = PickingMode.Ignore;
         slotItem.AddToClassList("item-image");
-        slotItem.style.backgroundImage = Resources.Load<Sprite>("TestSprite").texture;
+        //TODO update this to a way of finding whatever texture is needed
+        string itemName = "Shaped" + offsetX.ToString() + offsetY.ToString();
+        Debug.Log("Loading item with name: " + itemName);
+        slotItem.style.backgroundImage = Resources.Load<Sprite>(itemName).texture;
         slot.Add(slotItem);
     }
     public void SetSourceSlot(int x, int y)
@@ -86,20 +105,5 @@ public abstract class ShapeItem : Item
     {
         x = sourceSlotX;
         y = sourceSlotY;
-    }
-}
-public class TestShapeItem : ShapeItem
-{
-    public TestShapeItem(Items item) : base(item)
-    {
-
-    }
-    public override bool[,] GetShape()
-    {
-        return new bool[,]
-        {
-            { true, false },
-            { true, true }
-        };
     }
 }

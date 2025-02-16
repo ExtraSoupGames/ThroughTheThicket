@@ -31,7 +31,7 @@ public class TestShapeInventory : ShapeInventory
                     //no slot validation should be needed as this should all be already checked
                     if (insertItemShape[i, j])
                     {
-                        GetSlot(x + i, y + j).item = insertItem;
+                        GetSlot(x + i, y + j).item = new ShapeItem(insertItem.GetItemType(), i, j);
                     }
                 }
             }
@@ -41,8 +41,8 @@ public class TestShapeInventory : ShapeInventory
         if (!hoveredSlot.IsEmpty())
         {
             // if no item is held and the hovered slot is filled, pick it up
-            (hoveredSlot.item as ShapeItem).GetSourceSLot(out int x, out int y);
-            heldItem = hoveredSlot.item;
+            (hoveredSlot.item as ShapeItem).GetSourceSLot(out int sourceX, out int sourceY);
+            heldItem = GetSlot(sourceX, sourceY).item;
             bool[,] removeItemShape = (hoveredSlot.item as ShapeItem).GetShape();
             for (int i = 0; i < removeItemShape.GetLength(0); i++)
             {
@@ -51,7 +51,7 @@ public class TestShapeInventory : ShapeInventory
                     //all slots filled by the item being removed need to be emptied
                     if (removeItemShape[i, j])
                     {
-                        GetSlot(x + i, y + j).item = null;
+                        GetSlot(sourceX + i, sourceY + j).item = null;
                     }
                 }
             }

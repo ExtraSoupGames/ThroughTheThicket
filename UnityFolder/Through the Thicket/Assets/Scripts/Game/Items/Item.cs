@@ -59,34 +59,3 @@ public class StackItem : Item
         }
     }
 }
-public abstract class ShapeItem : Item
-{
-    public ShapeItem(Items item) : base(item)
-    {
-
-    }
-    public abstract bool[,] GetShape();
-}
-public class TestShapeItem : ShapeItem
-{
-    public TestShapeItem(Items item) : base(item)
-    {
-
-    }
-    public override bool[,] GetShape()
-    {
-        return new bool[,]
-        {
-            { true, false },
-            { true, true }
-        };
-    }
-    public override void PopulateSlot(VisualElement slot)
-    {
-        //TODO fix this lol
-        VisualElement slotItem = new VisualElement();
-        slotItem.AddToClassList("item-image");
-        slotItem.style.backgroundImage = Resources.Load<Sprite>("TestSprite").texture;
-        slot.Add(slotItem);
-    }
-}

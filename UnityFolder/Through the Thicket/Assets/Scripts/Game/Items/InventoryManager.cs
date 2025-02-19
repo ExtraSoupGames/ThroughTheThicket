@@ -21,19 +21,21 @@ public class InventoryManager : MonoBehaviour
         bool[,] shape = new bool[5, 5]
         {
             {true, true, true, true, true },
-            {true, false, true, false, true},
+            {true, true, true, false, true},
             {true, false, false, true, true },
             {true, false, true, true, true },
             {true, false, false, false, true }
         };
+        //testing setup for stack inventory testing
         Inventory inventory = new TestInventory(shape, 0, 0);
         //creates the held item, and places it into the inventory
         heldItem = new StackItem(Items.Stone);
         InventorySlot tempSlot = inventory.GetSlot(0, 1);
         inventory.ClickAt(ref heldItem, ref tempSlot);
+ 
         PopulateInventory(inventory);
         //creates a UIElement to display the held item
-        heldItem = new StackItem(Items.Stone);
+        heldItem = null;
         heldItemVisual = new VisualElement();
         heldItemVisual.AddToClassList("item-image");
         heldItemVisual.AddToClassList("held-item");
@@ -41,8 +43,8 @@ public class InventoryManager : MonoBehaviour
         heldItemVisual.pickingMode = PickingMode.Ignore;
         root.Add(heldItemVisual);
         heldItemVisual.parent.RegisterCallback<PointerMoveEvent>(OnPointerMove);
-        heldItemVisual.ReleaseMouse();
         UpdateHeldItem();
+        Hide();
     }
 
     void PopulateInventory(Inventory inventory)
@@ -83,12 +85,8 @@ public class InventoryManager : MonoBehaviour
     private void ClickAtSlot(Inventory inven, InventorySlot slot, VisualElement slotVisual)
     {
         inven.ClickAt(ref heldItem, ref slot);
-        //update the slot visual
-        slotVisual.Clear();
-        if (!slot.IsEmpty())
-        {
-            slot.item.PopulateSlot(slotVisual);
-        }
+        //update the whole inventory visual
+        PopulateInventory(inven);
         UpdateHeldItem();
     }
     public void Hide()
@@ -104,9 +102,9 @@ public class InventoryManager : MonoBehaviour
     }
     private void UpdateHeldItem()
     {
-        if(heldItem == null)
+        heldItemVisual.Clear();
+        if (heldItem == null)
         {
-            heldItemVisual.Clear();
             return;
         }
         heldItem.PopulateSlot(heldItemVisual);

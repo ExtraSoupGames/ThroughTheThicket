@@ -119,46 +119,6 @@ public abstract class StackInventory : Inventory
         heldItem = tempItem;
     }
 }
-public abstract class ShapeInventory : Inventory
-{
-    bool[,] filledSlots;
-    public ShapeInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed) : base(shape, topLeftX, topLeftY, itemsAllowed)
-    {
-        filledSlots = new bool[shape.GetLength(0), shape.GetLength(1)];
-        for(int i = 0; i < shape.GetLength(0); i++)
-        {
-            Array.Copy(shape, i * shape.GetLength(1),
-                       filledSlots, i * shape.GetLength(1),
-                       shape.GetLength(1));
-        }
-    }
-    public override bool ItemCanFit(int itemX, int itemY, Item item)
-    {
-        //ensure the item being held is shaped and not a stack item
-        if(!(item is ShapeItem))
-        {
-            return false;
-        }
-        //cast the grabbed item to a shape item
-        bool[,] itemShape = ((ShapeItem)(item)).GetShape();
-        for (int x = 0;x< itemShape.GetLength(0); x++)
-        {
-            for(int y = 0; y < itemShape.GetLength(1); y++)
-            {
-                if (itemShape[x,y])
-                {
-                    int gridX = itemX + x;
-                    int gridY = itemY + y;
-                    if (!slots[gridX, gridY].IsEmpty())
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-}
 public class InventorySlot
 {
     bool isValid;

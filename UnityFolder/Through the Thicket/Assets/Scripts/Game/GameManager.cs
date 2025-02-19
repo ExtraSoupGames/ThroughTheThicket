@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private InventoryManager inventory;
     [SerializeField] private PlayerController player;
+    [SerializeField] private ChunkManager chunkManager;
     private Stack<GameStates> gameState = new Stack<GameStates>(); // Inline initialization
     public void Start()
     {
@@ -20,7 +21,11 @@ public class GameManager : MonoBehaviour
         player.Initialize(this);
         EnterState(GameStates.Base);
         EnterState(GameStates.Travelling);
-        OpenInventory();
+        chunkManager.Tests();
+    }
+    private void FixedUpdate()
+    {
+        chunkManager.QueueManage();
     }
     public void CloseInventory()
     {

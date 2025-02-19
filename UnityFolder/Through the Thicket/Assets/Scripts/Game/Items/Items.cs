@@ -5,6 +5,5 @@ using UnityEngine;
 public enum Items
 { 
     ErrorItem,
-    Stone,
-    ShapeItem1
+    Stone
 }

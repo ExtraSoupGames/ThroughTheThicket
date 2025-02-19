@@ -12,6 +12,10 @@ public class PlayerController : MonoBehaviour
     private Queue<ProcessedTileData> path;
     private bool takingInput;
     private GameManager gameManager;
+    //this should be the transform with the whole player hierarchy, camera included
+    [SerializeField] private Transform playerMovementTransform;
+    //this should include only the player model, not the camera, otherwise entire view will move around like crazy
+    [SerializeField] private Transform playerRotationTransform;
     public void Initialize(GameManager manager)
     {
         gameManager = manager;
@@ -55,7 +59,17 @@ public class PlayerController : MonoBehaviour
         }
         ProcessedTileData travelToTile = path.Dequeue();
         //TODO get the tile height
-        gameObject.transform.position = new Vector3(travelToTile.X, travelToTile.Height, travelToTile.Y);
+        //Moves the player and rotates them
+        //TODO animate player
+        Vector3 tilePos = new Vector3(travelToTile.X, travelToTile.Height, travelToTile.Y);
+        Vector3 tileDirection = tilePos - playerMovementTransform.position;
+        tileDirection.y = 0;
+        if (tileDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(tileDirection);
+            playerRotationTransform.localRotation = targetRotation * Quaternion.Euler(-90, 0, 0);
+        }
+        playerMovementTransform.position = tilePos;
     }
     public void OpenInventoryPressed()
     {

@@ -41,7 +41,7 @@ public struct Tile
         ChunkY = PChunkY;
         Height = PHeight;
         BaseType = tileType;
-        FoliageType = FoliageTypes.None;
+        FoliageType = PX % 2 == 1 ? FoliageTypes.None : FoliageTypes.DefaultFoliage;
         ObjectType = ObjectTypes.None;
         initialized = true;
     }

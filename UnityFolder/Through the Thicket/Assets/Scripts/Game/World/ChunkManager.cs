@@ -43,6 +43,7 @@ public class ChunkManager : MonoBehaviour
     //JobHandles to track other threads
     JobHandle ChunkGrabber;
     JobHandle TileProcessor;
+    private TileDisplayGetter tileDisplayGetter;
     public void Start()
     {
         int tilePoolSize = (RenderDistance * 2) * (RenderDistance * 2);
@@ -57,6 +58,7 @@ public class ChunkManager : MonoBehaviour
             tilePool[i] = Instantiate(tilePrefab, tileParent);
         }
         activeChunks = new List<ChunkPos>();
+        tileDisplayGetter = new TileDisplayGetter();
     }
     public void OnDestroy()
     {
@@ -247,7 +249,7 @@ public class ChunkManager : MonoBehaviour
                 loadedTileIndex++;
                 continue;
             }
-            loadedTiles[loadedTileIndex].ApplyTileProperties(tilePool[tilePoolIndex]);
+            loadedTiles[loadedTileIndex].ApplyTileProperties(tilePool[tilePoolIndex], tileDisplayGetter);
             loadedTileIndex++;
             tilePoolIndex++;
         }

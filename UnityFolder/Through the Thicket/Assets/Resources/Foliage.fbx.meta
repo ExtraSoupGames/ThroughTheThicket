@@ -1,9 +1,24 @@
 fileFormatVersion: 2
-guid: 0c7ecdd2ab573114e97e3b30b1322b6b
+guid: 57bd6997162af3740a95a74044ca5c5c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Foliage.vox Material 246
+    second: {fileID: 2100000, guid: 58151dd6bfd93114a85e239e52180736, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Foliage.vox Material 252
+    second: {fileID: 2100000, guid: e22a56ac5e8a6004a9d8aa81cf93aa3f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Foliage.vox Material 255
+    second: {fileID: 2100000, guid: dc37b81bf4be4284789ca49a1d95c7eb, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

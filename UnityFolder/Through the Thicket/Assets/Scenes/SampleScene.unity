@@ -172,7 +172,7 @@ MonoBehaviour:
   RenderDistance: 15
   playerTransform: {fileID: 1702590686}
   tileParent: {fileID: 1958121277}
-  tilePrefab: {fileID: 5963659114633419349, guid: db3cc5551af141f429a0a588d54e3a2c, type: 3}
+  tilePrefab: {fileID: 3777168579710349592, guid: 135e205840b55de4baf2f8008a12819d, type: 3}
 --- !u!1001 &208672535
 PrefabInstance:
   m_ObjectHideFlags: 0

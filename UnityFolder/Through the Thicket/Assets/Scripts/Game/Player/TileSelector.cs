@@ -45,7 +45,7 @@ public class TileSelector : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileMask))
         {
-            hoveredObject = hit.collider.gameObject;
+            hoveredObject = hit.collider.gameObject.transform.parent.gameObject;
             hoverHighlight.SetActive(true);
             hoverHighlight.transform.position = new Vector3(hoveredObject.transform.position.x, hoveredObject.transform.position.y + 0.5f, hoveredObject.transform.position.z);
         }
@@ -57,6 +57,6 @@ public class TileSelector : MonoBehaviour
     }
     public Tile GetSelectedTile()
     {
-        return new Tile((int)selectedObject.transform.position.x, (int)selectedObject.transform.position.z, (int)selectedObject.transform.position.y, TileTypes.Grass);
+        return new Tile((int)selectedObject.transform.position.x, (int)selectedObject.transform.position.z, (int)selectedObject.transform.position.y, BaseTypes.Grass);
     }
 }

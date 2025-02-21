@@ -39,6 +39,10 @@ public struct Chunk
     {
         return new SerializableChunk(tiles, X, Y);
     }
+    public void Dispose()
+    {
+        tiles.Dispose();
+    }
 }
 [System.Serializable]
 public struct SerializableChunk

@@ -21,7 +21,7 @@ public struct Chunk
                 int TileX = (X * ChunkSize()) - chunkRad + i;
                 int TileY = (Y * ChunkSize()) - chunkRad + j;
                 int height = i % 4 == 2 && j % 3 == 1 ? 1 : 0;
-                tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X ,Y, height == 0 ? BaseTypes.Grass : BaseTypes.Stone);
+                tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X ,Y, height == 0 ? new Grass() : new Grass());
             }
         }
     }

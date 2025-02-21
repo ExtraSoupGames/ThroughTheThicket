@@ -7,7 +7,7 @@ public class InventoryManager : MonoBehaviour, IGameState
 {
     private VisualElement inventoryGrid;
     private UIDocument inventoryUI;
-    private Item heldItem;
+    private StackItem heldItem;
     private VisualElement heldItemVisual;
     public void Initialize(GameManager manager)
     {
@@ -29,7 +29,7 @@ public class InventoryManager : MonoBehaviour, IGameState
         //testing setup for stack inventory testing
         Inventory inventory = new TestInventory(shape, 0, 0);
         //creates the held item, and places it into the inventory
-        heldItem = new StackItem(Items.Stone);
+        heldItem = new StackItem(new Stone());
         InventorySlot tempSlot = inventory.GetSlot(0, 1);
         inventory.ClickAt(ref heldItem, ref tempSlot);
  

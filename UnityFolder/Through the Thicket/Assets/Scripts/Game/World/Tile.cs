@@ -6,20 +6,49 @@ public enum Layers
     Foliage,
     Object
 }
-public enum ObjectTypes
-{
-    None,
-}
-public enum FoliageTypes
-{
-    None,
-    DefaultFoliage,
-}
-public enum BaseTypes
+public enum LayerContents
 {
     None,
     Grass,
-    Stone,
+    Foliage
+}
+[System.Serializable]
+public struct TileSegmentDataHolder
+{
+    public LayerContents baseType;
+    public LayerContents foliageType;
+    public LayerContents objectType;
+    public TileSegmentDataHolder(LayerContents baseLayerType, LayerContents FoliageLayerType, LayerContents ObjectLayerType)
+    {
+        baseType = baseLayerType;
+        foliageType = FoliageLayerType;
+        objectType = ObjectLayerType;
+    }
+    public ITileSegmentBaseLayer ConstructBase()
+    {
+        switch (baseType)
+        {
+            case LayerContents.Grass:
+                return new Grass();
+            default:
+                Debug.LogError("Tried to construct a base which had enum of none");
+                return new Grass();
+        }
+    }
+    public ITileSegmentFoliageLayer ConstructFoliage()
+    {
+        switch (foliageType)
+        {
+            case LayerContents.Foliage:
+                return new NormalFoliage();
+            default:
+                return new EmptyFoliage();
+        }
+    }
+    public ITileSegmentObjectLayer ConstructObject()
+    {
+        return new EmptyObject();
+    }
 }
 [System.Serializable]
 public struct Tile
@@ -29,28 +58,24 @@ public struct Tile
     public int ChunkX;
     public int ChunkY;
     public int Height;
-    public BaseTypes BaseType;
-    public FoliageTypes FoliageType;
-    public ObjectTypes ObjectType;
+    public TileSegmentDataHolder Layers;
     public bool initialized;
-    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, BaseTypes tileType)
+    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile)
     {
         X = PX;
         Y = PY;
         ChunkX = PChunkX;
         ChunkY = PChunkY;
         Height = PHeight;
-        BaseType = tileType;
-        FoliageType = PX % 2 == 1 ? FoliageTypes.None : FoliageTypes.DefaultFoliage;
-        ObjectType = ObjectTypes.None;
+        Layers = new TileSegmentDataHolder(baseTile.GetContentsEnum(), Height == 0 ? LayerContents.None : LayerContents.Foliage, LayerContents.None);
         initialized = true;
     }
     //unsure if these chunk coordinate calculations work or not
-    public Tile(int PX, int PY, int PHeight, BaseTypes tileType) : this(PX, PY, PHeight, (int)(PX / 16), (int)(PY / 16), tileType)
+    public Tile(int PX, int PY, int PHeight, ITileSegmentBaseLayer baseTile) : this(PX, PY, PHeight, (int)(PX / 16), (int)(PY / 16), baseTile)
     {
 
     }
-    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY) : this(PX, PY, PHeight, PChunkX, PChunkY, BaseTypes.Grass)
+    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY) : this(PX, PY, PHeight, PChunkX, PChunkY, new Grass())
     {
 
     }
@@ -66,32 +91,36 @@ public struct ProcessedTileData
     public int ChunkY;
     public int Height;
     public int TravelCost;
-    public BaseTypes BaseType;
-    public FoliageTypes FoliageType;
-    public ObjectTypes ObjectType;
+    public ITileSegmentBaseLayer BaseType;
+    public ITileSegmentFoliageLayer FoliageType;
+    public ITileSegmentObjectLayer ObjectType;
 
     public ProcessedTileData(Tile tile)
     {
+        if (!tile.initialized)
+        {
+            Debug.LogError("Tried to process a tile which was never initialized");
+        }
         X = tile.X;
         Y = tile.Y;
         ChunkX = tile.ChunkX;
         ChunkY = tile.ChunkY;
         Height = tile.Height;
-        TravelCost = tile.BaseType == BaseTypes.Grass ? 1 : 10;
-        BaseType = tile.BaseType;
-        FoliageType = tile.FoliageType;
-        ObjectType = tile.ObjectType;
+        BaseType = tile.Layers.ConstructBase();
+        FoliageType = tile.Layers.ConstructFoliage();
+        ObjectType = tile.Layers.ConstructObject();
+        TravelCost = BaseType.GetTravelCost() + FoliageType.GetTravelCost() + ObjectType.GetTravelCost();
     }
 
     public void ApplyTileProperties(GameObject TileObject, TileDisplayGetter displayGetter)
     {
         TileObject.SetActive(true);
         GameObject baseLayer = TileObject.transform.GetChild(0).gameObject;
-        LayerDisplayProperties baseDisplay = displayGetter.GetDisplayProperties(Layers.Base, (int)BaseType);
+        LayerDisplayProperties baseDisplay = BaseType.GetDisplayProperties(displayGetter);
         GameObject foliageLayer = TileObject.transform.GetChild(1).gameObject;
-        LayerDisplayProperties foliageDisplay = displayGetter.GetDisplayProperties(Layers.Foliage, (int)FoliageType);
+        LayerDisplayProperties foliageDisplay = FoliageType.GetDisplayProperties(displayGetter);
         GameObject objectLayer = TileObject.transform.GetChild(2).gameObject;
-        LayerDisplayProperties objectDisplay = displayGetter.GetDisplayProperties(Layers.Object, (int)ObjectType);
+        LayerDisplayProperties objectDisplay = ObjectType.GetDisplayProperties(displayGetter);
         if (baseDisplay.isEmpty)
         {
             baseLayer.SetActive(false);

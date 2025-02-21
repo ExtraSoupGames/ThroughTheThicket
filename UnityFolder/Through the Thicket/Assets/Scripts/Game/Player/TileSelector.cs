@@ -57,6 +57,6 @@ public class TileSelector : MonoBehaviour
     }
     public Tile GetSelectedTile()
     {
-        return new Tile((int)selectedObject.transform.position.x, (int)selectedObject.transform.position.z, (int)selectedObject.transform.position.y, BaseTypes.Grass);
+        return new Tile((int)selectedObject.transform.position.x, (int)selectedObject.transform.position.z, (int)selectedObject.transform.position.y, new Grass());
     }
 }

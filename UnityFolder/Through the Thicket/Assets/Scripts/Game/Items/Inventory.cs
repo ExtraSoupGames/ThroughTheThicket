@@ -70,7 +70,7 @@ public abstract class Inventory
         return slots[gridX, gridY];
     }
 
-    public void ClickAt(ref Item heldItem, ref InventorySlot hoveredSlot)
+    public void ClickAt(ref StackItem heldItem, ref InventorySlot hoveredSlot)
     {
         Debug.Log("Click happening");
         if(heldItem != null)
@@ -90,20 +90,20 @@ public abstract class Inventory
         }
         SwapItem(ref heldItem, hoveredSlot);
     }
-    public abstract bool ItemCanFit(int slotX, int slotY, Item item);
-    public abstract void SwapItem(ref Item heldItem, InventorySlot hoveredSlot);
+    public abstract bool ItemCanFit(int slotX, int slotY, StackItem item);
+    public abstract void SwapItem(ref StackItem heldItem, InventorySlot hoveredSlot);
 }
 public abstract class StackInventory : Inventory
 {
     public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed) : base(shape, topLeftX, topLeftY, itemsAllowed)
     {
     }
-    public override bool ItemCanFit(int slotX, int slotY, Item item)
+    public override bool ItemCanFit(int slotX, int slotY, StackItem item)
     {
         //In a stack inventory, if the slot is valid, then it can fit
         return true;
     }
-    public override void SwapItem(ref Item heldItem, InventorySlot hoveredSlot)
+    public override void SwapItem(ref StackItem heldItem, InventorySlot hoveredSlot)
     {
         //if the items are the same, add them to the stack
         if (heldItem != null && hoveredSlot.item != null && heldItem.GetItemType() == hoveredSlot.item.GetItemType())
@@ -113,8 +113,8 @@ public abstract class StackInventory : Inventory
             heldItem = item;
             return;
         }
-        
-        Item tempItem = hoveredSlot.item == null ? null : hoveredSlot.item;
+
+        StackItem tempItem = hoveredSlot.item == null ? null : hoveredSlot.item;
         hoveredSlot.item = heldItem == null ? null : heldItem;
         heldItem = tempItem;
     }
@@ -122,7 +122,7 @@ public abstract class StackInventory : Inventory
 public class InventorySlot
 {
     bool isValid;
-    public Item item;
+    public StackItem item;
     //relative coordinates of the grid of the inventory it is contained in
     public int x;
     public int y;
@@ -145,7 +145,7 @@ public class InventorySlot
     }
     public void TestFill()
     {
-        item = new StackItem(Items.Stone);
+        item = new StackItem(new Stone());
     }
     public Inventory GetInventory()
     {

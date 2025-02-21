@@ -2,28 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-public abstract class Item
+public interface IItem
 {
-    protected Items itemType;
-    public Item(Items item)
-    {
-        itemType = item;
-    }
-    public Items GetItemType()
-    {
-        return itemType;
-    }
-    public abstract void PopulateSlot(VisualElement slot);
+    public Items GetItemType();
+    public void PopulateSlot(VisualElement slot);
 }
-public class StackItem : Item
+public class StackItem
 {
+    IItem item;
     int count;
     int maxStackCount;
     //bool returned is true if any items were moved
-    public StackItem(Items item) : base(item)
+    public StackItem(IItem item)
     {
+        this.item = item;
         count = 1;
         maxStackCount = 5;
+    }
+    public Items GetItemType()
+    {
+        return item.GetItemType();
     }
     public bool AddToStack(ref StackItem inItem)
     {
@@ -42,7 +40,7 @@ public class StackItem : Item
         return count != oldCount;
     }
 
-    public override void PopulateSlot(VisualElement slot)
+    public void PopulateSlot(VisualElement slot)
     {
         //display the item
         VisualElement slotItem = new VisualElement();

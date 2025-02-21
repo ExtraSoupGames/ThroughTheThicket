@@ -27,13 +27,9 @@ public class ChunkManager : MonoBehaviour
     [SerializeField] private Transform tileParent;
     [SerializeField] private GameObject tilePrefab;
     //locations where chunks are needed
-    private Queue<ChunkPos> chunksToLoad;
+    private NativeQueue<ChunkPos> chunksToLoad;
     //queue for tiles that need to be loaded
     private NativeQueue<Tile> tilesToLoad;
-    //queue of tiles to process into render ready structs
-    private NativeQueue<Tile> tilesToProcess;
-    //queue for tiles that have been loaded and need to be rendered
-    private NativeQueue<ProcessedTileData> tilesToRender;
     //list of every currently loaded tile being rendered
     private List<ProcessedTileData> loadedTiles;
     //pool of tile objects to render the world with
@@ -42,15 +38,13 @@ public class ChunkManager : MonoBehaviour
     List<ChunkPos> activeChunks;
     //JobHandles to track other threads
     JobHandle ChunkGrabber;
-    JobHandle TileProcessor;
     private TileDisplayGetter tileDisplayGetter;
     public void Start()
     {
         int tilePoolSize = (RenderDistance * 2) * (RenderDistance * 2);
         persistentDataPath = new NativeArray<char>(Application.persistentDataPath.ToCharArray(), Allocator.Persistent);
-        chunksToLoad = new Queue<ChunkPos>();
+        chunksToLoad = new NativeQueue<ChunkPos>(Allocator.Persistent);
         tilesToLoad = new NativeQueue<Tile>(Allocator.Persistent);
-        tilesToRender = new NativeQueue<ProcessedTileData>(Allocator.Persistent);
         loadedTiles = new List<ProcessedTileData>();
         tilePool = new GameObject[tilePoolSize];
         for(int i = 0;i < tilePoolSize; i++)
@@ -62,10 +56,8 @@ public class ChunkManager : MonoBehaviour
     }
     public void OnDestroy()
     {
-        TileProcessor.Complete();
         ChunkGrabber.Complete();
         tilesToLoad.Dispose();
-        tilesToRender.Dispose();
         persistentDataPath.Dispose();
     }
     public void Tests()
@@ -83,34 +75,14 @@ public class ChunkManager : MonoBehaviour
     public void QueueManage()
     {
         //This is a mess that ensures things happen in the correct order
-        if (TileProcessor.IsCompleted)
+        if (!ChunkGrabber.IsCompleted)
         {
-            TileProcessor.Complete();
-            if (tilesToProcess.IsCreated)
-            {
-                tilesToProcess.Dispose();
-            }
-            ManageTileRenderQueue();
+            return;
         }
-        if (TileProcessor.IsCompleted && ChunkGrabber.IsCompleted)
-        {
-            ChunkGrabber.Complete();
-            TileProcessor.Complete();
-            ManageTileQueue();
-        }
-        if (TileProcessor.IsCompleted && ChunkGrabber.IsCompleted)
-        {
-            ChunkGrabber.Complete();
-            TileProcessor.Complete();
-            ManageChunkQueue();
-        }
-        if (TileProcessor.IsCompleted && ChunkGrabber.IsCompleted)
-        {
-            ChunkGrabber.Complete();
-            TileProcessor.Complete();
-            UpdateRequiredChunks();
-        }
-
+        ChunkGrabber.Complete();
+        ManageChunkQueue();
+        ManageTileRenderQueue();
+        UpdateRequiredChunks();
     }
     //Update the list of chunks to keep only required chunks loaded
     private void UpdateRequiredChunks()
@@ -203,32 +175,12 @@ public class ChunkManager : MonoBehaviour
             ChunkGrabber = newChunkJob.Schedule();
         }
     }
-    private void ManageTileQueue()
-    {
-        TileProcessor.Complete();
-        ChunkGrabber.Complete();
-        //this is the number of tiles each tilesProccessorJob takes on, higher = less overhead, lower = less chance that some tiles will be left unloaded
-        int tilesAtATime = 32;
-        if(tilesToLoad.Count >= tilesAtATime) // this causes problems, Count()
-        {
-            tilesToProcess = new NativeQueue<Tile>(Allocator.Persistent);
-            for(int i = 0;i< tilesAtATime; i++)
-            {
-                tilesToProcess.Enqueue(tilesToLoad.Dequeue());
-            }
-            TileProcessorJob tileProcessorJob = new TileProcessorJob()
-            {
-                tilesToProcess = tilesToProcess,
-                tileRenderQueue = tilesToRender
-            };
-            TileProcessor = tileProcessorJob.Schedule();
-        }
-    }
     private void ManageTileRenderQueue()
     {
-        while (tilesToRender.Count >= 1)
+        ChunkGrabber.Complete();
+        while (tilesToLoad.Count > 0)
         {
-            loadedTiles.Add(tilesToRender.Dequeue());
+            loadedTiles.Add(new ProcessedTileData(tilesToLoad.Dequeue()));
         }
         UpdateTilePool();
     }
@@ -258,7 +210,7 @@ public class ChunkManager : MonoBehaviour
     private void SaveChunk(Chunk chunk)
     {
         FileHelper.DirectoryCheck();
-        string chunkAsJSON = JsonUtility.ToJson(chunk.GetChunkForSerialization());
+        string chunkAsJSON = JsonUtility.ToJson(chunk.GetChunkForSerialization(), true);
         string fileName = "/chunks/chunk" + chunk.X + "-" + chunk.Y;
         File.WriteAllText(Application.persistentDataPath + fileName + ".json", chunkAsJSON);
         chunk.Dispose();

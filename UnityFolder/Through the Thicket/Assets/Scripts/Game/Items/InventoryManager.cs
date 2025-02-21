@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public class InventoryManager : MonoBehaviour
+public class InventoryManager : MonoBehaviour, IGameState
 {
     private VisualElement inventoryGrid;
     private UIDocument inventoryUI;
@@ -16,7 +16,7 @@ public class InventoryManager : MonoBehaviour
 
         inventoryGrid = root.Q<VisualElement>("ItemGrid");
         Button myButton = root.Q<Button>("CloseButton");
-        myButton.clicked += () => manager.CloseInventory();
+        myButton.clicked += () => manager.CloseState(this);
 
         bool[,] shape = new bool[5, 5]
         {
@@ -44,7 +44,7 @@ public class InventoryManager : MonoBehaviour
         root.Add(heldItemVisual);
         heldItemVisual.parent.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         UpdateHeldItem();
-        Hide();
+        Close();
     }
 
     void PopulateInventory(Inventory inventory)
@@ -89,11 +89,11 @@ public class InventoryManager : MonoBehaviour
         PopulateInventory(inven);
         UpdateHeldItem();
     }
-    public void Hide()
+    public void Close()
     {
         inventoryUI.rootVisualElement.style.display = DisplayStyle.None;
     }
-    public void Show()
+    public void Open()
     {
         inventoryUI.rootVisualElement.style.display = DisplayStyle.Flex;
         Button myButton = inventoryUI.rootVisualElement.Q<Button>("CloseButton");

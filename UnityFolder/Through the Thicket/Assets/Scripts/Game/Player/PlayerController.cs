@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IGameState
 {
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
@@ -73,12 +73,18 @@ public class PlayerController : MonoBehaviour
     }
     public void OpenInventoryPressed()
     {
-        if(IsTakingInput())
-        gameManager.OpenInventory();
+        if (IsTakingInput())
+        {
+            gameManager.OpenState("Inventory");
+        }
     }
-    public void SetIsTakingInput(bool value)
+    public void Open()
     {
-        takingInput = value;
+        takingInput = true;
+    }
+    public void Close()
+    {
+        takingInput = false;
     }
     public bool IsTakingInput()
     {

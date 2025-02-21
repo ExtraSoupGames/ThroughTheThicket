@@ -2,47 +2,55 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
-public enum GameStates
-{
-    Base,
-    Inventory,
-    Travelling,
-    Combat
-}
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private InventoryManager inventory;
-    [SerializeField] private PlayerController player;
+    [SerializeField] private PlayerController exploringState;
     [SerializeField] private ChunkManager chunkManager;
-    private Stack<GameStates> gameState = new Stack<GameStates>(); // Inline initialization
+    private BaseState baseState;
+    private Stack<IGameState> gameState = new Stack<IGameState>();
     public void Start()
     {
+        baseState = new BaseState();
+        baseState.Initialize(this);
         inventory.Initialize(this);
-        player.Initialize(this);
-        EnterState(GameStates.Base);
-        EnterState(GameStates.Travelling);
+        exploringState.Initialize(this);
+        EnterState(baseState);
+        EnterState(exploringState);
         chunkManager.Tests();
     }
     private void FixedUpdate()
     {
         chunkManager.QueueManage();
     }
-    public void CloseInventory()
+    public void OpenState(string stateName)
     {
-        ExitState(GameStates.Inventory);
+        switch (stateName)
+        {
+            case "Base":
+                Debug.Log("Starting Game");
+                EnterState(baseState);
+                break;
+            case "Exploring":
+                EnterState(exploringState);
+                break;
+            case "Inventory":
+                EnterState(inventory);
+                break;
+        }
     }
-    public void OpenInventory()
+    public void CloseState(IGameState state)
     {
-        EnterState(GameStates.Inventory);
+        ExitState(state);
     }
-    private void EnterState(GameStates state)
+    private void EnterState(IGameState state)
     {
         DisableTopState();
         gameState.Push(state);
         EnableTopState();
 
     }
-    private void ExitState(GameStates state)
+    private void ExitState(IGameState state)
     {
         if (gameState.Count <= 0)
         {
@@ -64,24 +72,8 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        GameStates topState = gameState.Peek();
-        switch (topState)
-        {
-            case GameStates.Base:
-                Debug.Log("Opening game");
-                break;
-            case GameStates.Travelling:
-                Debug.Log("Travelling state opened");
-                player.SetIsTakingInput(true);
-                break;
-            case GameStates.Combat:
-                Debug.Log("Combat state opened");
-                break;
-            case GameStates.Inventory:
-                Debug.Log("Inventory state opened");
-                inventory.Show();
-                break;
-        }
+        IGameState topState = gameState.Peek();
+        topState.Open();
     }
     private void DisableTopState()
     {
@@ -89,23 +81,7 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        GameStates topState = gameState.Peek();
-        switch (topState)
-        {
-            case GameStates.Base:
-                Debug.Log("Closing game");
-                break;
-            case GameStates.Travelling:
-                Debug.Log("Travelling state closed");
-                player.SetIsTakingInput(false);
-                break;
-            case GameStates.Combat:
-                Debug.Log("Combat state closed");
-                break;
-            case GameStates.Inventory:
-                Debug.Log("Inventory state closed");
-                inventory.Hide();
-                break;
-        }
+        IGameState topState = gameState.Peek();
+        topState.Close();
     }
 }

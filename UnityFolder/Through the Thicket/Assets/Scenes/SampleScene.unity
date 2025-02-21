@@ -663,7 +663,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: {fileID: 502867409}
-  player: {fileID: 1702590692}
+  exploringState: {fileID: 1702590692}
   chunkManager: {fileID: 72572911}
 --- !u!1 &1702590685
 GameObject:

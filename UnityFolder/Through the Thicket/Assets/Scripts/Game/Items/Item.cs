@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 public interface IItem
 {
     public Items GetItemType();
     public void PopulateSlot(VisualElement slot);
+    public int GetMaxStackCount();
+    public IItem Clone();
 }
 public class StackItem
 {
@@ -13,15 +16,28 @@ public class StackItem
     int count;
     int maxStackCount;
     //bool returned is true if any items were moved
-    public StackItem(IItem item)
+    public StackItem(IItem item, int count)
     {
         this.item = item;
-        count = 1;
-        maxStackCount = 5;
+        this.count = count;
+        maxStackCount = item.GetMaxStackCount();
+    }
+    public StackItem(StackItem copyFrom)
+    {
+        this.item = copyFrom.item.Clone();
+        this.count = copyFrom.count;
+        maxStackCount = item.GetMaxStackCount();
+    }
+    public StackItem(IItem item) : this(item, 1)
+    {
     }
     public Items GetItemType()
     {
         return item.GetItemType();
+    }
+    public int GetCount()
+    {
+        return count;
     }
     public bool AddToStack(ref StackItem inItem)
     {
@@ -50,10 +66,15 @@ public class StackItem
         slot.Add(slotItem);
         if(count != 1)
         {
-            Debug.Log("Trying to create count label");
             Label countLabel = new Label(count.ToString());
             countLabel.AddToClassList("count-label");
             slot.Add(countLabel);
         }
+    }
+    public bool Remove(int removalCount = 1)
+    {
+        count -= removalCount;
+        Debug.Log("Item removed, new count: " + count);
+        return count <= 0;
     }
 }

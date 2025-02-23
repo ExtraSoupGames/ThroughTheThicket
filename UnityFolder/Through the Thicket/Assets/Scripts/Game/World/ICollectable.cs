@@ -4,5 +4,5 @@ using UnityEngine;
 
 public interface ICollectable : IItem
 {
-
+    public StackItem OnCollect();
 }

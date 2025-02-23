@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 //there will be multiple inventories, for different item types, that all use this base class for item storing methods and data
 public abstract class Inventory
 {
@@ -70,7 +71,7 @@ public abstract class Inventory
         return slots[gridX, gridY];
     }
 
-    public void ClickAt(ref StackItem heldItem, ref InventorySlot hoveredSlot)
+    public virtual void ClickAt(ref StackItem heldItem, ref InventorySlot hoveredSlot)
     {
         Debug.Log("Click happening");
         if(heldItem != null)
@@ -90,6 +91,16 @@ public abstract class Inventory
         }
         SwapItem(ref heldItem, hoveredSlot);
     }
+    public void ClickAtSlot(InventoryManager invenManager, InventorySlot slot, VisualElement slotVisual)
+    {
+        StackItem heldItem = invenManager.GetHeldItem();
+        ClickAt(ref heldItem, ref slot);
+        //update the whole inventory visual
+        invenManager.SetHeldItem(heldItem);
+        invenManager.UpdateHeldItem();
+        invenManager.PopulateAllGrids();
+    }
+    public abstract void PopulateGrid(VisualElement inventoryGrid, InventoryManager invenManager);
     public abstract bool ItemCanFit(int slotX, int slotY, StackItem item);
     public abstract void SwapItem(ref StackItem heldItem, InventorySlot hoveredSlot);
 }
@@ -113,10 +124,43 @@ public abstract class StackInventory : Inventory
             heldItem = item;
             return;
         }
-
         StackItem tempItem = hoveredSlot.item == null ? null : hoveredSlot.item;
         hoveredSlot.item = heldItem == null ? null : heldItem;
         heldItem = tempItem;
+    }
+    public override void PopulateGrid(VisualElement inventoryGrid, InventoryManager invenManager)
+    {
+        for (int i = 0; i < GetSlots().GetLength(0); i++)
+        {
+            //Create a new row
+            VisualElement newRow = new VisualElement();
+            newRow.AddToClassList("item-row");
+            inventoryGrid.Add(newRow);
+            //Populate it with slots
+            for (int j = 0; j < GetSlots().GetLength(1); j++)
+            {
+                InventorySlot currentSlot = GetSlots()[i, j];
+                //Create a new slot (or placeholder if no slot is present)
+                if (currentSlot.IsValid())
+                {
+                    Button newSlot = new Button();
+                    newSlot.clicked += (() => ClickAtSlot(invenManager, currentSlot, newSlot));
+                    newSlot.AddToClassList("item-slot");
+
+                    if (!currentSlot.IsEmpty())
+                    {
+                        currentSlot.item.PopulateSlot(newSlot);
+                    }
+                    newRow.Add(newSlot);
+                }
+                else
+                {
+                    VisualElement newSlot = new VisualElement();
+                    newSlot.AddToClassList("item-slot-placeholder");
+                    newRow.Add(newSlot);
+                }
+            }
+        }
     }
 }
 public class InventorySlot
@@ -150,5 +194,13 @@ public class InventorySlot
     public Inventory GetInventory()
     {
         return inven;
+    }
+    public void Remove(int removalCount = 1)
+    {
+        //item.Remove returns true if the slot should now be emptied
+        if (item.Remove(removalCount))
+        {
+            item = null;
+        }
     }
 }

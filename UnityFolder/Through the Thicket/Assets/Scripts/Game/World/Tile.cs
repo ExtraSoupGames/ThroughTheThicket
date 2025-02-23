@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 public enum Layers
 {
@@ -60,15 +61,19 @@ public struct Tile
     public int Height;
     public TileSegmentDataHolder Layers;
     public bool initialized;
-    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile)
+    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, TileSegmentDataHolder PLayers)
     {
         X = PX;
         Y = PY;
         ChunkX = PChunkX;
         ChunkY = PChunkY;
         Height = PHeight;
-        Layers = new TileSegmentDataHolder(baseTile.GetContentsEnum(), Height == 0 ? LayerContents.None : LayerContents.Foliage, LayerContents.None);
+        Layers = PLayers;
         initialized = true;
+    }
+    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile)
+        : this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(), LayerContents.None, LayerContents.None))
+    {
     }
     //unsure if these chunk coordinate calculations work or not
     public Tile(int PX, int PY, int PHeight, ITileSegmentBaseLayer baseTile) : this(PX, PY, PHeight, (int)(PX / 16), (int)(PY / 16), baseTile)

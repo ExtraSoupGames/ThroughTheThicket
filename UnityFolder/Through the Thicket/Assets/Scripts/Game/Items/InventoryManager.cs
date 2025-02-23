@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +10,7 @@ public class InventoryManager : MonoBehaviour, IGameState
     private UIDocument inventoryUI;
     private StackItem heldItem;
     private VisualElement heldItemVisual;
+    private List<Inventory> inventories;
     public void Initialize(GameManager manager)
     {
         inventoryUI = GetComponent<UIDocument>();
@@ -32,8 +34,22 @@ public class InventoryManager : MonoBehaviour, IGameState
         heldItem = new StackItem(new Stone());
         InventorySlot tempSlot = inventory.GetSlot(0, 1);
         inventory.ClickAt(ref heldItem, ref tempSlot);
- 
-        PopulateInventory(inventory);
+        heldItem = new StackItem(new Stone());
+        tempSlot = inventory.GetSlot(0, 2);
+        inventory.ClickAt(ref heldItem, ref tempSlot);
+
+        shape = new bool[3, 3]
+{
+            {true, true, true },
+            {true, true, true },
+            {true, false, false  }
+};
+        Inventory craftingArea = new CraftingArea(shape, 50, 50);
+        inventories = new List<Inventory>();
+        inventories.Add(inventory);
+        inventories.Add(craftingArea);
+        PopulateAllGrids();
+
         //creates a UIElement to display the held item
         heldItem = null;
         heldItemVisual = new VisualElement();
@@ -44,51 +60,30 @@ public class InventoryManager : MonoBehaviour, IGameState
         root.Add(heldItemVisual);
         heldItemVisual.parent.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         UpdateHeldItem();
+
         Close();
     }
-
-    void PopulateInventory(Inventory inventory)
+    public void PopulateAllGrids()
     {
         inventoryGrid.Clear();
-        for (int i = 0; i < inventory.GetSlots().GetLength(0); i++)
+        foreach (Inventory i in inventories)
         {
-            //Create a new row
-            VisualElement newRow = new VisualElement();
-            newRow.AddToClassList("item-row");
-            inventoryGrid.Add(newRow);
-            //Populate it with slots
-            for (int j = 0; j < inventory.GetSlots().GetLength(1); j++)
-            {
-                InventorySlot currentSlot = inventory.GetSlots()[i, j];
-                //Create a new slot (or placeholder if no slot is present)
-                if (currentSlot.IsValid())
-                {
-                    Button newSlot = new Button();
-                    newSlot.clicked += (() => ClickAtSlot(inventory, currentSlot, newSlot));
-                    newSlot.AddToClassList("item-slot");
-
-                    if (!currentSlot.IsEmpty())
-                    {
-                        currentSlot.item.PopulateSlot(newSlot);
-                    }
-                    newRow.Add(newSlot);
-                }
-                else
-                {
-                    VisualElement newSlot = new VisualElement();
-                    newSlot.AddToClassList("item-slot-placeholder");
-                    newRow.Add(newSlot);
-                }
-            }
+            i.PopulateGrid(inventoryGrid, this);
         }
     }
-    private void ClickAtSlot(Inventory inven, InventorySlot slot, VisualElement slotVisual)
+    public StackItem GetHeldItem()
     {
-        inven.ClickAt(ref heldItem, ref slot);
-        //update the whole inventory visual
-        PopulateInventory(inven);
-        UpdateHeldItem();
+        return heldItem;
     }
+    public void SetHeldItem(StackItem heldItem)
+    {
+        this.heldItem = heldItem;
+    }
+    public VisualElement GetGrid()
+    {
+        return inventoryGrid;
+    }
+
     public void Close()
     {
         inventoryUI.rootVisualElement.style.display = DisplayStyle.None;
@@ -100,7 +95,7 @@ public class InventoryManager : MonoBehaviour, IGameState
         myButton.Focus(); // Ensure the button is focused so it can immediately register clicks
         myButton.SetEnabled(true);
     }
-    private void UpdateHeldItem()
+    public void UpdateHeldItem()
     {
         heldItemVisual.Clear();
         if (heldItem == null)
@@ -123,4 +118,5 @@ public class InventoryManager : MonoBehaviour, IGameState
         heldItemVisual.style.left = localMousePos.x - (width / 2);
         heldItemVisual.style.top = localMousePos.y + (height / 2) - heldItemVisual.parent.resolvedStyle.height;
     }
+
 }

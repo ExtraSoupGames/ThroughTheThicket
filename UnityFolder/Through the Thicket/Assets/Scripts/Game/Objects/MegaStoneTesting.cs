@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Stone : IItem
+public class MegaStoneTesting : IItem
 {
     public IItem Clone()
     {
-        return new Stone();
+        return new MegaStoneTesting();
     }
 
     public Items GetItemType()
     {
-        return Items.Stone;
+        return Items.MegaStoneTest;
     }
 
     public int GetMaxStackCount()
     {
-        return 5;
+        return 2;
     }
 
     public void PopulateSlot(VisualElement slot)

@@ -73,7 +73,6 @@ public abstract class Inventory
 
     public virtual void ClickAt(ref StackItem heldItem, ref InventorySlot hoveredSlot)
     {
-        Debug.Log("Click happening");
         if(heldItem != null)
         {
             if (!allowedItems.Contains(heldItem.GetItemType()))

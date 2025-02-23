@@ -74,7 +74,6 @@ public class StackItem
     public bool Remove(int removalCount = 1)
     {
         count -= removalCount;
-        Debug.Log("Item removed, new count: " + count);
         return count <= 0;
     }
 }

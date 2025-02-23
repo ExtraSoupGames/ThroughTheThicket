@@ -44,11 +44,9 @@ public class CraftingArea : StackInventory
         RefreshRecipes();
         if (outputSlots.Contains<InventorySlot>(hoveredSlot))
         {
-            Debug.Log("Certainly looks like we might be about to craft");
             //double check that the hoveredslot is a crafting output slot, and that heldItem is empty
             if (hoveredSlot is CraftingOutputSlot && heldItem == null)
             {
-                Debug.Log("Certainly rilly rilly looks like we might be about to craft");
 
                 //and if it is, craft that recipe
                 CraftItem((CraftingOutputSlot)hoveredSlot, ref heldItem);
@@ -67,7 +65,6 @@ public class CraftingArea : StackInventory
         }
         foreach (Recipe r in possibleRecipes)
         {
-            Debug.Log("Valid recipe found");
             outputSlots[outputIndex].item = r.output;
             outputSlots[outputIndex].SetRecipe(r);
             outputIndex++;
@@ -79,22 +76,18 @@ public class CraftingArea : StackInventory
     }
     private void CraftItem(CraftingOutputSlot outputSlot, ref StackItem heldItem)
     {
-        Debug.Log("Crafting item...");
         List<Items> itemIngredients = outputSlot.recipe.ingredients;
         foreach(Items ingredient in itemIngredients)
         {
-            Debug.Log("foreach ingredient loop ");
             bool hadItem = false;
             foreach(InventorySlot slot in slots)
             {
-                Debug.Log("foreach slot foreach ingreadient loop ");
                 if (slot.IsEmpty())
                 {
                     continue;
                 }
                 if (slot.item.GetItemType() == ingredient)
                 {
-                    Debug.Log("Removing 1 ingredient of type: " + ingredient);
                     slot.Remove();
                     hadItem = true;
                     break;
@@ -102,7 +95,7 @@ public class CraftingArea : StackInventory
             }
             if (!hadItem)
             {
-                //TODO cancel craft properly (return partially used ingredients
+                //TODO cancel craft properly (return partially used ingredients)
                 return;
             }
         }
@@ -196,7 +189,6 @@ public class Recipes
     }
     public List<Recipe> EvaluateCraftingArea(InventorySlot[,] craftingAreaSlots)
     {
-        Debug.Log("Evaluating recipes");
         List<Recipe> possibleRecipes = new List<Recipe>();
         List<Items> craftingIngredients = new List<Items>();
         foreach (InventorySlot slot in craftingAreaSlots)
@@ -217,7 +209,6 @@ public class Recipes
             {
                 if (craftingIngredients.Contains(ingredient))
                 {
-                    Debug.Log("Crafting recipe had 1 ingredient valid");
                     craftingIngredients.Remove(ingredient);
                 }
                 else

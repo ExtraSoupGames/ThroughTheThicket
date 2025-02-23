@@ -78,6 +78,12 @@ public class PlayerController : MonoBehaviour, IGameState
             gameManager.OpenState("Inventory");
         }
     }
+    public void DebugPressed()
+    {
+        if (IsTakingInput()){
+            gameManager.OpenState("Combat");
+        }
+    }
     public void Open()
     {
         takingInput = true;

@@ -22,6 +22,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "DebugButton",
+                    "type": "Button",
+                    "id": "e8db2260-efeb-4150-9ef4-3ba2bbcc8b9d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -55,6 +64,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "OpenInventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "91070ba8-56ac-48e0-ac4e-b46215cf4fbb",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DebugButton",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

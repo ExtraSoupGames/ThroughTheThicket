@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private InventoryManager inventory;
     [SerializeField] private PlayerController exploringState;
     [SerializeField] private ChunkManager chunkManager;
+    [SerializeField] private CombatState combatState;
     private BaseState baseState;
     private Stack<IGameState> gameState = new Stack<IGameState>();
     public void Start()
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour
         baseState.Initialize(this);
         inventory.Initialize(this);
         exploringState.Initialize(this);
+        combatState.Initialize(this);
         EnterState(baseState);
         EnterState(exploringState);
         chunkManager.Tests();
@@ -37,6 +39,11 @@ public class GameManager : MonoBehaviour
             case "Inventory":
                 EnterState(inventory);
                 break;
+            case "Combat":
+                EnterState(combatState);
+                break;
+            default:
+                throw new System.Exception("Invalid State Open Requested");
         }
     }
     public void CloseState(IGameState state)

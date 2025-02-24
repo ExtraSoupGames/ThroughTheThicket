@@ -16,4 +16,8 @@ public class BaseState : IGameState
     {
 
     }
+    public void UpdateWhenOpen()
+    {
+
+    }
 }

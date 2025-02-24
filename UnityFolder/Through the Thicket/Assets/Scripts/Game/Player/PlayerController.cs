@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour, IGameState
 {
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
+    [SerializeField] private ChunkManager surfaceManager;
+    [SerializeField] private DungeonManager dungeonManager;
     private int pathIndex;
     private int pathLength;
     private float moveTimer;
@@ -16,10 +18,12 @@ public class PlayerController : MonoBehaviour, IGameState
     [SerializeField] private Transform playerMovementTransform;
     //this should include only the player model, not the camera, otherwise entire view will move around like crazy
     [SerializeField] private Transform playerRotationTransform;
+    //The chunkManager used when the player is on the surface
     public void Initialize(GameManager manager)
     {
         gameManager = manager;
         moveTimer = 0;
+        surfaceManager.Tests();
     }
     public void StartMovingPlayer()
     {
@@ -34,9 +38,10 @@ public class PlayerController : MonoBehaviour, IGameState
         }
         moveTimer = 0.5f;
     }
-    public void FixedUpdate()
+    public void UpdateWhenOpen()
     {
         TryMoveAlongPath();
+        surfaceManager.QueueManage();
     }
     private void TryMoveAlongPath()
     {

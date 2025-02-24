@@ -22,4 +22,8 @@ public class CombatState : MonoBehaviour, IGameState
     {
         combatUI.rootVisualElement.style.display = DisplayStyle.None;
     }
+    public void UpdateWhenOpen()
+    {
+
+    }
 }

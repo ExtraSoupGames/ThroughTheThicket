@@ -1,17 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEditorInternal;
 using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private InventoryManager inventory;
     [SerializeField] private PlayerController exploringState;
-    [SerializeField] private ChunkManager chunkManager;
     [SerializeField] private CombatState combatState;
     private BaseState baseState;
-    private Stack<IGameState> gameState = new Stack<IGameState>();
+    private Stack<IGameState> gameState;
     public void Start()
     {
+        gameState = new Stack<IGameState>();
         baseState = new BaseState();
         baseState.Initialize(this);
         inventory.Initialize(this);
@@ -19,11 +20,18 @@ public class GameManager : MonoBehaviour
         combatState.Initialize(this);
         EnterState(baseState);
         EnterState(exploringState);
-        chunkManager.Tests();
     }
     private void FixedUpdate()
     {
-        chunkManager.QueueManage();
+        if(gameState == null)
+        {
+            return;
+        }
+        if (gameState.Count == 0)
+        {
+            return;
+        }
+        gameState.Peek().UpdateWhenOpen();
     }
     public void OpenState(string stateName)
     {

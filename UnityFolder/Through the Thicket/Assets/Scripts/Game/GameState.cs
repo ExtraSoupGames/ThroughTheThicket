@@ -7,4 +7,5 @@ public interface IGameState
     public void Open();
     public void Close();
     public void Initialize(GameManager manager);
+    public void UpdateWhenOpen();
 }

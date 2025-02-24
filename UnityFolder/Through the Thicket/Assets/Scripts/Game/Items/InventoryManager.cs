@@ -95,6 +95,10 @@ public class InventoryManager : MonoBehaviour, IGameState
         myButton.Focus(); // Ensure the button is focused so it can immediately register clicks
         myButton.SetEnabled(true);
     }
+    public void UpdateWhenOpen()
+    {
+        
+    }
     public void UpdateHeldItem()
     {
         heldItemVisual.Clear();

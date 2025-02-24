@@ -72,6 +72,14 @@ public class ChunkManager : MonoBehaviour
             }
         }
     }
+    public void ShowWorld()
+    {
+        tileParent.gameObject.SetActive(true);
+    }
+    public void HideWorld()
+    {
+        tileParent.gameObject.SetActive(false);
+    }
     public void QueueManage()
     {
         //This is a mess that ensures things happen in the correct order

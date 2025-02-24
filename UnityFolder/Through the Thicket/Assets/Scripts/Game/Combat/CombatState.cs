@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class CombatState : MonoBehaviour, IGameState
+public class CombatState : MonoBehaviour, IUIState
 {
     private UIDocument combatUI;
     public void Initialize(GameManager manager)

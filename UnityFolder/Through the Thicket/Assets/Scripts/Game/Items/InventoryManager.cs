@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public class InventoryManager : MonoBehaviour, IGameState
+public class InventoryManager : MonoBehaviour, IUIState
 {
     private VisualElement inventoryGrid;
     private UIDocument inventoryUI;

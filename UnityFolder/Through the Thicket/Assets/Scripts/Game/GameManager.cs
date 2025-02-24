@@ -1,37 +1,59 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEditorInternal;
 using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private InventoryManager inventory;
     [SerializeField] private PlayerController exploringState;
+    [SerializeField] private PlayerController dungeonState;
     [SerializeField] private CombatState combatState;
     private BaseState baseState;
-    private Stack<IGameState> gameState;
+    private Stack<IWorldState> worldState;
+    private Stack<IUIState> uiState;
     public void Start()
     {
-        gameState = new Stack<IGameState>();
+        worldState = new Stack<IWorldState>();
+        uiState = new Stack<IUIState>();
         baseState = new BaseState();
         baseState.Initialize(this);
         inventory.Initialize(this);
         exploringState.Initialize(this);
         combatState.Initialize(this);
+        dungeonState.Initialize(this);
         EnterState(baseState);
         EnterState(exploringState);
     }
     private void FixedUpdate()
     {
-        if(gameState == null)
+        UpdateWorldState();
+        UpdateUIState();
+    }
+    private void UpdateWorldState()
+    {
+        if (worldState == null)
         {
             return;
         }
-        if (gameState.Count == 0)
+        if (worldState.Count == 0)
         {
             return;
         }
-        gameState.Peek().UpdateWhenOpen();
+        worldState.Peek().UpdateWhenOpen();
+    }
+    private void UpdateUIState()
+    {
+        if (uiState == null)
+        {
+            return;
+        }
+        if (uiState.Count == 0)
+        {
+            return;
+        }
+        uiState.Peek().UpdateWhenOpen();
     }
     public void OpenState(string stateName)
     {
@@ -43,6 +65,10 @@ public class GameManager : MonoBehaviour
                 break;
             case "Exploring":
                 EnterState(exploringState);
+                break;
+            case "Dungeon":
+                EnterState(dungeonState);
+                Debug.Log("DUNGEONS STATE ENTERED");
                 break;
             case "Inventory":
                 EnterState(inventory);
@@ -60,43 +86,105 @@ public class GameManager : MonoBehaviour
     }
     private void EnterState(IGameState state)
     {
-        DisableTopState();
-        gameState.Push(state);
-        EnableTopState();
+        if(state is IWorldState)
+        {
+            DisableTopWorldState();
+            worldState.Push(state as IWorldState);
+            EnableTopWorldState();
+            return;
+        }
+        if(state is IUIState)
+        {
+            PauseTopWorldState();
+            DisableTopUIState();
+            uiState.Push(state as IUIState);
+            EnableTopUIState();
+        }
 
     }
     private void ExitState(IGameState state)
     {
-        if (gameState.Count <= 0)
+        if (state is IWorldState)
         {
-            return;
+            if (worldState.Count <= 0)
+            {
+                return;
+            }
+            if (worldState.Peek() != state)
+            {
+                Debug.LogWarning("Attempted to exit a state that is not the current state");
+                return;
+            }
+            DisableTopWorldState();
+            worldState.Pop();
+            EnableTopWorldState();
         }
-        if (gameState.Peek() != state)
+        if(state is IUIState)
         {
-            Debug.LogWarning("Attempted to exit a state that is not the current state");
-            return;
+            if (uiState.Count <= 0)
+            {
+                return;
+            }
+            if (uiState.Peek() != state)
+            {
+                Debug.LogWarning("Attempted to exit a state that is not the current state");
+                return;
+            }
+            DisableTopUIState();
+            uiState.Pop();
+            EnableTopUIState();
+            if(uiState.Count == 0)
+            {
+                PlayTopWorldState();
+            }
         }
-        DisableTopState();
-        gameState.Pop();
-        EnableTopState();
-
     }
-    private void EnableTopState()
+    private void EnableTopWorldState()
     {
-        if (gameState.Count <= 0)
+        if (worldState.Count <= 0)
         {
             return;
         }
-        IGameState topState = gameState.Peek();
+        IWorldState topState = worldState.Peek();
         topState.Open();
     }
-    private void DisableTopState()
+    private void DisableTopWorldState()
     {
-        if(gameState.Count <= 0)
+        if(worldState.Count <= 0)
         {
             return;
         }
-        IGameState topState = gameState.Peek();
+        IWorldState topState = worldState.Peek();
         topState.Close();
+    }
+    private void EnableTopUIState()
+    {
+        if (uiState.Count <= 0)
+        {
+            return;
+        }
+        IUIState topState = uiState.Peek();
+        topState.Open();
+    }
+    private void DisableTopUIState()
+    {
+        if (uiState.Count <= 0)
+        {
+            return;
+        }
+        IUIState topState = uiState.Peek();
+        topState.Close();
+        if(uiState.Count == 0)
+        {
+            PlayTopWorldState();
+        }
+    }
+    private void PauseTopWorldState()
+    {
+        worldState.Peek().Pause();
+    }
+    private void PlayTopWorldState()
+    {
+        worldState.Peek().Play();
     }
 }

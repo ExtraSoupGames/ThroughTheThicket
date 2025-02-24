@@ -9,3 +9,12 @@ public interface IGameState
     public void Initialize(GameManager manager);
     public void UpdateWhenOpen();
 }
+public interface IWorldState : IGameState
+{
+    public void Pause();
+    public void Play();
+}
+public interface IUIState : IGameState
+{
+
+}

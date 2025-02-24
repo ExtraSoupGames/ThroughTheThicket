@@ -2,12 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IGameState
+public class PlayerController : MonoBehaviour, IWorldState
 {
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
-    [SerializeField] private ChunkManager surfaceManager;
-    [SerializeField] private DungeonManager dungeonManager;
+    [SerializeField] private ChunkManager worldManager;
     private int pathIndex;
     private int pathLength;
     private float moveTimer;
@@ -23,7 +22,8 @@ public class PlayerController : MonoBehaviour, IGameState
     {
         gameManager = manager;
         moveTimer = 0;
-        surfaceManager.Tests();
+        worldManager.Tests();
+        worldManager.HideWorld();
     }
     public void StartMovingPlayer()
     {
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour, IGameState
     public void UpdateWhenOpen()
     {
         TryMoveAlongPath();
-        surfaceManager.QueueManage();
+        worldManager.QueueManage();
     }
     private void TryMoveAlongPath()
     {
@@ -83,22 +83,48 @@ public class PlayerController : MonoBehaviour, IGameState
             gameManager.OpenState("Inventory");
         }
     }
-    public void DebugPressed()
+    public void DebugPressedCombat()
     {
         if (IsTakingInput()){
             gameManager.OpenState("Combat");
         }
     }
+    public void DebugPressedDungeon()
+    {
+        if (IsTakingInput())
+        {
+            gameManager.OpenState("Dungeon");
+        }
+    }
     public void Open()
     {
-        takingInput = true;
+        Play();
+        worldManager.ShowWorld();
+        //Move the camera to this player
+        Debug.Log("Moving camera to here! " + this.gameObject);
+        Vector3 position = Camera.main.transform.localPosition;
+        Quaternion rotation = Camera.main.transform.localRotation;
+        Camera.main.gameObject.transform.SetParent(this.transform);
+        Camera.main.transform.localPosition = position;
+        Camera.main.transform.localRotation = rotation;
     }
     public void Close()
     {
-        takingInput = false;
+        Pause();
+        worldManager.HideWorld();
     }
     public bool IsTakingInput()
     {
         return takingInput;
+    }
+
+    public void Pause()
+    {
+        takingInput = false;
+    }
+
+    public void Play()
+    {
+        takingInput = true;
     }
 }

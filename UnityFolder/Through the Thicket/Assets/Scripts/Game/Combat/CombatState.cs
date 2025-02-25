@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class CombatState : MonoBehaviour, IUIState
+public class CombatState : IUIState
 {
-    private UIDocument combatUI;
-    public void Initialize(GameManager manager)
+    [SerializeField] private UIDocument combatUI;
+    public override void Initialize(GameManager manager)
     {
-        combatUI = GetComponent<UIDocument>();
         VisualElement root = combatUI.rootVisualElement;
         Button myButton = root.Q<Button>();
         myButton.clicked += () => manager.CloseState(this);
         Close();
     }
-    public void Open()
+    public override void Open()
     {
         combatUI.rootVisualElement.style.display = DisplayStyle.Flex;
+        base.Open();
     }
-    public void Close()
+    public override void Close()
     {
         combatUI.rootVisualElement.style.display = DisplayStyle.None;
+        base.Close();
     }
-    public void UpdateWhenOpen()
+    public override void UpdateWhenOpen()
     {
 
     }

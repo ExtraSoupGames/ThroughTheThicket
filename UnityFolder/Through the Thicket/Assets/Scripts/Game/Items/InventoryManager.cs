@@ -4,17 +4,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public class InventoryManager : MonoBehaviour, IUIState
+public class InventoryManager : IUIState
 {
     private VisualElement inventoryGrid;
-    private UIDocument inventoryUI;
     private StackItem heldItem;
     private VisualElement heldItemVisual;
     private List<Inventory> inventories;
-    public void Initialize(GameManager manager)
+    [SerializeField] private UIDocument inventoryUI;
+    public override void Initialize(GameManager manager)
     {
-        inventoryUI = GetComponent<UIDocument>();
-        VisualElement root= inventoryUI.rootVisualElement;
+        VisualElement root = inventoryUI.rootVisualElement;
 
         inventoryGrid = root.Q<VisualElement>("ItemGrid");
         Button myButton = root.Q<Button>("CloseButton");
@@ -84,18 +83,20 @@ public class InventoryManager : MonoBehaviour, IUIState
         return inventoryGrid;
     }
 
-    public void Close()
+    public override void Close()
     {
         inventoryUI.rootVisualElement.style.display = DisplayStyle.None;
+        base.Close();
     }
-    public void Open()
+    public override void Open()
     {
         inventoryUI.rootVisualElement.style.display = DisplayStyle.Flex;
         Button myButton = inventoryUI.rootVisualElement.Q<Button>("CloseButton");
         myButton.Focus(); // Ensure the button is focused so it can immediately register clicks
         myButton.SetEnabled(true);
+        base.Open();
     }
-    public void UpdateWhenOpen()
+    public override void UpdateWhenOpen()
     {
         
     }

@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour, IWorldState
+public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private TileSelector tileSelector;
-    [SerializeField] private Pathfinder pathFinder;
-    [SerializeField] private ChunkManager worldManager;
+    private TileSelector tileSelector;
+    private Pathfinder pathFinder;
     private int pathIndex;
     private int pathLength;
     private float moveTimer;
@@ -22,8 +22,6 @@ public class PlayerController : MonoBehaviour, IWorldState
     {
         gameManager = manager;
         moveTimer = 0;
-        worldManager.Tests();
-        worldManager.HideWorld();
     }
     public void StartMovingPlayer()
     {
@@ -38,10 +36,14 @@ public class PlayerController : MonoBehaviour, IWorldState
         }
         moveTimer = 0.5f;
     }
-    public void UpdateWhenOpen()
+    public void SetToWorld(TileSelector tileSelector, Pathfinder pathFinder)
+    {
+        this.tileSelector = tileSelector;
+        this.pathFinder = pathFinder;
+    }
+    public void FixedUpdate()
     {
         TryMoveAlongPath();
-        worldManager.QueueManage();
     }
     private void TryMoveAlongPath()
     {
@@ -96,35 +98,16 @@ public class PlayerController : MonoBehaviour, IWorldState
             gameManager.OpenState("Dungeon");
         }
     }
-    public void Open()
-    {
-        Play();
-        worldManager.ShowWorld();
-        //Move the camera to this player
-        Debug.Log("Moving camera to here! " + this.gameObject);
-        Vector3 position = Camera.main.transform.localPosition;
-        Quaternion rotation = Camera.main.transform.localRotation;
-        Camera.main.gameObject.transform.SetParent(this.transform);
-        Camera.main.transform.localPosition = position;
-        Camera.main.transform.localRotation = rotation;
-    }
-    public void Close()
-    {
-        Pause();
-        worldManager.HideWorld();
-    }
     public bool IsTakingInput()
     {
         return takingInput;
     }
-
-    public void Pause()
+    public void Click()
     {
-        takingInput = false;
+        tileSelector.Click();
     }
-
-    public void Play()
+    public void SetTakingInput(bool input)
     {
-        takingInput = true;
+        takingInput = input;
     }
 }

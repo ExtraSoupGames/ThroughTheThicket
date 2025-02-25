@@ -7,24 +7,25 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private InventoryManager inventory;
-    [SerializeField] private PlayerController exploringState;
-    [SerializeField] private PlayerController dungeonState;
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private SurfaceState surfaceState;
+    [SerializeField] private DungeonState dungeonState;
     [SerializeField] private CombatState combatState;
-    private BaseState baseState;
+    [SerializeField] private BaseState baseState;
     private Stack<IWorldState> worldState;
     private Stack<IUIState> uiState;
     public void Start()
     {
         worldState = new Stack<IWorldState>();
         uiState = new Stack<IUIState>();
-        baseState = new BaseState();
+        playerController.Initialize(this);
         baseState.Initialize(this);
         inventory.Initialize(this);
-        exploringState.Initialize(this);
+        surfaceState.Initialize(this);
         combatState.Initialize(this);
         dungeonState.Initialize(this);
         EnterState(baseState);
-        EnterState(exploringState);
+        EnterState(surfaceState);
     }
     private void FixedUpdate()
     {
@@ -64,7 +65,7 @@ public class GameManager : MonoBehaviour
                 EnterState(baseState);
                 break;
             case "Exploring":
-                EnterState(exploringState);
+                EnterState(surfaceState);
                 break;
             case "Dungeon":
                 EnterState(dungeonState);
@@ -186,5 +187,9 @@ public class GameManager : MonoBehaviour
     private void PlayTopWorldState()
     {
         worldState.Peek().Play();
+    }
+    public void InputReceived(int input)
+    {
+        worldState.Peek().TakeInput(input);
     }
 }

@@ -4,28 +4,32 @@ using UnityEngine;
 
 public class BaseState : IWorldState
 {
-    public void Open()
+    public override void Open()
     {
         
     }
-    public void Close() 
+    public override void Close() 
     { 
 
     }
-    public void Initialize(GameManager manager)
+    public override void Initialize(GameManager manager)
     {
 
     }
-    public void UpdateWhenOpen()
+    public override void UpdateWhenOpen()
     {
 
     }
 
-    public void Pause()
+    public override void Pause()
     {
     }
 
-    public void Play()
+    public override void Play()
+    {
+    }
+
+    public override void TakeInput(int input)
     {
     }
 }

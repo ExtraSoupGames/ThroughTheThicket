@@ -2,19 +2,52 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IGameState
+public abstract class IGameState : MonoBehaviour
 {
-    public void Open();
-    public void Close();
-    public void Initialize(GameManager manager);
-    public void UpdateWhenOpen();
+    protected bool isOpen;
+    public virtual void Open()
+    {
+        isOpen = true;
+    }
+    public virtual void Close()
+    {
+        isOpen = false;
+    }
+    public abstract void Initialize(GameManager manager);
+    public abstract void UpdateWhenOpen();
+    public bool IsOpen()
+    {
+        return isOpen;
+    }
 }
-public interface IWorldState : IGameState
+public abstract class IWorldState : IGameState
 {
-    public void Pause();
-    public void Play();
+    protected bool isPaused;
+    public virtual void Pause()
+    {
+        isPaused = true;
+    }
+    public virtual void Play()
+    {
+        isPaused = false;
+    }
+    public override void Open()
+    {
+        Play();
+        base.Open();
+    }
+    public override void Close()
+    {
+        Pause();
+        base.Close();
+    }
+    public bool IsActiveAndOpen()
+    {
+        return !isPaused && IsOpen();
+    }
+    public abstract void TakeInput(int input);
 }
-public interface IUIState : IGameState
+public abstract class IUIState : IGameState
 {
 
 }

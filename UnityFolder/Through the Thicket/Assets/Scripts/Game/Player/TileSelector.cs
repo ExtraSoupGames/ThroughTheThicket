@@ -12,14 +12,21 @@ public class TileSelector : MonoBehaviour
     private GameObject hoveredObject;
     private GameObject selectedObject;
     [SerializeField] LayerMask tileMask;
+    [SerializeField] private IWorldState world;
     [SerializeField] private PlayerController playerController;
     public void Update()
     {
+        if (!world.IsActiveAndOpen())
+        {
+            HideAll();
+            return;
+        }
+        ShowAll();
         UpdateSelectedTile();
     }
     public void Click()
     {
-        if (!playerController.IsTakingInput())
+        if (!world.IsActiveAndOpen())
         {
             return;
         }
@@ -58,5 +65,15 @@ public class TileSelector : MonoBehaviour
     public Tile GetSelectedTile()
     {
         return new Tile((int)selectedObject.transform.position.x, (int)selectedObject.transform.position.z, (int)selectedObject.transform.position.y, new Grass());
+    }
+    private void HideAll()
+    {
+        hoverHighlight.SetActive(false);
+        selectedHighlight.SetActive(false);
+    }
+    private void ShowAll()
+    {
+        hoverHighlight.SetActive(true);
+        selectedHighlight.SetActive(true);
     }
 }

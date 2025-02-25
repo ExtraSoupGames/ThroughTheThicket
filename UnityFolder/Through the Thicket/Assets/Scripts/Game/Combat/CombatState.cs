@@ -10,7 +10,7 @@ public class CombatState : IUIState
     {
         VisualElement root = combatUI.rootVisualElement;
         Button myButton = root.Q<Button>();
-        myButton.clicked += () => manager.CloseState(this);
+        myButton.clicked += () => manager.CloseState("Combat");
         Close();
     }
     public override void Open()

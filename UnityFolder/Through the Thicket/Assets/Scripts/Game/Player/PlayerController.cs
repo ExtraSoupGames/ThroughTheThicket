@@ -85,6 +85,10 @@ public class PlayerController : MonoBehaviour
             gameManager.OpenState("Inventory");
         }
     }
+    public void ExitPressed()
+    {
+        gameManager.CloseState("Dungeon");
+    }
     public void DebugPressedCombat()
     {
         if (IsTakingInput()){

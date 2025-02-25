@@ -17,7 +17,7 @@ public class InventoryManager : IUIState
 
         inventoryGrid = root.Q<VisualElement>("ItemGrid");
         Button myButton = root.Q<Button>("CloseButton");
-        myButton.clicked += () => manager.CloseState(this);
+        myButton.clicked += () => manager.CloseState("Inventory");
 
         bool[,] shape = new bool[5, 5]
         {

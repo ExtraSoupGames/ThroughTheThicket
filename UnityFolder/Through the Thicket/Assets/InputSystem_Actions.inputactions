@@ -24,9 +24,27 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "DebugButton",
+                    "name": "DebugButton1",
                     "type": "Button",
                     "id": "e8db2260-efeb-4150-9ef4-3ba2bbcc8b9d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DebugButton2",
+                    "type": "Button",
+                    "id": "7edfb3a0-fabe-4f5b-b574-64ac6afb5488",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DebugButton3",
+                    "type": "Button",
+                    "id": "5b7c51e5-55ad-4f32-814a-19903901e73c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -74,7 +92,29 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "DebugButton",
+                    "action": "DebugButton1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "88aecbaf-571b-481c-acc2-7306a3c43dca",
+                    "path": "<Keyboard>/l",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DebugButton2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "301ee413-90b6-42de-85a6-416728e7b96a",
+                    "path": "<Keyboard>/j",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DebugButton3",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

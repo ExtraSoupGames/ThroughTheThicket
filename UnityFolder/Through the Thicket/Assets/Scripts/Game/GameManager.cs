@@ -81,9 +81,28 @@ public class GameManager : MonoBehaviour
                 throw new System.Exception("Invalid State Open Requested");
         }
     }
-    public void CloseState(IGameState state)
+    public void CloseState(string stateName)
     {
-        ExitState(state);
+        switch (stateName)
+        {
+            case "Base":
+                ExitState(baseState);
+                break;
+            case "Exploring":
+                ExitState(surfaceState);
+                break;
+            case "Dungeon":
+                ExitState(dungeonState);
+                break;
+            case "Inventory":
+                ExitState(inventory);
+                break;
+            case "Combat":
+                ExitState(combatState);
+                break;
+            default:
+                throw new System.Exception("Invalid State Open Requested");
+        }
     }
     private void EnterState(IGameState state)
     {

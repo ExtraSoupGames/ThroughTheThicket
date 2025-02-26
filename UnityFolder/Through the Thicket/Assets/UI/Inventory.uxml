@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Inventory.uss?fileID=7433441132597879392&amp;guid=3acb98d74674efb4b90fba8f95843a4c&amp;type=3#Inventory" />
     <ui:VisualElement name="Root" class="root-container" style="flex-grow: 1; align-items: stretch; align-self: stretch;">
-        <ui:VisualElement name="Inventory" class="inventory-container" style="align-self: center; height: 638px; width: 399px;">
+        <ui:VisualElement name="Inventory" class="inventory-container" style="align-self: center;">
             <ui:VisualElement name="Header" style="flex-grow: 0; flex-direction: row; flex-shrink: 0; align-items: auto; justify-content: space-between; align-self: auto;">
                 <ui:Label text="Inventory" name="Title" class="inventory-title" />
                 <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" name="CloseButton" focusable="false" class="close-button" style="flex-shrink: 0; align-items: center; align-self: center; margin-top: 4px; margin-right: 4px; margin-bottom: 4px; margin-left: 4px; padding-top: 4px; padding-right: 4px; padding-bottom: 4px; padding-left: 4px;" />

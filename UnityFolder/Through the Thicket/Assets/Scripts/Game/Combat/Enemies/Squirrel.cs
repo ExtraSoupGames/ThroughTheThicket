@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public class SquirrelAttack : Attack
 {
-    public SquirrelAttack() : base(3)
+    public SquirrelAttack() : base(2)
     {
     }
 }
@@ -22,7 +22,11 @@ public class Squirrel : Enemy
 
     public override string GetName()
     {
-        return "Squirrel";
+        return "Squirrel HP:" + health;
+    }
+    public override string GetVoiceLine()
+    {
+        return "I'm a squirrel and I'm gonna kill you";
     }
 
     public override Texture2D GetTexture()

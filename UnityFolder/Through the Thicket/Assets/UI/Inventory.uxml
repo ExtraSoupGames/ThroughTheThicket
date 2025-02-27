@@ -43,6 +43,9 @@
                 <ui:VisualElement name="TabSelector" class="tab-selector" style="top: 15%;" />
                 <ui:VisualElement name="InvenDisplay" class="tab-inventory-holder" />
             </ui:VisualElement>
+            <ui:VisualElement name="CraftingTab" class="crafting-tab" style="flex-grow: 1; width: 120%; height: 100%; left: -120%; top: 0;">
+                <ui:VisualElement style="flex-grow: 1;" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

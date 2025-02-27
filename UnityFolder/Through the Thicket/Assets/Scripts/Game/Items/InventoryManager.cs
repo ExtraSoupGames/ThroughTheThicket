@@ -11,6 +11,7 @@ public class InventoryManager : IUIState
     private StackItem heldItem;
     private VisualElement heldItemVisual;
     private Inventory mainInventory;
+    private Inventory craftingInventory;
     private List<Inventory> subInventories;
     private int selectedInventoryTab;
     [SerializeField] private UIDocument inventoryUI;
@@ -48,10 +49,9 @@ public class InventoryManager : IUIState
             {true, true, true },
             {true, false, false  }
 };
-        Inventory craftingArea = new CraftingArea(shape, 0, 0);
+        craftingInventory = new CraftingArea(shape, 0, 0);
         subInventories = new List<Inventory>();
         mainInventory = inventory;
-        subInventories.Add(craftingArea);
 
         shape = new bool[4, 4]
         {
@@ -62,6 +62,16 @@ public class InventoryManager : IUIState
         };
         Inventory tabbedInventory = new TestInventory(shape, 0, 0);
         subInventories.Add(tabbedInventory);
+
+        shape = new bool[4, 4]
+{
+            {true, true, true, true},
+            {true, false, false, true},
+            {true, false, false, true},
+            {true, true, true, true }
+};
+        Inventory tabbedInventory2 = new TestInventory(shape, 0, 0);
+        subInventories.Add(tabbedInventory2);
         RefreshInventory();
 
         //creates a UIElement to display the held item
@@ -80,7 +90,9 @@ public class InventoryManager : IUIState
     public void RefreshInventory()
     {
         inventoryGrid.Clear();
-        mainInventory.PopulateGrid(inventoryGrid, this);
+        mainInventory.PopulateGrid(inventoryContainer, this);
+        inventoryContainer.Remove(inventoryContainer.Q<VisualElement>(className: "crafting-tab"));
+        craftingInventory.PopulateGrid(inventoryContainer, this);
         while (inventoryContainer.Q<VisualElement>(className: "inventory-tab") != null)
         {
             inventoryContainer.Remove(inventoryContainer.Q<VisualElement>(className: "inventory-tab"));

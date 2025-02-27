@@ -27,7 +27,7 @@ public abstract class Inventory
         y = topLeftY;
         allowedItems = itemsAllowed;
     }
-    protected VisualElement ConstructAsTab(out VisualElement inventoryGrid, int tabOffset, InventoryManager invenManager, int tabIndex, bool isSelectedTab)
+    protected virtual VisualElement ConstructAsTab(out VisualElement inventoryGrid, int tabOffset, InventoryManager invenManager, int tabIndex, bool isSelectedTab)
     {
         VisualElement newTab = new VisualElement();
         newTab.pickingMode = PickingMode.Ignore;

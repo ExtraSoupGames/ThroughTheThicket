@@ -101,19 +101,27 @@ public class CraftingArea : StackInventory
         }
         heldItem = new StackItem(outputSlot.recipe.output);
     }
+    protected override VisualElement ConstructAsTab(out VisualElement inventoryGrid, int tabOffset, InventoryManager invenManager, int tabIndex, bool isSelectedTab)
+    {
+        VisualElement newTab = new VisualElement();
+        newTab.pickingMode = PickingMode.Ignore;
+        newTab.AddToClassList("crafting-tab");
+
+        VisualElement inventoryHolder = new VisualElement();
+        inventoryHolder.AddToClassList("tab-inventory-holder");
+        newTab.Add(inventoryHolder);
+
+        inventoryGrid = new VisualElement();
+        inventoryGrid.AddToClassList("inventory-grid");
+        inventoryHolder.Add(inventoryGrid);
+
+        return newTab;
+    }
     public override void PopulateGrid(VisualElement inventoryContainer, InventoryManager invenManager, int tabOffset = 0, int tabIndex = 0, bool isSelectedTab = false)
     {
         UpdateOutputSlots();
         VisualElement inventoryGrid;
         inventoryContainer.Add(ConstructAsTab(out inventoryGrid, tabOffset, invenManager, tabIndex, isSelectedTab));
-        if (tabOffset == 0)
-        {
-            isSelectedTab = true;
-        }
-        if (!isSelectedTab)
-        {
-            return;
-        }
 
 
         for (int i = 0; i < GetSlots().GetLength(0); i++)

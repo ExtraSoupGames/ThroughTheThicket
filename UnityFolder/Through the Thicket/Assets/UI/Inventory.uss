@@ -135,3 +135,13 @@
     border-bottom-left-radius: 10px;
     left: 0;
 }
+
+.crafting-tab {
+    position: absolute;
+    left: -120%;
+    background-color: rgba(0, 0, 0, 0);
+    flex-grow: 1;
+    top: 0;
+    width: 120%;
+    height: 100%;
+}

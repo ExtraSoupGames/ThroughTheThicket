@@ -13,7 +13,8 @@ public abstract class Inventory
     private int x;
     private int y;
     private HashSet<Items> allowedItems;
-    public Inventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed)
+    protected string inventoryName;
+    public Inventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed, string inventoryName)
     {
         slots = new InventorySlot[shape.GetLength(0), shape.GetLength(1)];
         for (int itemX = 0; itemX < shape.GetLength(0); itemX++)
@@ -26,6 +27,7 @@ public abstract class Inventory
         x = topLeftX;
         y = topLeftY;
         allowedItems = itemsAllowed;
+        this.inventoryName = inventoryName;
     }
     protected virtual VisualElement ConstructAsTab(out VisualElement inventoryGrid, int tabOffset, InventoryManager invenManager, int tabIndex, bool isSelectedTab)
     {
@@ -48,6 +50,15 @@ public abstract class Inventory
         VisualElement inventoryHolder = new VisualElement();
         inventoryHolder.AddToClassList("tab-inventory-holder");
         newTab.Add(inventoryHolder);
+
+        Label inventoryNameLabel = new Label(inventoryName);
+        inventoryNameLabel.AddToClassList("inventory-title");
+
+        VisualElement inventoryHeader = new VisualElement();
+        inventoryHeader.AddToClassList("header");
+        inventoryHeader.Add(inventoryNameLabel);
+
+        inventoryHolder.Add(inventoryHeader);
 
         inventoryGrid = new VisualElement();
         inventoryGrid.AddToClassList("inventory-grid");
@@ -133,7 +144,7 @@ public abstract class Inventory
 }
 public abstract class StackInventory : Inventory
 {
-    public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed) : base(shape, topLeftX, topLeftY, itemsAllowed)
+    public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed, string inventoryName) : base(shape, topLeftX, topLeftY, itemsAllowed, inventoryName)
     {
     }
     public override bool ItemCanFit(int slotX, int slotY, StackItem item)

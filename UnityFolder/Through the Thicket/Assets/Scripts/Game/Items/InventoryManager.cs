@@ -33,7 +33,7 @@ public class InventoryManager : IUIState
             {true, false, false, false, true }
         };
         //testing setup for stack inventory testing
-        Inventory inventory = new TestInventory(shape, 0, 0);
+        Inventory inventory = new TestInventory(shape, 0, 0, "Backpack");
         //creates the held item, and places it into the inventory
         heldItem = new StackItem(new Stone());
         InventorySlot tempSlot = inventory.GetSlot(0, 1);
@@ -60,7 +60,7 @@ public class InventoryManager : IUIState
             {true, false, false, true},
             {true, false, false, true }
         };
-        Inventory tabbedInventory = new TestInventory(shape, 0, 0);
+        Inventory tabbedInventory = new TestInventory(shape, 0, 0, "Mushroom Bag");
         subInventories.Add(tabbedInventory);
 
         shape = new bool[4, 4]
@@ -70,7 +70,7 @@ public class InventoryManager : IUIState
             {true, false, false, true},
             {true, true, true, true }
 };
-        Inventory tabbedInventory2 = new TestInventory(shape, 0, 0);
+        Inventory tabbedInventory2 = new TestInventory(shape, 0, 0, "Pebble Pocket");
         subInventories.Add(tabbedInventory2);
         RefreshInventory();
 

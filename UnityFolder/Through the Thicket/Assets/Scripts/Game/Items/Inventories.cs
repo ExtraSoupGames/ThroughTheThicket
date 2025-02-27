@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TestInventory : StackInventory
 {
-    public TestInventory(bool[,] shape, int topLeftX, int topLeftY) : base(shape, topLeftX, topLeftY, new HashSet<Items> { Items.Stone, Items.MegaStoneTest})
+    public TestInventory(bool[,] shape, int topLeftX, int topLeftY, string inventoryName) : base(shape, topLeftX, topLeftY, new HashSet<Items> { Items.Stone, Items.MegaStoneTest}, inventoryName)
     {
     }
 }

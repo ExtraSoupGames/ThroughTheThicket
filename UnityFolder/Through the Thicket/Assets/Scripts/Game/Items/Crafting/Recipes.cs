@@ -26,7 +26,7 @@ public class CraftingArea : StackInventory
     private List<Recipe> possibleRecipes;
     private CraftingOutputSlot[] outputSlots;
     Recipes recipes;
-    public CraftingArea(bool[,] shape, int topLeftX, int topLeftY) : base(shape, topLeftX, topLeftY, new HashSet<Items> {Items.Stone, Items.MegaStoneTest })
+    public CraftingArea(bool[,] shape, int topLeftX, int topLeftY) : base(shape, topLeftX, topLeftY, new HashSet<Items> {Items.Stone, Items.MegaStoneTest }, "Crafting")
     {
         recipes = new Recipes();
         outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, shape.GetLength(0) + 1, 0), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 1), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 2) };
@@ -110,6 +110,16 @@ public class CraftingArea : StackInventory
         VisualElement inventoryHolder = new VisualElement();
         inventoryHolder.AddToClassList("tab-inventory-holder");
         newTab.Add(inventoryHolder);
+
+
+        Label inventoryNameLabel = new Label(inventoryName);
+        inventoryNameLabel.AddToClassList("inventory-title");
+
+        VisualElement inventoryHeader = new VisualElement();
+        inventoryHeader.AddToClassList("header");
+        inventoryHeader.Add(inventoryNameLabel);
+
+        inventoryHolder.Add(inventoryHeader);
 
         inventoryGrid = new VisualElement();
         inventoryGrid.AddToClassList("inventory-grid");

@@ -8,12 +8,18 @@ public static class FileHelper
     //ensure all required directories exists
     public static void DirectoryCheck()
     {
-        string[] requiredDirectories = { "chunks" };
-        foreach (string dir in requiredDirectories)
+        List<string>[] requiredDirectories = { new List<string>{ "World", "SurfaceData", "Chunks" }, new List<string>{ "World", "DungeonData", "Chunks"} };
+        for (int i = 0; i < requiredDirectories.Length; i++)
         {
-            if(!Directory.Exists(Application.persistentDataPath + "/" + dir))
+            string path = Application.persistentDataPath;
+            for(int j = 0; j < requiredDirectories[i].Count; j++)
             {
-                Directory.CreateDirectory(Application.persistentDataPath + "/" + dir);
+                path = Path.Combine(path, requiredDirectories[i][j]);
+            }
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+                Debug.Log($"Created directory: {path}");
             }
         }
     }

@@ -11,7 +11,8 @@ public enum LayerContents
 {
     None,
     Grass,
-    Foliage
+    Foliage,
+    Rock
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -31,6 +32,8 @@ public struct TileSegmentDataHolder
         {
             case LayerContents.Grass:
                 return new Grass();
+            case LayerContents.Rock:
+                return new Rock();
             default:
                 Debug.LogError("Tried to construct a base which had enum of none");
                 return new Grass();

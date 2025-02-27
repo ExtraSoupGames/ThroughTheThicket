@@ -8,7 +8,7 @@ public class SurfaceState : IWorldState
     [SerializeField] private PlayerController playerController;
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
-    [SerializeField] private ChunkManager surfaceManager;
+    [SerializeField] private SurfaceManager surfaceManager;
     public override void Close()
     {
         surfaceManager.HideWorld();

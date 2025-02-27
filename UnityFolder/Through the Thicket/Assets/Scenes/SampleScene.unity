@@ -131,7 +131,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 72572909}
-  - component: {fileID: 72572911}
+  - component: {fileID: 72572915}
   - component: {fileID: 72572914}
   - component: {fileID: 72572913}
   - component: {fileID: 72572912}
@@ -160,22 +160,6 @@ Transform:
   - {fileID: 765287353}
   m_Father: {fileID: 1399105416}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &72572911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 72572908}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 836dcbb894eddad458294bbd51124c5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RenderDistance: 15
-  playerTransform: {fileID: 2032500694}
-  tileParent: {fileID: 1958121277}
-  tilePrefab: {fileID: 3777168579710349592, guid: 135e205840b55de4baf2f8008a12819d, type: 3}
 --- !u!114 &72572912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -188,7 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82fa053ec44bfc24ba2f6466144be5ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkManager: {fileID: 72572911}
+  chunkManager: {fileID: 72572915}
 --- !u!114 &72572913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,7 +208,23 @@ MonoBehaviour:
   playerController: {fileID: 2032500696}
   tileSelector: {fileID: 72572913}
   pathFinder: {fileID: 72572912}
-  surfaceManager: {fileID: 72572911}
+  surfaceManager: {fileID: 72572915}
+--- !u!114 &72572915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72572908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6a63d4d2964eda4cba31a69863faa2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RenderDistance: 15
+  playerTransform: {fileID: 2032500694}
+  tileParent: {fileID: 1958121277}
+  tilePrefab: {fileID: 3777168579710349592, guid: 135e205840b55de4baf2f8008a12819d, type: 3}
 --- !u!1 &425711591
 GameObject:
   m_ObjectHideFlags: 0

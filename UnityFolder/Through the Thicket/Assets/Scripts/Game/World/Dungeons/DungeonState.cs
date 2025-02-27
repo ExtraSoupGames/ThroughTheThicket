@@ -8,7 +8,7 @@ public class DungeonState : IWorldState
     [SerializeField] private PlayerController playerController;
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
-    [SerializeField] private ChunkManager dungeonManager;
+    [SerializeField] private DungeonManager dungeonManager;
     public override void Close()
     {
         dungeonManager.HideWorld();
@@ -17,6 +17,7 @@ public class DungeonState : IWorldState
 
     public override void Initialize(GameManager manager)
     {
+        dungeonManager.OtherTests();
         dungeonManager.HideWorld();
     }
 

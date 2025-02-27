@@ -1,4 +1,5 @@
 using Unity.Collections;
+using Unity.VisualScripting;
 public struct Chunk
 {
     public NativeArray<Tile> tiles;
@@ -7,7 +8,7 @@ public struct Chunk
     {
         return 16;
     }
-    public Chunk(int X, int Y)
+    public Chunk(int X, int Y, bool isCave = false)
     {
         this.X = X;
         this.Y = Y;
@@ -15,13 +16,20 @@ public struct Chunk
         int chunkRad = ChunkSize() / 2;
         for (int i = 0; i < ChunkSize(); i++)
         {
-            for(int j = 0; j < ChunkSize(); j++)
+            for (int j = 0; j < ChunkSize(); j++)
             {
                 //just for testing I change the height
                 int TileX = (X * ChunkSize()) - chunkRad + i;
                 int TileY = (Y * ChunkSize()) - chunkRad + j;
                 int height = i % 4 == 2 && j % 3 == 1 ? 1 : 0;
-                tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X ,Y, height == 0 ? new Grass() : new Grass());
+                if (isCave)
+                {
+                    tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X, Y, height == 0 ? new Rock() : new Grass());
+                }
+                else
+                {
+                    tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X, Y, height == 0 ? new Grass() : new Grass());
+                }
             }
         }
     }

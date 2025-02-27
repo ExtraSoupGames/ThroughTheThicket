@@ -33,6 +33,7 @@ public class TileDisplayGetter
         allMeshes = new Dictionary<string, LayerDisplayProperties>();
         allMeshes.Add("Empty", new LayerDisplayProperties());
         allMeshes.Add("Grass", new LayerDisplayProperties("Grass", new string[] { "Foliage1"}));
+        allMeshes.Add("Rock", new LayerDisplayProperties("Grass", new string[] { "Foliage2"}));
         allMeshes.Add("Foliage", new LayerDisplayProperties("Foliage", new string[] { "Foliage1", "Foliage2", "Foliage3"}));
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)

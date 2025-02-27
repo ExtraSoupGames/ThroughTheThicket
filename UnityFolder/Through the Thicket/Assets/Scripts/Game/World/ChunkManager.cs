@@ -16,7 +16,7 @@ public struct ChunkPos
         Y = y;
     }
 }
-public class ChunkManager : MonoBehaviour
+public abstract class ChunkManager : MonoBehaviour
 {
     //the distance, in tiles, around the player in which to render tiles
     [SerializeField] private int RenderDistance;
@@ -39,10 +39,11 @@ public class ChunkManager : MonoBehaviour
     //JobHandles to track other threads
     JobHandle ChunkGrabber;
     private TileDisplayGetter tileDisplayGetter;
-    public void Start()
+    protected abstract string GetChunkPath();
+    public void Awake()
     {
         int tilePoolSize = (RenderDistance * 2) * (RenderDistance * 2);
-        persistentDataPath = new NativeArray<char>(Application.persistentDataPath.ToCharArray(), Allocator.Persistent);
+        persistentDataPath = new NativeArray<char>(GetChunkPath().ToCharArray(), Allocator.Persistent);
         chunksToLoad = new NativeQueue<ChunkPos>(Allocator.Persistent);
         tilesToLoad = new NativeQueue<Tile>(Allocator.Persistent);
         loadedTiles = new List<ProcessedTileData>();
@@ -124,6 +125,7 @@ public class ChunkManager : MonoBehaviour
     //add a chunk to active loaded list, and queue its tiles to be loaded
     private void LoadChunk(ChunkPos chunkPosition)
     {
+        FileHelper.DirectoryCheck();
         activeChunks.Add(chunkPosition);
         chunksToLoad.Enqueue(chunkPosition);
     }
@@ -215,18 +217,20 @@ public class ChunkManager : MonoBehaviour
         }
     }
     //save a chunk
-    private void SaveChunk(Chunk chunk)
+    protected void SaveChunk(Chunk chunk)
     {
         FileHelper.DirectoryCheck();
         string chunkAsJSON = JsonUtility.ToJson(chunk.GetChunkForSerialization(), true);
-        string fileName = "/chunks/chunk" + chunk.X + "-" + chunk.Y;
-        File.WriteAllText(Application.persistentDataPath + fileName + ".json", chunkAsJSON);
+        string dataPathString = new string(persistentDataPath.ToArray());
+        string fileName = Path.Combine(dataPathString, "chunk" + chunk.X + "-" + chunk.Y);
+        File.WriteAllText(fileName + ".json", chunkAsJSON);
         chunk.Dispose();
     }
     //clear the chunks directory
-    private void DeleteAllChunks()
+    protected void DeleteAllChunks()
     {
-        string path = Application.persistentDataPath + "/chunks";
+        FileHelper.DirectoryCheck();
+        string path = new string(persistentDataPath.ToArray());
         // Delete all files
         string[] files = Directory.GetFiles(path);
         foreach (string file in files)

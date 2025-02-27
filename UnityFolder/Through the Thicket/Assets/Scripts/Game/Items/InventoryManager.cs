@@ -7,14 +7,18 @@ using UnityEngine.UIElements;
 public class InventoryManager : IUIState
 {
     private VisualElement inventoryGrid;
+    private VisualElement inventoryContainer;
     private StackItem heldItem;
     private VisualElement heldItemVisual;
-    private List<Inventory> inventories;
+    private Inventory mainInventory;
+    private List<Inventory> subInventories;
+    private int selectedInventoryTab;
     [SerializeField] private UIDocument inventoryUI;
     public override void Initialize(GameManager manager)
     {
         VisualElement root = inventoryUI.rootVisualElement;
 
+        inventoryContainer = root.Q<VisualElement>("InventoryContainer");
         inventoryGrid = root.Q<VisualElement>("ItemGrid");
         Button myButton = root.Q<Button>("CloseButton");
         myButton.clicked += () => manager.CloseState("Inventory");
@@ -36,6 +40,7 @@ public class InventoryManager : IUIState
         heldItem = new StackItem(new Stone());
         tempSlot = inventory.GetSlot(0, 2);
         inventory.ClickAt(ref heldItem, ref tempSlot);
+        selectedInventoryTab = 0;
 
         shape = new bool[3, 3]
 {
@@ -43,11 +48,21 @@ public class InventoryManager : IUIState
             {true, true, true },
             {true, false, false  }
 };
-        Inventory craftingArea = new CraftingArea(shape, 50, 50);
-        inventories = new List<Inventory>();
-        inventories.Add(inventory);
-        inventories.Add(craftingArea);
-        PopulateAllGrids();
+        Inventory craftingArea = new CraftingArea(shape, 0, 0);
+        subInventories = new List<Inventory>();
+        mainInventory = inventory;
+        subInventories.Add(craftingArea);
+
+        shape = new bool[4, 4]
+        {
+            {true, true, true, true},
+            {true, false, false, true},
+            {true, false, false, true},
+            {true, false, false, true }
+        };
+        Inventory tabbedInventory = new TestInventory(shape, 0, 0);
+        subInventories.Add(tabbedInventory);
+        RefreshInventory();
 
         //creates a UIElement to display the held item
         heldItem = null;
@@ -62,13 +77,23 @@ public class InventoryManager : IUIState
 
         Close();
     }
-    public void PopulateAllGrids()
+    public void RefreshInventory()
     {
         inventoryGrid.Clear();
-        foreach (Inventory i in inventories)
+        mainInventory.PopulateGrid(inventoryGrid, this);
+        while (inventoryContainer.Q<VisualElement>(className: "inventory-tab") != null)
         {
-            i.PopulateGrid(inventoryGrid, this);
+            inventoryContainer.Remove(inventoryContainer.Q<VisualElement>(className: "inventory-tab"));
         }
+        int tabOffset = 5;
+        int tabIndex = 0;
+        foreach (Inventory i in subInventories)
+        {
+            i.PopulateGrid(inventoryContainer, this, tabOffset, tabIndex, tabIndex == selectedInventoryTab);
+            tabOffset += 10;
+            tabIndex++;
+        }
+        Debug.Log("Selected tab is: " + selectedInventoryTab);
     }
     public StackItem GetHeldItem()
     {
@@ -122,6 +147,11 @@ public class InventoryManager : IUIState
         // Apply the position to the element (centering it on the cursor)
         heldItemVisual.style.left = localMousePos.x - (width / 2);
         heldItemVisual.style.top = localMousePos.y + (height / 2) - heldItemVisual.parent.resolvedStyle.height;
+    }
+    public void SelectTab(int tabIndex)
+    {
+        selectedInventoryTab = tabIndex;
+        RefreshInventory();
     }
 
 }

@@ -101,9 +101,21 @@ public class CraftingArea : StackInventory
         }
         heldItem = new StackItem(outputSlot.recipe.output);
     }
-    public override void PopulateGrid(VisualElement inventoryGrid, InventoryManager invenManager)
+    public override void PopulateGrid(VisualElement inventoryContainer, InventoryManager invenManager, int tabOffset = 0, int tabIndex = 0, bool isSelectedTab = false)
     {
         UpdateOutputSlots();
+        VisualElement inventoryGrid;
+        inventoryContainer.Add(ConstructAsTab(out inventoryGrid, tabOffset, invenManager, tabIndex, isSelectedTab));
+        if (tabOffset == 0)
+        {
+            isSelectedTab = true;
+        }
+        if (!isSelectedTab)
+        {
+            return;
+        }
+
+
         for (int i = 0; i < GetSlots().GetLength(0); i++)
         {
             //Create a new row

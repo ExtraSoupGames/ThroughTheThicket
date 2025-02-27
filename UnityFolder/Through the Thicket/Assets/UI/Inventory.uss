@@ -12,6 +12,7 @@
     background-color: rgba(0, 0, 0, 0.8);
     padding: 10px;
     border-radius: 10px;
+    align-self: center;
 }
 
 .inventory-title {
@@ -103,4 +104,34 @@
     right: -5px;
     bottom: -5px;
     color: rgb(255, 255, 255);
+}
+
+.inventory-tab {
+    left: 100%;
+    position: absolute;
+    top: 0;
+    width: 120%;
+    height: 100%;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.tab-selector {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    height: 10%;
+    width: 10%;
+}
+
+.tab-inventory-holder {
+    width: 90%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    flex-grow: 1;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    left: 0;
 }

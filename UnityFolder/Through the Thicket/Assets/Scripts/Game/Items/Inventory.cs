@@ -27,6 +27,34 @@ public abstract class Inventory
         y = topLeftY;
         allowedItems = itemsAllowed;
     }
+    protected VisualElement ConstructAsTab(out VisualElement inventoryGrid, int tabOffset, InventoryManager invenManager, int tabIndex, bool isSelectedTab)
+    {
+        VisualElement newTab = new VisualElement();
+        newTab.pickingMode = PickingMode.Ignore;
+        newTab.AddToClassList("inventory-tab");
+
+        Button tabSelector = new Button();
+        //TODO assign clickableness to button
+        tabSelector.clicked += () => invenManager.SelectTab(tabIndex);
+        tabSelector.AddToClassList("tab-selector");
+        tabSelector.style.top = new Length(tabOffset, LengthUnit.Percent);
+        newTab.Add(tabSelector);
+
+        if (!isSelectedTab)
+        {
+            inventoryGrid = null;
+            return newTab;
+        }
+        VisualElement inventoryHolder = new VisualElement();
+        inventoryHolder.AddToClassList("tab-inventory-holder");
+        newTab.Add(inventoryHolder);
+
+        inventoryGrid = new VisualElement();
+        inventoryGrid.AddToClassList("inventory-grid");
+        inventoryHolder.Add(inventoryGrid);
+
+        return newTab;
+    }
     public int SlotSize()
     {
         //this determines the slot size in pixels ( including padding ect ) as this is used to determine which slot is being hovered
@@ -97,9 +125,9 @@ public abstract class Inventory
         //update the whole inventory visual
         invenManager.SetHeldItem(heldItem);
         invenManager.UpdateHeldItem();
-        invenManager.PopulateAllGrids();
+        invenManager.RefreshInventory();
     }
-    public abstract void PopulateGrid(VisualElement inventoryGrid, InventoryManager invenManager);
+    public abstract void PopulateGrid(VisualElement inventoryContainer, InventoryManager invenManager, int tabOffset = 0, int tabIndex = 0, bool isSelectedTab = false);
     public abstract bool ItemCanFit(int slotX, int slotY, StackItem item);
     public abstract void SwapItem(ref StackItem heldItem, InventorySlot hoveredSlot);
 }
@@ -127,8 +155,22 @@ public abstract class StackInventory : Inventory
         hoveredSlot.item = heldItem == null ? null : heldItem;
         heldItem = tempItem;
     }
-    public override void PopulateGrid(VisualElement inventoryGrid, InventoryManager invenManager)
+    public override void PopulateGrid(VisualElement inventoryContainer, InventoryManager invenManager, int tabOffset = 0, int tabIndex = 0, bool isSelectedTab = false)
     {
+        VisualElement inventoryGrid;
+        if (tabOffset == 0)
+        {
+            isSelectedTab = true;
+            inventoryGrid = inventoryContainer.Q<VisualElement>("ItemGrid");
+        }
+        else
+        {
+            inventoryContainer.Add(ConstructAsTab(out inventoryGrid, tabOffset, invenManager, tabIndex, isSelectedTab));
+        }
+        if (!isSelectedTab)
+        {
+            return;
+        }
         for (int i = 0; i < GetSlots().GetLength(0); i++)
         {
             //Create a new row

@@ -31,6 +31,11 @@ public class CraftingArea : StackInventory
         recipes = new Recipes();
         outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, shape.GetLength(0) + 1, 0), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 1), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 2) };
     }
+    public CraftingArea(List<PersistentSlot> slots, int width, int height) : base(slots, width, height, "Crafting")
+    {
+        recipes = new Recipes();
+        outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, width + 1, 0), new CraftingOutputSlot(this, width + 1, 1), new CraftingOutputSlot(this, width + 1, 2) };
+    }
     private void RefreshRecipes()
     {
         possibleRecipes = recipes.EvaluateCraftingArea(slots);
@@ -82,7 +87,7 @@ public class CraftingArea : StackInventory
             bool hadItem = false;
             foreach(InventorySlot slot in slots)
             {
-                if (slot.IsEmpty())
+                if (slot.IsEmpty() || !slot.IsValid())
                 {
                     continue;
                 }
@@ -99,7 +104,7 @@ public class CraftingArea : StackInventory
                 return;
             }
         }
-        heldItem = new StackItem(outputSlot.recipe.output);
+        heldItem = StackItem.CopyStackItem(outputSlot.recipe.output);
     }
     protected override VisualElement ConstructAsTab(out VisualElement inventoryGrid, int tabOffset, InventoryManager invenManager, int tabIndex, bool isSelectedTab)
     {

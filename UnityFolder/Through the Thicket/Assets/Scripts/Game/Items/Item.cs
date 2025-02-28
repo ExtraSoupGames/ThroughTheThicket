@@ -22,14 +22,22 @@ public class StackItem
         this.count = count;
         maxStackCount = item.GetMaxStackCount();
     }
-    public StackItem(StackItem copyFrom)
+    public static StackItem CopyStackItem(StackItem copyFrom)
     {
-        this.item = copyFrom.item.Clone();
-        this.count = copyFrom.count;
-        maxStackCount = item.GetMaxStackCount();
+        if(copyFrom == null)
+        {
+            return null;
+        }
+        return new StackItem(copyFrom.item, copyFrom.count);
     }
     public StackItem(IItem item) : this(item, 1)
     {
+    }
+    public StackItem(PersistentSlot data)
+    {
+        item = ItemHelper.GetItemFromType(data.itemType);
+        count = data.count;
+        maxStackCount = item.GetMaxStackCount();
     }
     public Items GetItemType()
     {

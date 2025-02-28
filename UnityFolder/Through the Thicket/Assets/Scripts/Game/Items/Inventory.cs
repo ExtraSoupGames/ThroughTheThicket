@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,7 +10,6 @@ public abstract class Inventory
 {
     // allows for custom shaped inventories
     protected InventorySlot[,] slots;
-    public string name;
     private int x;
     private int y;
     private HashSet<Items> allowedItems;
@@ -85,6 +85,10 @@ public abstract class Inventory
     {
         return slots;
     }
+    public string GetName()
+    {
+        return inventoryName;
+    }
     public bool ContainsSlotAt(int gridX, int gridY)
     {
         if(!(0 <= gridX && gridX < slots.GetLength(0)))
@@ -141,12 +145,55 @@ public abstract class Inventory
     public abstract void PopulateGrid(VisualElement inventoryContainer, InventoryManager invenManager, int tabOffset = 0, int tabIndex = 0, bool isSelectedTab = false);
     public abstract bool ItemCanFit(int slotX, int slotY, StackItem item);
     public abstract void SwapItem(ref StackItem heldItem, InventorySlot hoveredSlot);
+
+    public List<PersistentSlot> GetPersistentItems(out int slotsWidth, out int slotsHeight)
+    {
+        List<PersistentSlot> persistentSlots = new List<PersistentSlot>();
+        for (int itemX = 0; itemX < slots.GetLength(0); itemX++)
+        {
+            for (int itemY = 0; itemY < slots.GetLength(1); itemY++)
+            {
+                persistentSlots.Add(new PersistentSlot(slots[itemX, itemY].IsValid(), slots[itemX, itemY]));
+            }
+        }
+        slotsWidth = slots.GetLength(0);
+        slotsHeight = slots.GetLength(1);
+        return persistentSlots;
+    }
+    public Inventory(List<PersistentSlot> loadSlots, int width, int height, string inventoryName)
+    {
+
+        x = 0;
+        y = 0;
+        allowedItems = new HashSet<Items> { Items.Stone, Items.MegaStoneTest };
+        this.inventoryName = inventoryName;
+    }
 }
 public abstract class StackInventory : Inventory
 {
     public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed, string inventoryName) : base(shape, topLeftX, topLeftY, itemsAllowed, inventoryName)
     {
     }
+    public StackInventory(List<PersistentSlot> dataSlots, int width, int height, string invenName) : base(dataSlots, width, height, invenName)
+    {
+        Debug.Log("Loading inventory with slot count of: " + dataSlots.Count);
+        Debug.Log("Inventory width was: " + width + ", and height was: " + height + ", and name was: " + invenName);
+        slots = new InventorySlot[width, height];
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                PersistentSlot dataSlot = dataSlots[(y*width) + x];
+                slots[x, y] = new InventorySlot(this, dataSlot.isValid, x, y);
+                if (dataSlot.itemType != Items.ErrorItem)
+                {
+                    slots[x, y].item = new StackItem(ItemHelper.GetItemFromType(dataSlot.itemType), dataSlot.count);
+                }
+            }
+        }
+        inventoryName = invenName;
+    }
+
     public override bool ItemCanFit(int slotX, int slotY, StackItem item)
     {
         //In a stack inventory, if the slot is valid, then it can fit

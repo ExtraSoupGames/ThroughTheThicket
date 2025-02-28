@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -26,11 +27,11 @@ public class InventoryManager : IUIState
 
         bool[,] shape = new bool[5, 5]
         {
-            {true, true, true, true, true },
+            {true, true, true, false, true },
             {true, true, true, false, true},
-            {true, false, false, true, true },
-            {true, false, true, true, true },
-            {true, false, false, false, true }
+            {true, true, false, true, true },
+            {true, true, false, true, true },
+            {true, false, true, true, true }
         };
         //testing setup for stack inventory testing
         Inventory inventory = new TestInventory(shape, 0, 0, "Backpack");
@@ -46,8 +47,8 @@ public class InventoryManager : IUIState
         shape = new bool[3, 3]
 {
             {true, true, true },
-            {true, true, true },
-            {true, false, false  }
+            {true, true, false },
+            {true, true, true  }
 };
         craftingInventory = new CraftingArea(shape, 0, 0);
         subInventories = new List<Inventory>();
@@ -56,9 +57,9 @@ public class InventoryManager : IUIState
         shape = new bool[4, 4]
         {
             {true, true, true, true},
-            {true, false, false, true},
-            {true, false, false, true},
-            {true, false, false, true }
+            {true, true, false, true},
+            {true, false, true, true},
+            {true, true, true, false }
         };
         Inventory tabbedInventory = new TestInventory(shape, 0, 0, "Mushroom Bag");
         subInventories.Add(tabbedInventory);
@@ -66,9 +67,9 @@ public class InventoryManager : IUIState
         shape = new bool[4, 4]
 {
             {true, true, true, true},
-            {true, false, false, true},
-            {true, false, false, true},
-            {true, true, true, true }
+            {true, false, true, true},
+            {true, true, true, true},
+            {false, true, true, false }
 };
         Inventory tabbedInventory2 = new TestInventory(shape, 0, 0, "Pebble Pocket");
         subInventories.Add(tabbedInventory2);
@@ -124,14 +125,18 @@ public class InventoryManager : IUIState
     {
         inventoryUI.rootVisualElement.style.display = DisplayStyle.None;
         base.Close();
+        SaveInventory();
+        subInventories.Clear();
     }
     public override void Open()
     {
+        LoadInventory();
         inventoryUI.rootVisualElement.style.display = DisplayStyle.Flex;
         Button myButton = inventoryUI.rootVisualElement.Q<Button>("CloseButton");
         myButton.Focus(); // Ensure the button is focused so it can immediately register clicks
         myButton.SetEnabled(true);
         base.Open();
+        RefreshInventory();
     }
     public override void UpdateWhenOpen()
     {
@@ -165,5 +170,25 @@ public class InventoryManager : IUIState
         selectedInventoryTab = tabIndex;
         RefreshInventory();
     }
-
+    public void SaveInventory()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "World", "Inventory", "Player.json");
+        FileHelper.DirectoryCheck();
+        string persistentInventory = JsonUtility.ToJson(new PersistentInventories(mainInventory, craftingInventory, subInventories));
+        Debug.Log("Saved inventory: " + persistentInventory);
+        File.WriteAllText(path, persistentInventory);
+    }
+    public void LoadInventory()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "World", "Inventory", "Player.json");
+        FileHelper.DirectoryCheck();
+        PersistentInventories saveData = JsonUtility.FromJson<PersistentInventories>(File.ReadAllText(path));
+        Debug.Log("Loaded inventory: " + saveData);
+        mainInventory = saveData.inventories[0].GetInventory(false);
+        craftingInventory = saveData.inventories[1].GetInventory(true);
+        for(int i = 2; i < saveData.inventories.Count; i++)
+        {
+            subInventories.Add(saveData.inventories[i].GetInventory(false));
+        }
+    }
 }

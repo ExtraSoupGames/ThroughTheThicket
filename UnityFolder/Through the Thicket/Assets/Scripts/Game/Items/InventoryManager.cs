@@ -106,7 +106,6 @@ public class InventoryManager : IUIState
             tabOffset += 10;
             tabIndex++;
         }
-        Debug.Log("Selected tab is: " + selectedInventoryTab);
     }
     public StackItem GetHeldItem()
     {
@@ -175,7 +174,6 @@ public class InventoryManager : IUIState
         string path = Path.Combine(Application.persistentDataPath, "World", "Inventory", "Player.json");
         FileHelper.DirectoryCheck();
         string persistentInventory = JsonUtility.ToJson(new PersistentInventories(mainInventory, craftingInventory, subInventories));
-        Debug.Log("Saved inventory: " + persistentInventory);
         File.WriteAllText(path, persistentInventory);
     }
     public void LoadInventory()
@@ -183,7 +181,6 @@ public class InventoryManager : IUIState
         string path = Path.Combine(Application.persistentDataPath, "World", "Inventory", "Player.json");
         FileHelper.DirectoryCheck();
         PersistentInventories saveData = JsonUtility.FromJson<PersistentInventories>(File.ReadAllText(path));
-        Debug.Log("Loaded inventory: " + saveData);
         mainInventory = saveData.inventories[0].GetInventory(false);
         craftingInventory = saveData.inventories[1].GetInventory(true);
         for(int i = 2; i < saveData.inventories.Count; i++)

@@ -176,8 +176,6 @@ public abstract class StackInventory : Inventory
     }
     public StackInventory(List<PersistentSlot> dataSlots, int width, int height, string invenName) : base(dataSlots, width, height, invenName)
     {
-        Debug.Log("Loading inventory with slot count of: " + dataSlots.Count);
-        Debug.Log("Inventory width was: " + width + ", and height was: " + height + ", and name was: " + invenName);
         slots = new InventorySlot[width, height];
         for (int x = 0; x < width; x++)
         {

@@ -145,6 +145,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4645041294886021744}
+  - component: {fileID: 1987742741023323166}
   m_Layer: 0
   m_Name: TileHolder
   m_TagString: Untagged
@@ -170,6 +171,18 @@ Transform:
   - {fileID: 8712149417316497562}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1987742741023323166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3777168579710349592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286fcc237ba0abf40a8375b96e539362, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5832578418434810323
 GameObject:
   m_ObjectHideFlags: 0

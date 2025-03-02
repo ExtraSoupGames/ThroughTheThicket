@@ -18,4 +18,8 @@ public class NormalFoliage : ITileSegmentFoliageLayer
     {
         return 0;
     }
+    public List<TileInteractionOption> GetInteractionOptions()
+    {
+        return new List<TileInteractionOption>();
+    }
 }

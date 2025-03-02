@@ -17,4 +17,8 @@ public class Grass : ITileSegmentBaseLayer
     {
         return LayerContents.Grass;
     }
+    public List<TileInteractionOption> GetInteractionOptions()
+    {
+        return new List<TileInteractionOption>();
+    }
 }

@@ -106,9 +106,13 @@ public class PlayerController : MonoBehaviour
     {
         return takingInput;
     }
-    public void Click()
+    public void LClick()
     {
-        tileSelector.Click();
+        tileSelector.LClick();
+    }
+    public void RClick()
+    {
+        tileSelector.RClick();
     }
     public void SetTakingInput(bool input)
     {

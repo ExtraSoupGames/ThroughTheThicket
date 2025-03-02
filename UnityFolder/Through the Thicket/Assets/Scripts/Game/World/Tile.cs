@@ -123,6 +123,7 @@ public struct ProcessedTileData
     public void ApplyTileProperties(GameObject TileObject, TileDisplayGetter displayGetter)
     {
         TileObject.SetActive(true);
+        TileObject.GetComponent<TileDataHolder>().thisTileData = this;
         GameObject baseLayer = TileObject.transform.GetChild(0).gameObject;
         LayerDisplayProperties baseDisplay = BaseType.GetDisplayProperties(displayGetter);
         GameObject foliageLayer = TileObject.transform.GetChild(1).gameObject;
@@ -168,5 +169,13 @@ public struct ProcessedTileData
         float dY = playerY - Y;
         float distance = MathF.Sqrt((dX * dX) + (dY * dY));
         return distance < maxDist;
+    }
+    public TileInteractionMenu GetInteractionOptions()
+    {
+        TileInteractionMenu menu = new TileInteractionMenu();
+        menu.AddOptions(BaseType.GetInteractionOptions());
+        menu.AddOptions(FoliageType.GetInteractionOptions());
+        menu.AddOptions(ObjectType.GetInteractionOptions());
+        return menu;
     }
 }

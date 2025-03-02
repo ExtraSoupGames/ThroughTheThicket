@@ -14,6 +14,11 @@ public class EmptyObject : ITileSegmentObjectLayer
         return displayGetter.GetDisplayProperties("Empty");
     }
 
+    public List<TileInteractionOption> GetInteractionOptions()
+    {
+        return new List<TileInteractionOption>();
+    }
+
     public int GetTravelCost()
     {
         return 0;

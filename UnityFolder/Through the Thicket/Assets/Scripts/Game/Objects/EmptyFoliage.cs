@@ -18,4 +18,8 @@ public class EmptyFoliage : ITileSegmentFoliageLayer
     {
         return 0;
     }
+    public List<TileInteractionOption> GetInteractionOptions()
+    {
+        return new List<TileInteractionOption>();
+    }
 }

@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 public class GameManager : MonoBehaviour
@@ -12,6 +14,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DungeonState dungeonState;
     [SerializeField] private CombatState combatState;
     [SerializeField] private BaseState baseState;
+    [SerializeField] private TileInteractionState tileState;
     private Stack<IWorldState> worldState;
     private Stack<IUIState> uiState;
     public void Start()
@@ -24,6 +27,7 @@ public class GameManager : MonoBehaviour
         surfaceState.Initialize(this);
         combatState.Initialize(this);
         dungeonState.Initialize(this);
+        tileState.Initialize(this);
         EnterState(baseState);
         EnterState(surfaceState);
     }
@@ -99,6 +103,9 @@ public class GameManager : MonoBehaviour
                 break;
             case "Combat":
                 ExitState(combatState);
+                break;
+            case "Tile":
+                ExitState(tileState);
                 break;
             default:
                 throw new System.Exception("Invalid State Open Requested");
@@ -210,5 +217,11 @@ public class GameManager : MonoBehaviour
     public void InputReceived(int input)
     {
         worldState.Peek().TakeInput(input);
+    }
+
+    internal void EnterTileInteractionMode(TileInteractionMenu tileInteractionOptions, GameObject selectedObject)
+    {
+        EnterState(tileState);
+        tileState.PopulateTileInteractionMenu(tileInteractionOptions, selectedObject);
     }
 }

@@ -9,6 +9,7 @@ public class CombatState : IUIState
     private Enemy currentEnemy;
     private PlayerFighter player;
     private GameManager gameManager;
+    private bool isPlayersGo;
     public override void Initialize(GameManager manager)
     {
         VisualElement root = combatUI.rootVisualElement;
@@ -22,6 +23,7 @@ public class CombatState : IUIState
         VisualElement combatContainer = new VisualElement();
         combatContainer.AddToClassList("combat-container");
         root.Add(combatContainer);
+        isPlayersGo = true;
     }
     public override void Open()
     {
@@ -29,6 +31,7 @@ public class CombatState : IUIState
         base.Open();
         //For testing TODO remove
         SetFighters(new Squirrel(), new PlayerFighter());
+        isPlayersGo = true;
         PopulateUI();
     }
     public override void Close()
@@ -38,7 +41,13 @@ public class CombatState : IUIState
     }
     public override void UpdateWhenOpen()
     {
-
+        if (!isPlayersGo)
+        {
+            Debug.Log("Enemy attacking player");
+            player.Damage(2);
+            TurnSwap();
+            PopulateUI();
+        }
     }
     public void SetFighters(Enemy e, PlayerFighter p)
     {
@@ -47,14 +56,24 @@ public class CombatState : IUIState
     }
     private void AttackButtonClicked(int attackID)
     {
-        int damage = player.GetDamage();
+        if (!isPlayersGo)
+        {
+            return;
+        }
+        Debug.Log("Player attacking enemy");
+        int damage = LoadPlayerWeapons()[attackID].GetAttack().GetDamage();
         currentEnemy.Damage(damage);
         if (currentEnemy.IsDead())
         {
             gameManager.CloseState("Combat");
             return;
         }
+        TurnSwap();
         PopulateUI();
+    }
+    private void TurnSwap()
+    {
+        isPlayersGo = !isPlayersGo;
     }
     public void PopulateUI()
     {
@@ -67,7 +86,7 @@ public class CombatState : IUIState
         combatContainer.Clear();
 
         //Add player UI section
-        VisualElement playerSection = ConstructFighterSection(new PlayerFighter());
+        VisualElement playerSection = ConstructFighterSection(player);
         combatContainer.Add(playerSection);
 
         //Add enemy UI section
@@ -115,10 +134,14 @@ public class CombatState : IUIState
             VisualElement attackBar = new VisualElement();
             attackBar.AddToClassList("fighter-attack-bar");
             fighterInfoBox.Add(attackBar);
-            Button attackButton = new Button();
-            attackButton.clicked += () => AttackButtonClicked(1);
-            attackButton.text = "ATTACK";
-            attackBar.Add(attackButton);
+            List<Weapon> weapons = LoadPlayerWeapons();
+            for(int i = 0; i < 4 && i < weapons.Count; i++)
+            {
+                Button attackButton = new Button();
+                attackButton.clicked += () => AttackButtonClicked(0);
+                attackButton.text = weapons[i].ToString();
+                attackBar.Add(attackButton);
+            }
 
             VisualElement fighterSpeech = new Label("Im gonna kill you!");
             fighterSpeech.AddToClassList("fighter-speech");
@@ -139,5 +162,9 @@ public class CombatState : IUIState
 
 
         return fighterInfoBox;
+    }
+    private List<Weapon> LoadPlayerWeapons()
+    {
+        return new List<Weapon> { new Club() };
     }
 }

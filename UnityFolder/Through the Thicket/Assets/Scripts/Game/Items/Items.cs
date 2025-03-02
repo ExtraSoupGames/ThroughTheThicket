@@ -6,5 +6,6 @@ public enum Items
 { 
     ErrorItem,
     Stone,
-    MegaStoneTest
+    MegaStoneTest,
+    Club
 }

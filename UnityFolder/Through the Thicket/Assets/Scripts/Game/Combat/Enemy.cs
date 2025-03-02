@@ -8,6 +8,14 @@ public abstract class Attack
     {
         this.damage = damage;
     }
+    public int GetDamage()
+    {
+        return damage;
+    }
+}
+public class BasicAttack : Attack
+{
+    public BasicAttack(int damage) : base(damage) { }
 }
 //This is used to store info about any fighter (player included)
 public abstract class Fighter

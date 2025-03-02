@@ -31,7 +31,7 @@ public class CraftingArea : StackInventory
         recipes = new Recipes();
         outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, shape.GetLength(0) + 1, 0), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 1), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 2) };
     }
-    public CraftingArea(List<PersistentSlot> slots, int width, int height) : base(slots, width, height, "Crafting")
+    public CraftingArea(List<PersistentSlot> slots, int width, int height) : base(slots, width, height, "Crafting", new HashSet<Items> { Items.Stone, Items.MegaStoneTest })
     {
         recipes = new Recipes();
         outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, width + 1, 0), new CraftingOutputSlot(this, width + 1, 1), new CraftingOutputSlot(this, width + 1, 2) };

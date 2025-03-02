@@ -42,6 +42,9 @@ public class InventoryManager : IUIState
         heldItem = new StackItem(new Stone());
         tempSlot = inventory.GetSlot(0, 2);
         inventory.ClickAt(ref heldItem, ref tempSlot);
+        heldItem = new StackItem(new Club());
+        tempSlot = inventory.GetSlot(0, 0);
+        inventory.ClickAt(ref heldItem,ref tempSlot);
         selectedInventoryTab = 0;
 
         shape = new bool[3, 3]
@@ -53,6 +56,13 @@ public class InventoryManager : IUIState
         craftingInventory = new CraftingArea(shape, 0, 0);
         subInventories = new List<Inventory>();
         mainInventory = inventory;
+
+        shape = new bool[3, 1]
+        {
+            { true }, {true }, {true }
+        };
+        Inventory weaponsInventory = new WeaponsInventory(shape, 0, 0, "Weapons");
+        subInventories.Add(weaponsInventory);
 
         shape = new bool[4, 4]
         {

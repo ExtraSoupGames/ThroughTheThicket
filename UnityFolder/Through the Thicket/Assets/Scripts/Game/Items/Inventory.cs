@@ -160,12 +160,12 @@ public abstract class Inventory
         slotsHeight = slots.GetLength(1);
         return persistentSlots;
     }
-    public Inventory(List<PersistentSlot> loadSlots, int width, int height, string inventoryName)
+    public Inventory(List<PersistentSlot> loadSlots, int width, int height, string inventoryName, HashSet<Items> allowedItems)
     {
 
         x = 0;
         y = 0;
-        allowedItems = new HashSet<Items> { Items.Stone, Items.MegaStoneTest };
+        this.allowedItems = allowedItems;
         this.inventoryName = inventoryName;
     }
 }
@@ -174,7 +174,7 @@ public abstract class StackInventory : Inventory
     public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed, string inventoryName) : base(shape, topLeftX, topLeftY, itemsAllowed, inventoryName)
     {
     }
-    public StackInventory(List<PersistentSlot> dataSlots, int width, int height, string invenName) : base(dataSlots, width, height, invenName)
+    public StackInventory(List<PersistentSlot> dataSlots, int width, int height, string invenName, HashSet<Items> itemsAllowed) : base(dataSlots, width, height, invenName, itemsAllowed)
     {
         slots = new InventorySlot[width, height];
         for (int x = 0; x < width; x++)

@@ -59,6 +59,7 @@ VisualElement {
     width: 100%;
     height: 50%;
     align-items: flex-start;
+    flex-direction: row;
 }
 
 .fighter-speech {

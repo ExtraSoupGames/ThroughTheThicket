@@ -14,6 +14,8 @@ public static class ItemHelper
                 return new MegaStoneTesting();
             case Items.ErrorItem:
                 return null;
+            case Items.Club:
+                return new Club();
             default:
                 Debug.Log("Item found in enum but not in helper, add me to this method");
                 return null;

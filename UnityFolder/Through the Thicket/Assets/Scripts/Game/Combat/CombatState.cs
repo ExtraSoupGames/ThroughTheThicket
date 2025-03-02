@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -63,6 +65,7 @@ public class CombatState : IUIState
         Debug.Log("Player attacking enemy");
         int damage = LoadPlayerWeapons()[attackID].GetAttack().GetDamage();
         currentEnemy.Damage(damage);
+        Debug.Log("Damage to enemy was: " + damage);
         if (currentEnemy.IsDead())
         {
             gameManager.CloseState("Combat");
@@ -138,7 +141,7 @@ public class CombatState : IUIState
             for(int i = 0; i < 4 && i < weapons.Count; i++)
             {
                 Button attackButton = new Button();
-                attackButton.clicked += () => AttackButtonClicked(0);
+                attackButton.clicked += () => AttackButtonClicked(i - 1); // punch is in first slot so we take away one to make up for it
                 attackButton.text = weapons[i].ToString();
                 attackBar.Add(attackButton);
             }
@@ -165,6 +168,26 @@ public class CombatState : IUIState
     }
     private List<Weapon> LoadPlayerWeapons()
     {
-        return new List<Weapon> { new Club() };
+        List<Weapon> weapons = new List<Weapon> { new PunchWeapon() };
+        string path = Path.Combine(Application.persistentDataPath, "World", "Inventory", "Player.json");
+        FileHelper.DirectoryCheck();
+        PersistentInventories saveData = JsonUtility.FromJson<PersistentInventories>(File.ReadAllText(path));
+        Inventory weaponsInventory = saveData.inventories[2].GetInventory(false);
+        //TODO extract data
+        InventorySlot[,] weaponSlots = weaponsInventory.GetSlots();
+        foreach (InventorySlot slot in weaponSlots)
+        {
+            if(slot.item == null)
+            {
+                continue;
+            }
+            IItem item = ItemHelper.GetItemFromType(slot.item.GetItemType());
+            if(item is Weapon)
+            {
+                weapons.Add(item as Weapon);
+            }
+        }
+
+        return weapons;
     }
 }

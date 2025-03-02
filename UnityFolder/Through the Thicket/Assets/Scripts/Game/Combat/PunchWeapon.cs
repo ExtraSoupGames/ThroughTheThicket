@@ -2,21 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-public class Club : Weapon
+
+public class PunchWeapon : Weapon
 {
     public override IItem Clone()
     {
-        return new Club();
+        return null;
     }
 
     public override Attack GetAttack()
     {
-        return new BasicAttack(4);
+        return new BasicAttack(2);
     }
 
     public override Items GetItemType()
     {
-        return Items.Club;
+        return Items.ErrorItem;
     }
 
     public override void PopulateSlot(VisualElement slot)

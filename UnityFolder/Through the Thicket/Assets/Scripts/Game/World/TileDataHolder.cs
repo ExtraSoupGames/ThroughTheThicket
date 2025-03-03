@@ -5,4 +5,5 @@ using UnityEngine;
 public class TileDataHolder : MonoBehaviour
 {
     public ProcessedTileData thisTileData;
+    public bool initialized = false;
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public enum ToolLevelRequirement
 {
+    None,
     Wood,
     Stone,
     Metal

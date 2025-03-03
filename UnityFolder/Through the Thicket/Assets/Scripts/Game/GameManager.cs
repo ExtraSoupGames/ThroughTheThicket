@@ -219,9 +219,23 @@ public class GameManager : MonoBehaviour
         worldState.Peek().TakeInput(input);
     }
 
-    internal void EnterTileInteractionMode(TileInteractionMenu tileInteractionOptions, GameObject selectedObject)
+    public void EnterTileInteractionMode(TileInteractionMenu tileInteractionOptions, GameObject selectedObject)
     {
         EnterState(tileState);
         tileState.PopulateTileInteractionMenu(tileInteractionOptions, selectedObject);
+    }
+    public void ExitTileInteractionMode(TileInteraction interaction)
+    {
+        interaction.Execute(this);
+        ExitState(tileState);
+    }
+    public void GivePlayerItem(IItem item)
+    {
+        Debug.Log("Giving player... " + item.ToString());
+    }
+
+    internal void SetTile(int x, int y, Layers layer, ITileSegment segment)
+    {
+        worldState.Peek().SetTile(x, y, layer, segment);
     }
 }

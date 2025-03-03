@@ -37,8 +37,14 @@ public class SurfaceState : IWorldState
 
     public override void Play()
     {
+        surfaceManager.RefreshTilePool();
         playerController.SetTakingInput(true);
         base.Play();
+    }
+
+    public override void SetTile(int x, int y, Layers layer, ITileSegment segment)
+    {
+        surfaceManager.SetTile(x, y, layer, segment);
     }
 
     public override void TakeInput(int input)

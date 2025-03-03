@@ -17,10 +17,8 @@ public class Rock : ITileSegmentBaseLayer
     {
         return LayerContents.Rock;
     }
-    public List<TileInteractionOption> GetInteractionOptions()
+    public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {
-        List<TileInteractionOption> returnList = new List<TileInteractionOption>();
-        returnList.Add(new TileInteractionOption("Break Rock"));
-        return returnList;
+        return new List<TileInteractionOption>();
     }
 }

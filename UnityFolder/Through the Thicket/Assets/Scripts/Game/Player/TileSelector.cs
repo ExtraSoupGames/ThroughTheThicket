@@ -56,7 +56,7 @@ public class TileSelector : MonoBehaviour
         selectedHighlight.transform.position = hoverHighlight.transform.position;
         //make the selected highlight show / hide depending on if a tile is hovered
         selectedHighlight.SetActive(hoverHighlight.activeSelf);
-        TileInteractionMenu menu = selectedObject.GetComponent<TileDataHolder>().thisTileData.GetInteractionOptions();
+        TileInteractionMenu menu = selectedObject.GetComponent<TileDataHolder>().thisTileData.GetInteractionOptions(selectedObject);
         gameManager.EnterTileInteractionMode(menu, selectedObject);
 
     }

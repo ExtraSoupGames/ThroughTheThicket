@@ -7,7 +7,7 @@ public interface ITileSegment
     public LayerDisplayProperties GetDisplayProperties(TileDisplayGetter displayGetter);
     public int GetTravelCost();
     public LayerContents GetContentsEnum();
-    public List<TileInteractionOption> GetInteractionOptions();
+    public List<TileInteractionOption> GetInteractionOptions(GameObject tile);
 }
 public interface ITileSegmentBaseLayer : ITileSegment
 {

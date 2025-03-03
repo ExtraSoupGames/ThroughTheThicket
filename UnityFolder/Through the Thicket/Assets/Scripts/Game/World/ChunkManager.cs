@@ -76,6 +76,7 @@ public abstract class ChunkManager : MonoBehaviour
     public void ShowWorld()
     {
         tileParent.gameObject.SetActive(true);
+        RefreshTilePool();
     }
     public void HideWorld()
     {
@@ -247,5 +248,76 @@ public abstract class ChunkManager : MonoBehaviour
             surroundingTileCosts.Add(new TravelTile(tile));
         }
         return surroundingTileCosts;
+    }
+    public void RefreshTilePool()
+    {
+        Debug.Log("Refreshing tiles!");
+        foreach (GameObject tile in tilePool)
+        {
+            if (!tile.activeSelf)
+            {
+                continue;
+            }
+            TileDataHolder tileData = tile.GetComponent<TileDataHolder>();
+            if (tileData == null)
+            {
+                continue;
+            }
+            if(tileData.initialized == false)
+            {
+                continue;
+            }
+            tileData.thisTileData.ApplyTileProperties(tile, tileDisplayGetter);
+            Debug.Log("Refreshed a tile!");
+        }
+    }
+    public void SetTile(int x, int y, Layers layer, ITileSegment segment)
+    {
+        // Find the tile in loadedTiles
+        for (int i = 0; i < loadedTiles.Count; i++)
+        {
+            if (loadedTiles[i].X == x && loadedTiles[i].Y == y)
+            {
+                ProcessedTileData updatedTile = loadedTiles[i];
+
+                // Modify the corresponding layer
+                switch (layer)
+                {
+                    case Layers.Base:
+                        updatedTile.BaseType = (ITileSegmentBaseLayer)segment;
+                        break;
+                    case Layers.Foliage:
+                        updatedTile.FoliageType = (ITileSegmentFoliageLayer)segment;
+                        break;
+                    case Layers.Object:
+                        updatedTile.ObjectType = (ITileSegmentObjectLayer)segment;
+                        break;
+                }
+
+                // Recalculate travel cost
+                updatedTile.TravelCost = updatedTile.BaseType.GetTravelCost() +
+                                         updatedTile.FoliageType.GetTravelCost() +
+                                         updatedTile.ObjectType.GetTravelCost();
+
+                // Replace the tile in the list
+                loadedTiles[i] = updatedTile;
+
+                // Find and update the corresponding GameObject in tilePool
+                foreach (GameObject tile in tilePool)
+                {
+                    TileDataHolder tileData = tile.GetComponent<TileDataHolder>();
+                    if (tileData != null && tileData.initialized && tileData.thisTileData.X == x && tileData.thisTileData.Y == y)
+                    {
+                        updatedTile.ApplyTileProperties(tile, tileDisplayGetter);
+                        Debug.Log($"Updated tile at {x}, {y} in {layer} layer.");
+                        return;
+                    }
+                }
+
+                return;
+            }
+        }
+
+        Debug.LogWarning($"Tile at {x}, {y} not found in loadedTiles.");
     }
 }

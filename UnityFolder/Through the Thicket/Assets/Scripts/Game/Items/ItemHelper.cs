@@ -16,6 +16,8 @@ public static class ItemHelper
                 return null;
             case Items.Club:
                 return new Club();
+            case Items.Foliage:
+                return new NormalFoliage();
             default:
                 Debug.Log("Item found in enum but not in helper, add me to this method");
                 return null;

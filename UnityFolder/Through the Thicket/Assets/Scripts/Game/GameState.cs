@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,6 +47,8 @@ public abstract class IWorldState : IGameState
         return !isPaused && IsOpen();
     }
     public abstract void TakeInput(int input);
+
+    public abstract void SetTile(int x, int y, Layers layer, ITileSegment segment);
 }
 public abstract class IUIState : IGameState
 {

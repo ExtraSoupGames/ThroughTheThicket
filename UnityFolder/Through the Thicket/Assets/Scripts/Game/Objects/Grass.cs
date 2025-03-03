@@ -17,7 +17,7 @@ public class Grass : ITileSegmentBaseLayer
     {
         return LayerContents.Grass;
     }
-    public List<TileInteractionOption> GetInteractionOptions()
+    public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {
         return new List<TileInteractionOption>();
     }

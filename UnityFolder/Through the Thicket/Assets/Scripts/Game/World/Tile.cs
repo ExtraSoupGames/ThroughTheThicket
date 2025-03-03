@@ -75,7 +75,7 @@ public struct Tile
         initialized = true;
     }
     public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile)
-        : this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(), LayerContents.None, LayerContents.None))
+        : this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(), LayerContents.Foliage, LayerContents.None))
     {
     }
     //unsure if these chunk coordinate calculations work or not
@@ -123,13 +123,14 @@ public struct ProcessedTileData
     public void ApplyTileProperties(GameObject TileObject, TileDisplayGetter displayGetter)
     {
         TileObject.SetActive(true);
-        TileObject.GetComponent<TileDataHolder>().thisTileData = this;
         GameObject baseLayer = TileObject.transform.GetChild(0).gameObject;
         LayerDisplayProperties baseDisplay = BaseType.GetDisplayProperties(displayGetter);
         GameObject foliageLayer = TileObject.transform.GetChild(1).gameObject;
         LayerDisplayProperties foliageDisplay = FoliageType.GetDisplayProperties(displayGetter);
         GameObject objectLayer = TileObject.transform.GetChild(2).gameObject;
         LayerDisplayProperties objectDisplay = ObjectType.GetDisplayProperties(displayGetter);
+        TileObject.GetComponent<TileDataHolder>().thisTileData = this;
+        TileObject.GetComponent<TileDataHolder>().initialized = true;
         if (baseDisplay.isEmpty)
         {
             baseLayer.SetActive(false);
@@ -170,12 +171,12 @@ public struct ProcessedTileData
         float distance = MathF.Sqrt((dX * dX) + (dY * dY));
         return distance < maxDist;
     }
-    public TileInteractionMenu GetInteractionOptions()
+    public TileInteractionMenu GetInteractionOptions(GameObject tile)
     {
         TileInteractionMenu menu = new TileInteractionMenu();
-        menu.AddOptions(BaseType.GetInteractionOptions());
-        menu.AddOptions(FoliageType.GetInteractionOptions());
-        menu.AddOptions(ObjectType.GetInteractionOptions());
+        menu.AddOptions(BaseType.GetInteractionOptions(tile));
+        menu.AddOptions(FoliageType.GetInteractionOptions(tile));
+        menu.AddOptions(ObjectType.GetInteractionOptions(tile));
         return menu;
     }
 }

@@ -7,5 +7,6 @@ public enum Items
     ErrorItem,
     Stone,
     MegaStoneTest,
-    Club
+    Club,
+    Foliage
 }

@@ -37,8 +37,14 @@ public class DungeonState : IWorldState
 
     public override void Play()
     {
+        dungeonManager.RefreshTilePool();
         playerController.SetTakingInput(true);
         base.Play();
+    }
+
+    public override void SetTile(int x, int y, Layers layer, ITileSegment segment)
+    {
+        dungeonManager.SetTile(x, y, layer, segment);
     }
 
     public override void TakeInput(int input)

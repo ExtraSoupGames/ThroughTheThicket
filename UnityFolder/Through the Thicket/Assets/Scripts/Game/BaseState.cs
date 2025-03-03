@@ -32,4 +32,8 @@ public class BaseState : IWorldState
     public override void TakeInput(int input)
     {
     }
+
+    public override void SetTile(int x, int y, Layers layer, ITileSegment segment)
+    {
+    }
 }

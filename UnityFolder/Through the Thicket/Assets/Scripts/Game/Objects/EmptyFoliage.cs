@@ -18,7 +18,7 @@ public class EmptyFoliage : ITileSegmentFoliageLayer
     {
         return 0;
     }
-    public List<TileInteractionOption> GetInteractionOptions()
+    public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {
         return new List<TileInteractionOption>();
     }

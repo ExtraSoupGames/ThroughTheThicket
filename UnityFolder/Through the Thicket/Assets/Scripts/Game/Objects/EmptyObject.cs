@@ -14,7 +14,7 @@ public class EmptyObject : ITileSegmentObjectLayer
         return displayGetter.GetDisplayProperties("Empty");
     }
 
-    public List<TileInteractionOption> GetInteractionOptions()
+    public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {
         return new List<TileInteractionOption>();
     }

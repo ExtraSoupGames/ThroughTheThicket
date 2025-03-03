@@ -69,7 +69,7 @@ public class TileInteractionState : IUIState
     }
     public void ExitMenu(TileInteractionOption option = null)
     {
-        gameManager.CloseState("Tile");
+        gameManager.ExitTileInteractionMode(option.GetInteraction());
     }
     public override void Open()
     {

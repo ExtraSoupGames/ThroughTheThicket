@@ -10,11 +10,9 @@ public abstract class Inventory
 {
     // allows for custom shaped inventories
     protected InventorySlot[,] slots;
-    private int x;
-    private int y;
     private HashSet<Items> allowedItems;
     protected string inventoryName;
-    public Inventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed, string inventoryName)
+    public Inventory(bool[,] shape, HashSet<Items> itemsAllowed, string inventoryName)
     {
         slots = new InventorySlot[shape.GetLength(0), shape.GetLength(1)];
         for (int itemX = 0; itemX < shape.GetLength(0); itemX++)
@@ -24,8 +22,6 @@ public abstract class Inventory
                 slots[itemX, itemY] = new InventorySlot(this, shape[itemX, itemY], itemX, itemY);
             }
         }
-        x = topLeftX;
-        y = topLeftY;
         allowedItems = itemsAllowed;
         this.inventoryName = inventoryName;
     }
@@ -71,15 +67,6 @@ public abstract class Inventory
         //this determines the slot size in pixels ( including padding ect ) as this is used to determine which slot is being hovered
         //also defined in UIRenderer
         return 64;
-    }
-    public void ScreenCoordsToInventory(int inX, int inY, out int invenX, out int invenY)
-    {
-        invenX = inX - x;
-        invenY = inY - y;
-    }
-    public Vector2 GetLocation()
-    {
-        return new Vector2(x, y);
     }
     public InventorySlot[,] GetSlots()
     {
@@ -160,28 +147,14 @@ public abstract class Inventory
         slotsHeight = slots.GetLength(1);
         return persistentSlots;
     }
-    public Inventory(List<PersistentSlot> loadSlots, int width, int height, string inventoryName, HashSet<Items> allowedItems)
-    {
-
-        x = 0;
-        y = 0;
-        this.allowedItems = allowedItems;
-        this.inventoryName = inventoryName;
-    }
-}
-public abstract class StackInventory : Inventory
-{
-    public StackInventory(bool[,] shape, int topLeftX, int topLeftY, HashSet<Items> itemsAllowed, string inventoryName) : base(shape, topLeftX, topLeftY, itemsAllowed, inventoryName)
-    {
-    }
-    public StackInventory(List<PersistentSlot> dataSlots, int width, int height, string invenName, HashSet<Items> itemsAllowed) : base(dataSlots, width, height, invenName, itemsAllowed)
+    public Inventory(List<PersistentSlot> dataSlots, int width, int height, string invenName, HashSet<Items> allowedItems)
     {
         slots = new InventorySlot[width, height];
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                PersistentSlot dataSlot = dataSlots[(y*width) + x];
+                PersistentSlot dataSlot = dataSlots[(y * width) + x];
                 slots[x, y] = new InventorySlot(this, dataSlot.isValid, x, y);
                 if (dataSlot.itemType != Items.ErrorItem)
                 {
@@ -190,6 +163,16 @@ public abstract class StackInventory : Inventory
             }
         }
         inventoryName = invenName;
+        this.allowedItems = allowedItems;
+    }
+}
+public abstract class StackInventory : Inventory
+{
+    public StackInventory(bool[,] shape, HashSet<Items> itemsAllowed, string inventoryName) : base(shape, itemsAllowed, inventoryName)
+    {
+    }
+    public StackInventory(List<PersistentSlot> dataSlots, int width, int height, string invenName, HashSet<Items> itemsAllowed) : base(dataSlots, width, height, invenName, itemsAllowed)
+    {
     }
 
     public override bool ItemCanFit(int slotX, int slotY, StackItem item)

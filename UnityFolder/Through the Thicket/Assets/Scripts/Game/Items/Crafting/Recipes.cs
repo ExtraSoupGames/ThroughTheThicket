@@ -26,7 +26,7 @@ public class CraftingArea : StackInventory
     private List<Recipe> possibleRecipes;
     private CraftingOutputSlot[] outputSlots;
     Recipes recipes;
-    public CraftingArea(bool[,] shape, int topLeftX, int topLeftY) : base(shape, topLeftX, topLeftY, new HashSet<Items> {Items.Stone, Items.MegaStoneTest }, "Crafting")
+    public CraftingArea(bool[,] shape) : base(shape, new HashSet<Items> {Items.Stone, Items.MegaStoneTest }, "Crafting")
     {
         recipes = new Recipes();
         outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, shape.GetLength(0) + 1, 0), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 1), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 2) };

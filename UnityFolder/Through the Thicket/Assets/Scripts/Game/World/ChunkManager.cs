@@ -251,7 +251,6 @@ public abstract class ChunkManager : MonoBehaviour
     }
     public void RefreshTilePool()
     {
-        Debug.Log("Refreshing tiles!");
         foreach (GameObject tile in tilePool)
         {
             if (!tile.activeSelf)
@@ -268,7 +267,6 @@ public abstract class ChunkManager : MonoBehaviour
                 continue;
             }
             tileData.thisTileData.ApplyTileProperties(tile, tileDisplayGetter);
-            Debug.Log("Refreshed a tile!");
         }
     }
     public void SetTile(int x, int y, Layers layer, ITileSegment segment)

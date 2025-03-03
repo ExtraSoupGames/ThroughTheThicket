@@ -27,14 +27,14 @@ public class InventoryManager : IUIState
 
         bool[,] shape = new bool[5, 5]
         {
-            {true, true, true, false, true },
-            {true, true, true, false, true},
-            {true, true, false, true, true },
-            {true, true, false, true, true },
-            {true, false, true, true, true }
+            {true, true, true, true, true },
+            {false, false, false, false, false},
+            {true, true, true, true, true },
+            {false, false, false, false, false},
+            {true, true, true, true, true },
         };
         //testing setup for stack inventory testing
-        Inventory inventory = new TestInventory(shape, 0, 0, "Backpack");
+        Inventory inventory = new TestInventory(shape, "Backpack");
         //creates the held item, and places it into the inventory
         heldItem = new StackItem(new Stone());
         InventorySlot tempSlot = inventory.GetSlot(0, 1);
@@ -53,7 +53,7 @@ public class InventoryManager : IUIState
             {true, true, false },
             {true, true, true  }
 };
-        craftingInventory = new CraftingArea(shape, 0, 0);
+        craftingInventory = new CraftingArea(shape);
         subInventories = new List<Inventory>();
         mainInventory = inventory;
 
@@ -61,7 +61,7 @@ public class InventoryManager : IUIState
         {
             { true }, {true }, {true }
         };
-        Inventory weaponsInventory = new WeaponsInventory(shape, 0, 0, "Weapons");
+        Inventory weaponsInventory = new WeaponsInventory(shape, "Weapons");
         subInventories.Add(weaponsInventory);
 
         shape = new bool[4, 4]
@@ -71,7 +71,7 @@ public class InventoryManager : IUIState
             {true, false, true, true},
             {true, true, true, false }
         };
-        Inventory tabbedInventory = new TestInventory(shape, 0, 0, "Mushroom Bag");
+        Inventory tabbedInventory = new TestInventory(shape, "Mushroom Bag");
         subInventories.Add(tabbedInventory);
 
         shape = new bool[4, 4]
@@ -81,7 +81,7 @@ public class InventoryManager : IUIState
             {true, true, true, true},
             {false, true, true, false }
 };
-        Inventory tabbedInventory2 = new TestInventory(shape, 0, 0, "Pebble Pocket");
+        Inventory tabbedInventory2 = new TestInventory(shape, "Pebble Pocket");
         subInventories.Add(tabbedInventory2);
         RefreshInventory();
 

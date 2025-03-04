@@ -74,6 +74,8 @@ public class DungeonState : IWorldState
 
     public override void UpdateWhenOpen()
     {
+        
         dungeonManager.QueueManage();
+        tileSelector.UpdateWhenOpen();
     }
 }

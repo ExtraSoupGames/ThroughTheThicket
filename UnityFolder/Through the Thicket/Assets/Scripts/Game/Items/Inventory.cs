@@ -185,7 +185,7 @@ public abstract class Inventory
                 didItemFit = false;
                 break;
             }
-            InventorySlot slot = slots[x, y];
+            InventorySlot slot = slots[y, x];
             if (!slot.IsValid())
             {
                 continue;

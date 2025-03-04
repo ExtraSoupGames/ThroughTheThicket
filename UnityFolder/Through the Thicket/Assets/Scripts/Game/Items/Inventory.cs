@@ -111,6 +111,12 @@ public abstract class Inventory
                 Debug.Log("Cancelling click - item not allowed");
                 return;
             }
+            else
+            {
+                Debug.Log("Item was allowed in inventory");
+                Debug.Log("Itemtype: " + heldItem.GetItemType());
+                Debug.Log("Allowed Items: " + allowedItems.ToLineSeparatedString());
+            }
             if (!ItemCanFit(hoveredSlot.x, hoveredSlot.y, heldItem))
             {
                 //TODO possible feedback / advice to player - this item cannot fit
@@ -201,6 +207,7 @@ public abstract class StackInventory : Inventory
         {
             isSelectedTab = true;
             inventoryGrid = inventoryContainer.Q<VisualElement>("ItemGrid");
+            inventoryContainer.Q<Label>("Title").text = inventoryName;
         }
         else
         {

@@ -30,11 +30,15 @@ public struct PersistentInventory
         slots = inven.GetPersistentItems(out slotsWidth, out slotsHeight);
         inventoryName = inven.GetName();
     }
-    public StackInventory GetInventory(bool isCraftingArea)
+    public StackInventory GetInventory(bool isCraftingArea, bool isWeaponsBag)
     {
         if (isCraftingArea)
         {
             return new CraftingArea(slots, slotsWidth, slotsHeight);
+        }
+        if (isWeaponsBag)
+        {
+            return new WeaponsInventory(slots, slotsWidth, slotsHeight, inventoryName);
         }
         return new TestInventory(slots, slotsWidth, slotsHeight, inventoryName);
     }

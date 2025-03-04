@@ -172,7 +172,7 @@ public class CombatState : IUIState
         string path = Path.Combine(Application.persistentDataPath, "World", "Inventory", "Player.json");
         FileHelper.DirectoryCheck();
         PersistentInventories saveData = JsonUtility.FromJson<PersistentInventories>(File.ReadAllText(path));
-        Inventory weaponsInventory = saveData.inventories[2].GetInventory(false);
+        Inventory weaponsInventory = saveData.inventories[2].GetInventory(false, true);
         //TODO extract data
         InventorySlot[,] weaponSlots = weaponsInventory.GetSlots();
         foreach (InventorySlot slot in weaponSlots)

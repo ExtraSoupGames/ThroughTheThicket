@@ -102,7 +102,10 @@ public class InventoryManager : IUIState
     {
         inventoryGrid.Clear();
         mainInventory.PopulateGrid(inventoryContainer, this);
-        inventoryContainer.Remove(inventoryContainer.Q<VisualElement>(className: "crafting-tab"));
+        if(inventoryContainer.Q<VisualElement>(className: "crafting-tab") != null)
+        {
+            inventoryContainer.Remove(inventoryContainer.Q<VisualElement>(className: "crafting-tab"));
+        }
         craftingInventory.PopulateGrid(inventoryContainer, this);
         while (inventoryContainer.Q<VisualElement>(className: "inventory-tab") != null)
         {
@@ -191,11 +194,12 @@ public class InventoryManager : IUIState
         string path = Path.Combine(Application.persistentDataPath, "World", "Inventory", "Player.json");
         FileHelper.DirectoryCheck();
         PersistentInventories saveData = JsonUtility.FromJson<PersistentInventories>(File.ReadAllText(path));
-        mainInventory = saveData.inventories[0].GetInventory(false);
-        craftingInventory = saveData.inventories[1].GetInventory(true);
-        for(int i = 2; i < saveData.inventories.Count; i++)
+        mainInventory = saveData.inventories[0].GetInventory(false, false);
+        craftingInventory = saveData.inventories[1].GetInventory(true, false);
+        subInventories.Add(saveData.inventories[2].GetInventory(false, true));
+        for(int i = 3; i < saveData.inventories.Count; i++)
         {
-            subInventories.Add(saveData.inventories[i].GetInventory(false));
+            subInventories.Add(saveData.inventories[i].GetInventory(false, false));
         }
     }
 }

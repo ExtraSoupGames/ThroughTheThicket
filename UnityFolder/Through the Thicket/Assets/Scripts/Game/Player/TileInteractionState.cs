@@ -38,10 +38,15 @@ public class TileInteractionState : IUIState
             optionButton.AddToClassList("radial-button");
             optionButton.clicked += () => ExitMenu(option);
             optionButton.text = option.GetDisplay();
+
             float angle = (i * 360f) / totalOptions;
             Vector2 buttonPos = GetCircularPosition(angle, menuRadius);
-            optionButton.style.left = buttonPos.x;
-            optionButton.style.top = buttonPos.y;
+
+            // Adjust for button size (assuming 40x40 buttons, adjust as needed)
+            float buttonSize = 40f;
+            optionButton.style.left = buttonPos.x - buttonSize / 2;
+            optionButton.style.top = buttonPos.y - buttonSize / 2;
+
             radialMenu.Add(optionButton);
         }
         root.Add(radialMenu);
@@ -83,5 +88,13 @@ public class TileInteractionState : IUIState
     {
         tileSelectorUI.rootVisualElement.style.display = DisplayStyle.None;
         base.Close();
+    }
+
+    public override void TakeInput(Inputs input)
+    {
+        if(input == Inputs.UIToggle || input == Inputs.UIClose)
+        {
+            gameManager.ExitTileInteractionMode(new TileInteractionExit());
+        }
     }
 }

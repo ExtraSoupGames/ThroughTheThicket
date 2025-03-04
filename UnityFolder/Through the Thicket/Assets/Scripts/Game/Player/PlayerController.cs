@@ -78,44 +78,4 @@ public class PlayerController : MonoBehaviour
         }
         playerMovementTransform.position = tilePos;
     }
-    public void OpenInventoryPressed()
-    {
-        if (IsTakingInput())
-        {
-            gameManager.OpenState("Inventory");
-        }
-    }
-    public void ExitPressed()
-    {
-        gameManager.CloseState("Dungeon");
-    }
-    public void DebugPressedCombat()
-    {
-        if (IsTakingInput()){
-            gameManager.OpenState("Combat");
-        }
-    }
-    public void DebugPressedDungeon()
-    {
-        if (IsTakingInput())
-        {
-            gameManager.OpenState("Dungeon");
-        }
-    }
-    public bool IsTakingInput()
-    {
-        return takingInput;
-    }
-    public void LClick()
-    {
-        tileSelector.LClick();
-    }
-    public void RClick()
-    {
-        tileSelector.RClick();
-    }
-    public void SetTakingInput(bool input)
-    {
-        takingInput = input;
-    }
 }

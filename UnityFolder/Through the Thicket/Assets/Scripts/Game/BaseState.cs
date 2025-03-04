@@ -29,7 +29,7 @@ public class BaseState : IWorldState
     {
     }
 
-    public override void TakeInput(int input)
+    public override void TakeInput(Inputs input)
     {
     }
 

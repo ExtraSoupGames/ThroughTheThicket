@@ -16,8 +16,10 @@ public class InventoryManager : IUIState
     private List<Inventory> subInventories;
     private int selectedInventoryTab;
     [SerializeField] private UIDocument inventoryUI;
+    private GameManager gameManager;
     public override void Initialize(GameManager manager)
     {
+        gameManager = manager;
         VisualElement root = inventoryUI.rootVisualElement;
 
         inventoryContainer = root.Q<VisualElement>("InventoryContainer");
@@ -212,5 +214,13 @@ public class InventoryManager : IUIState
         SaveInventory();
         RefreshInventory();
         return returnVal;
+    }
+
+    public override void TakeInput(Inputs input)
+    {
+        if(input == Inputs.UIToggle || input == Inputs.UIClose)
+        {
+            gameManager.CloseState("Inventory");
+        }
     }
 }

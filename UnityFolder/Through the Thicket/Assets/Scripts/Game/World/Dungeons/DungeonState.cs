@@ -9,6 +9,7 @@ public class DungeonState : IWorldState
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
     [SerializeField] private DungeonManager dungeonManager;
+    private GameManager gameManager;
     public override void Close()
     {
         dungeonManager.HideWorld();
@@ -19,6 +20,7 @@ public class DungeonState : IWorldState
     {
         dungeonManager.OtherTests();
         dungeonManager.HideWorld();
+        gameManager = manager;
     }
 
     public override void Open()
@@ -31,14 +33,12 @@ public class DungeonState : IWorldState
 
     public override void Pause()
     {
-        playerController.SetTakingInput(false);
         base.Pause();
     }
 
     public override void Play()
     {
         dungeonManager.RefreshTilePool();
-        playerController.SetTakingInput(true);
         base.Play();
     }
 
@@ -47,17 +47,30 @@ public class DungeonState : IWorldState
         dungeonManager.SetTile(x, y, layer, segment);
     }
 
-    public override void TakeInput(int input)
+    public override void TakeInput(Inputs input)
     {
-        if(input == 1)
+        if (input == Inputs.Debug1)
         {
-            playerController.DebugPressedDungeon();
+            gameManager.CloseState("Dungeon");
         }
-        if(input == 2)
+        if(input == Inputs.Debug2)
         {
-            playerController.OpenInventoryPressed();
+            gameManager.OpenState("Combat");
+        }
+        if (input == Inputs.UIToggle)
+        {
+            gameManager.OpenState("Inventory");
+        }
+        if (input == Inputs.LClick)
+        {
+            tileSelector.LClick();
+        }
+        if (input == Inputs.RClick)
+        {
+            tileSelector.RClick();
         }
     }
+
 
     public override void UpdateWhenOpen()
     {

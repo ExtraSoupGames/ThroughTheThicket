@@ -214,8 +214,39 @@ public class GameManager : MonoBehaviour
     {
         worldState.Peek().Play();
     }
-    public void InputReceived(int input)
+    public void InputReceived(string inputString)
     {
+        Inputs input;
+        switch (inputString)
+        {
+            case "UIToggle":
+                input = Inputs.UIToggle;
+                break;
+            case "UIClose":
+                input = Inputs.UIClose;
+                break;
+            case "Debug1":
+                input = Inputs.Debug1;
+                break;
+            case "Debug2":
+                input = Inputs.Debug2;
+                break;
+            case "LClick":
+                input = Inputs.LClick;
+                break;
+            case "RClick":
+                input = Inputs.RClick;
+                break;
+            default:
+                input = 0;
+                Debug.Log("Error finding specified Input");
+                break;
+        }
+        if (uiState.TryPeek(out _))
+        {
+            uiState.Peek().TakeInput(input);
+            return;
+        }
         worldState.Peek().TakeInput(input);
     }
 

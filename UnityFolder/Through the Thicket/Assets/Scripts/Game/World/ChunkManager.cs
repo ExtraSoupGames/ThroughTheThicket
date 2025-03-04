@@ -307,7 +307,6 @@ public abstract class ChunkManager : MonoBehaviour
                     if (tileData != null && tileData.initialized && tileData.thisTileData.X == x && tileData.thisTileData.Y == y)
                     {
                         updatedTile.ApplyTileProperties(tile, tileDisplayGetter);
-                        Debug.Log($"Updated tile at {x}, {y} in {layer} layer.");
                         return;
                     }
                 }

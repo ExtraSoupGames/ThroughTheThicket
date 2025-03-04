@@ -190,4 +190,8 @@ public class CombatState : IUIState
 
         return weapons;
     }
+
+    public override void TakeInput(Inputs input)
+    {
+    }
 }

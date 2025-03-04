@@ -16,7 +16,7 @@ public class TileSelector : MonoBehaviour
     [SerializeField] private IWorldState world;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private GameManager gameManager;
-    public void Update()
+    public void UpdateWhenOpen()
     {
         if (!world.IsActiveAndOpen())
         {
@@ -56,16 +56,15 @@ public class TileSelector : MonoBehaviour
         selectedHighlight.transform.position = hoverHighlight.transform.position;
         //make the selected highlight show / hide depending on if a tile is hovered
         selectedHighlight.SetActive(hoverHighlight.activeSelf);
+        if(selectedObject == null){
+            return;
+        }
         TileInteractionMenu menu = selectedObject.GetComponent<TileDataHolder>().thisTileData.GetInteractionOptions(selectedObject);
         gameManager.EnterTileInteractionMode(menu, selectedObject);
 
     }
     public void UpdateSelectedTile()
     {
-        if (!playerController.IsTakingInput())
-        {
-            return;
-        }
         Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, tileMask))

@@ -20,6 +20,7 @@ public abstract class IGameState : MonoBehaviour
     {
         return isOpen;
     }
+    public abstract void TakeInput(Inputs input);
 }
 public abstract class IWorldState : IGameState
 {
@@ -46,7 +47,6 @@ public abstract class IWorldState : IGameState
     {
         return !isPaused && IsOpen();
     }
-    public abstract void TakeInput(int input);
 
     public abstract void SetTile(int x, int y, Layers layer, ITileSegment segment);
 }

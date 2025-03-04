@@ -9,6 +9,7 @@ public class SurfaceState : IWorldState
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
     [SerializeField] private SurfaceManager surfaceManager;
+    private GameManager gameManager;
     public override void Close()
     {
         surfaceManager.HideWorld();
@@ -19,6 +20,7 @@ public class SurfaceState : IWorldState
     {
         surfaceManager.Tests();
         surfaceManager.HideWorld();
+        gameManager = manager;
     }
 
     public override void Open()
@@ -31,14 +33,12 @@ public class SurfaceState : IWorldState
 
     public override void Pause()
     {
-        playerController.SetTakingInput(false);
         base.Pause();
     }
 
     public override void Play()
     {
         surfaceManager.RefreshTilePool();
-        playerController.SetTakingInput(true);
         base.Play();
     }
 
@@ -47,21 +47,34 @@ public class SurfaceState : IWorldState
         surfaceManager.SetTile(x, y, layer, segment);
     }
 
-    public override void TakeInput(int input)
+    public override void TakeInput(Inputs input)
     {
-        if (input == 1)
+        if (input == Inputs.Debug1)
         {
-            playerController.DebugPressedDungeon();
+            gameManager.OpenState("Dungeon");
         }
-        if (input == 2)
+        if (input == Inputs.UIToggle)
         {
-            playerController.OpenInventoryPressed();
+            gameManager.OpenState("Inventory");
+        }
+        if (input == Inputs.Debug2)
+        {
+            gameManager.OpenState("Combat");
+        }
+        if (input == Inputs.LClick)
+        {
+            tileSelector.LClick();
+        }
+        if(input == Inputs.RClick)
+        {
+            tileSelector.RClick();
         }
     }
 
     public override void UpdateWhenOpen()
     {
         surfaceManager.QueueManage();
+        tileSelector.UpdateWhenOpen();
     }
 
 }

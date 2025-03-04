@@ -141,6 +141,7 @@ public class CombatState : IUIState
             for(int i = 0; i < 4 && i < weapons.Count; i++)
             {
                 Button attackButton = new Button();
+                attackButton.AddToClassList("weapon-button");
                 attackButton.clicked += () => AttackButtonClicked(i - 1); // punch is in first slot so we take away one to make up for it
                 attackButton.text = weapons[i].ToString();
                 attackBar.Add(attackButton);

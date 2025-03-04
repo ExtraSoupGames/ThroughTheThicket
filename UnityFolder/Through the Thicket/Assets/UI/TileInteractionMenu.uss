@@ -19,12 +19,15 @@
 }
 
 .radial-button {
-    border-top-left-radius: 25%;
-    border-top-right-radius: 25%;
-    border-bottom-right-radius: 25%;
-    border-bottom-left-radius: 25%;
-    background-color: rgb(255, 12, 0);
-    width: 80px;
-    height: 20px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    width: 128px;
+    height: 32px;
     position: absolute;
+    background-image: resource('Button');
+    font-size: 15px;
+    color: rgb(255, 255, 255);
 }

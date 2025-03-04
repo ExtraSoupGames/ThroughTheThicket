@@ -154,7 +154,7 @@ public abstract class Inventory
         {
             for (int y = 0; y < height; y++)
             {
-                PersistentSlot dataSlot = dataSlots[(y * width) + x];
+                PersistentSlot dataSlot = dataSlots[(x * height) + y];
                 slots[x, y] = new InventorySlot(this, dataSlot.isValid, x, y);
                 if (dataSlot.itemType != Items.ErrorItem)
                 {

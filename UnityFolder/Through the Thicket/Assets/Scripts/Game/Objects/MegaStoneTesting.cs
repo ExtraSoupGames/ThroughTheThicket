@@ -19,9 +19,8 @@ public class MegaStoneTesting : IItem
     {
         return 2;
     }
-
-    public void PopulateSlot(VisualElement slot)
+    public Texture2D GetTexture()
     {
-        throw new System.NotImplementedException();
+        return Resources.Load<Sprite>("Shaped01").texture;
     }
 }

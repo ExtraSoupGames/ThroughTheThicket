@@ -19,8 +19,8 @@ public class Club : Weapon
         return Items.Club;
     }
 
-    public override void PopulateSlot(VisualElement slot)
+    public override Texture2D GetTexture()
     {
-        throw new System.NotImplementedException();
+        return Resources.Load<Sprite>("Shaped00").texture;
     }
 }

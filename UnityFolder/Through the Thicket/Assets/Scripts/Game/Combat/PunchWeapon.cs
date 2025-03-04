@@ -20,8 +20,8 @@ public class PunchWeapon : Weapon
         return Items.ErrorItem;
     }
 
-    public override void PopulateSlot(VisualElement slot)
+    public override Texture2D GetTexture()
     {
-        throw new System.NotImplementedException();
+        return Resources.Load<Sprite>("TestSprite").texture;
     }
 }

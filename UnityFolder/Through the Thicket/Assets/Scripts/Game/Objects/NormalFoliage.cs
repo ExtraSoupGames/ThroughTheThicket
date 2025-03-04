@@ -34,9 +34,9 @@ public class NormalFoliage : ITileSegmentFoliageLayer, ICollectable
         return Items.Foliage;
     }
 
-    public void PopulateSlot(VisualElement slot)
+    public Texture2D GetTexture()
     {
-        throw new System.NotImplementedException();
+        return Resources.Load<Sprite>("Shaped10").texture;
     }
 
     public int GetMaxStackCount()

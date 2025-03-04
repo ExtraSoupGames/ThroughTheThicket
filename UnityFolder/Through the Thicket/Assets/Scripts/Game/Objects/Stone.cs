@@ -20,8 +20,8 @@ public class Stone : IItem
         return 5;
     }
 
-    public void PopulateSlot(VisualElement slot)
+    public Texture2D GetTexture()
     {
-        throw new System.NotImplementedException();
+        return Resources.Load<Sprite>("TestSprite").texture;
     }
 }

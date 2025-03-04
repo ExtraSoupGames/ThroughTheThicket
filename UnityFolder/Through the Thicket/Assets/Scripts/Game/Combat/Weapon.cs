@@ -14,6 +14,6 @@ public abstract class Weapon : IItem
         return 1;
     }
 
-    public abstract void PopulateSlot(VisualElement slot);
     public abstract Attack GetAttack();
+    public abstract Texture2D GetTexture();
 }

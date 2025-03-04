@@ -6,9 +6,9 @@ using UnityEngine.UIElements;
 public interface IItem
 {
     public Items GetItemType();
-    public void PopulateSlot(VisualElement slot);
     public int GetMaxStackCount();
     public IItem Clone();
+    public Texture2D GetTexture();
 }
 public class StackItem
 {
@@ -70,7 +70,7 @@ public class StackItem
         VisualElement slotItem = new VisualElement();
         slotItem.pickingMode = PickingMode.Ignore;
         slotItem.AddToClassList("item-image");
-        slotItem.style.backgroundImage = Resources.Load<Sprite>("TestSprite").texture;
+        slotItem.style.backgroundImage = item.GetTexture();
         slot.Add(slotItem);
         if(count != 1)
         {

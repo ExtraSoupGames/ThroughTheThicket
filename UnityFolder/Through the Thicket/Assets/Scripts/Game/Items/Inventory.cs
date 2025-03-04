@@ -111,12 +111,6 @@ public abstract class Inventory
                 Debug.Log("Cancelling click - item not allowed");
                 return;
             }
-            else
-            {
-                Debug.Log("Item was allowed in inventory");
-                Debug.Log("Itemtype: " + heldItem.GetItemType());
-                Debug.Log("Allowed Items: " + allowedItems.ToLineSeparatedString());
-            }
             if (!ItemCanFit(hoveredSlot.x, hoveredSlot.y, heldItem))
             {
                 //TODO possible feedback / advice to player - this item cannot fit
@@ -170,6 +164,45 @@ public abstract class Inventory
         }
         inventoryName = invenName;
         this.allowedItems = allowedItems;
+    }
+    public bool StuffItemIn(StackItem item)
+    {
+        int maxX = slots.GetLength(0);
+        int maxY = slots.GetLength(1);
+        int x = -1;
+        int y = 0;
+        bool didItemFit = true;
+        while(item != null)
+        {
+            x++;
+            if (x > maxX)
+            {
+                x = 0;
+                y++;
+            }
+            if (y > maxY)
+            {
+                didItemFit = false;
+                break;
+            }
+            InventorySlot slot = slots[x, y];
+            if (!slot.IsValid())
+            {
+                continue;
+            }
+            if (slot.IsEmpty())
+            {
+                SwapItem(ref item, slot);
+            }
+            else
+            {
+                if(slot.item.GetItemType() == item.GetItemType())
+                {
+                    slot.item.AddToStack(ref item);
+                }
+            }
+        }
+        return didItemFit;
     }
 }
 public abstract class StackInventory : Inventory

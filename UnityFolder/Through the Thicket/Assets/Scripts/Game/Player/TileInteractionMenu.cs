@@ -32,6 +32,17 @@ public class TileDestruction : TileInteraction
         }
     }
 }
+public class TileInteractionExit : TileInteraction
+{
+    public TileInteractionExit()
+    {
+
+    }
+    public override void Execute(GameManager gameManager)
+    {
+        //does nothing lol
+    }
+}
 public class TileInteractionOption
 {
     string displayText;
@@ -61,6 +72,10 @@ public class TileInteractionMenu
     public void AddOptions(List<TileInteractionOption> newOptions)
     {
         options.AddRange(newOptions);
+    }
+    public void AddOption(TileInteractionOption newOption)
+    {
+        options.Add(newOption);
     }
     public List<TileInteractionOption> GetOptions()
     {

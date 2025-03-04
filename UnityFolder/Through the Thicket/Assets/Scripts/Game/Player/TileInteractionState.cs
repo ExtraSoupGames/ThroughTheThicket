@@ -37,6 +37,7 @@ public class TileInteractionState : IUIState
             Button optionButton = new Button();
             optionButton.AddToClassList("radial-button");
             optionButton.clicked += () => ExitMenu(option);
+            optionButton.text = option.GetDisplay();
             float angle = (i * 360f) / totalOptions;
             Vector2 buttonPos = GetCircularPosition(angle, menuRadius);
             optionButton.style.left = buttonPos.x;
@@ -65,6 +66,8 @@ public class TileInteractionState : IUIState
     public void MoveMenuToGameObject(GameObject target, VisualElement menu)
     {
         Vector2 screenPos = Camera.main.WorldToScreenPoint(target.transform.position);
+        screenPos.y = Screen.height - screenPos.y;
+        Vector2 uiPos = tileSelectorUI.rootVisualElement.WorldToLocal(screenPos);
         MoveMenu(screenPos, menu);
     }
     public void ExitMenu(TileInteractionOption option = null)

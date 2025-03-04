@@ -196,10 +196,21 @@ public class InventoryManager : IUIState
         PersistentInventories saveData = JsonUtility.FromJson<PersistentInventories>(File.ReadAllText(path));
         mainInventory = saveData.inventories[0].GetInventory(false, false);
         craftingInventory = saveData.inventories[1].GetInventory(true, false);
+        subInventories.Clear();
         subInventories.Add(saveData.inventories[2].GetInventory(false, true));
         for(int i = 3; i < saveData.inventories.Count; i++)
         {
             subInventories.Add(saveData.inventories[i].GetInventory(false, false));
         }
+    }
+    public bool StuffIntoMainInventory(StackItem item)
+    {
+        LoadInventory();
+        RefreshInventory();
+        bool returnVal = mainInventory.StuffItemIn(item);
+        RefreshInventory();
+        SaveInventory();
+        RefreshInventory();
+        return returnVal;
     }
 }

@@ -231,7 +231,10 @@ public class GameManager : MonoBehaviour
     }
     public void GivePlayerItem(IItem item)
     {
-        Debug.Log("Giving player... " + item.ToString());
+        if(!inventory.StuffIntoMainInventory(new StackItem(item)))
+        {
+            Debug.Log("Item didn't fit in inventory! UH OH");
+        }
     }
 
     internal void SetTile(int x, int y, Layers layer, ITileSegment segment)

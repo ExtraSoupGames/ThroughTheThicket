@@ -174,6 +174,7 @@ public struct ProcessedTileData
     public TileInteractionMenu GetInteractionOptions(GameObject tile)
     {
         TileInteractionMenu menu = new TileInteractionMenu();
+        menu.AddOption(new TileInteractionOption("Exit", new TileInteractionExit()));
         menu.AddOptions(BaseType.GetInteractionOptions(tile));
         menu.AddOptions(FoliageType.GetInteractionOptions(tile));
         menu.AddOptions(ObjectType.GetInteractionOptions(tile));

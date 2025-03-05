@@ -222,6 +222,7 @@ public class Recipes
         recipes.Add(new Recipe(new StackItem(new Rock(), 1), new List<Items> { Items.Pebble , Items.Pebble, Items.Pebble, Items.Pebble, Items.Pebble }));
         recipes.Add(new Recipe(new StackItem(new Pebble(), 5), new List<Items> { Items.Rock }));
         recipes.Add(new Recipe(new StackItem(new Club(), 1), new List<Items> { Items.Pebble, Items.Twigs, Items.Twigs }));
+        recipes.Add(new Recipe(new StackItem(new Spear(), 1), new List<Items> { Items.Rock, Items.Twigs, Items.Twigs }));
     }
     public List<Recipe> EvaluateCraftingArea(InventorySlot[,] craftingAreaSlots)
     {

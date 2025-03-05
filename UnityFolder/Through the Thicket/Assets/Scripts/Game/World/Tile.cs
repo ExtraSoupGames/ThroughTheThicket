@@ -105,8 +105,8 @@ public struct Tile
     }
     public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile)
         : this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(),
-            PX % 4 == 0 ? LayerContents.Foliage : PX % 4 == 1 ? LayerContents.Potato : PX % 4 == 2 ? LayerContents.Carrot : PX % 4 == 3 ? LayerContents.Redcap : LayerContents.None,
-            LayerContents.None))
+            PX % 4 == 0 ? LayerContents.Foliage : PX % 4 == 1 ? LayerContents.Potato : PX % 4 == 2 ? LayerContents.Carrot : LayerContents.None,
+            PY % 4 == 0 ? LayerContents.Pebble : LayerContents.None))
     {
     }
     //unsure if these chunk coordinate calculations work or not

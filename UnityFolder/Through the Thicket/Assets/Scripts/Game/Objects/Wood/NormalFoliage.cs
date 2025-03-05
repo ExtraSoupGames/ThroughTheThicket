@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Twigs : ITileSegmentFoliageLayer, ICollectable
+public class Twigs : ITileSegmentFoliageLayer, ICollectable, IItem
 {
     public LayerContents GetContentsEnum()
     {

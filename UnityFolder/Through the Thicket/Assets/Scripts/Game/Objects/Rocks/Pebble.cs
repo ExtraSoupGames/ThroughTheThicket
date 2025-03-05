@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Pebble : IItem, ITileSegmentObjectLayer
+public class Pebble : IItem, ITileSegmentObjectLayer, ICollectable
 {
     public IItem Clone()
     {
@@ -38,6 +38,11 @@ public class Pebble : IItem, ITileSegmentObjectLayer
     public Texture2D GetTexture()
     {
         return Resources.Load<Sprite>("TestSprite").texture;
+    }
+
+    public ToolLevelRequirement GetToolLevelRequirement()
+    {
+        throw new System.NotImplementedException();
     }
 
     public int GetTravelCost()

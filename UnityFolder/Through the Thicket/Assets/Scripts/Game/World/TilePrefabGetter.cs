@@ -33,8 +33,11 @@ public class TileDisplayGetter
         allMeshes = new Dictionary<string, LayerDisplayProperties>();
         allMeshes.Add("Empty", new LayerDisplayProperties());
         allMeshes.Add("Grass", new LayerDisplayProperties("Grass", new string[] { "Foliage1"}));
-        allMeshes.Add("Rock", new LayerDisplayProperties("Grass", new string[] { "Foliage2"}));
+        allMeshes.Add("Stone", new LayerDisplayProperties("Grass", new string[] { "Foliage2"}));
         allMeshes.Add("Foliage", new LayerDisplayProperties("Foliage", new string[] { "Foliage1", "Foliage2", "Foliage3"}));
+        allMeshes.Add("Potato", new LayerDisplayProperties("Potato", new string[] { "Potato1, Potato2"}));
+        allMeshes.Add("Carrot", new LayerDisplayProperties("Carrot", new string[] { "Carrot1, Carrot2"}));
+        allMeshes.Add("Redcap", new LayerDisplayProperties("Redcap", new string[] { "Redcap1", "Redcap2"}));
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)
     {

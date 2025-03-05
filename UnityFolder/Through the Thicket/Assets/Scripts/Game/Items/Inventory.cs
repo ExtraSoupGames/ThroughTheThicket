@@ -175,12 +175,12 @@ public abstract class Inventory
         while(item != null)
         {
             x++;
-            if (x > maxX)
+            if (x >= maxX)
             {
                 x = 0;
                 y++;
             }
-            if (y > maxY)
+            if (y >= maxY)
             {
                 didItemFit = false;
                 break;
@@ -309,7 +309,7 @@ public class InventorySlot
     }
     public void TestFill()
     {
-        item = new StackItem(new Stone());
+        item = new StackItem(new Rock());
     }
     public Inventory GetInventory()
     {

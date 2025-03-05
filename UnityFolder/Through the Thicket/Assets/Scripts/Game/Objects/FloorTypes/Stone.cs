@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Rock : ITileSegmentBaseLayer
+public class Stone : ITileSegmentBaseLayer
 {
     public int GetTravelCost()
     {
@@ -10,12 +10,12 @@ public class Rock : ITileSegmentBaseLayer
     }
     public LayerDisplayProperties GetDisplayProperties(TileDisplayGetter displayGetter)
     {
-        return displayGetter.GetDisplayProperties("Rock");
+        return displayGetter.GetDisplayProperties("Stone");
     }
 
     public LayerContents GetContentsEnum()
     {
-        return LayerContents.Rock;
+        return LayerContents.Stone;
     }
     public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {

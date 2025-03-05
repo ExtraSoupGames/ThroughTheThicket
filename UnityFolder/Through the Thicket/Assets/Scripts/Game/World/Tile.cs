@@ -12,7 +12,16 @@ public enum LayerContents
     None,
     Grass,
     Foliage,
-    Rock
+    Stone,
+    Pebble,
+    Rock,
+    Carrot,
+    Potato,
+    Redcap,
+    Morel,
+    Chanterelle,
+    Portobello,
+    Flint
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -32,8 +41,8 @@ public struct TileSegmentDataHolder
         {
             case LayerContents.Grass:
                 return new Grass();
-            case LayerContents.Rock:
-                return new Rock();
+            case LayerContents.Stone:
+                return new Stone();
             default:
                 Debug.LogError("Tried to construct a base which had enum of none");
                 return new Grass();
@@ -44,14 +53,34 @@ public struct TileSegmentDataHolder
         switch (foliageType)
         {
             case LayerContents.Foliage:
-                return new NormalFoliage();
+                return new Twigs();
+            case LayerContents.Redcap:
+                return new Redcap();
+            case LayerContents.Potato:
+                return new Potato();
+            case LayerContents.Carrot:
+                return new Carrot();
             default:
                 return new EmptyFoliage();
         }
     }
     public ITileSegmentObjectLayer ConstructObject()
     {
-        return new EmptyObject();
+        switch (objectType)
+        {
+            case LayerContents.Pebble:
+                return new Pebble();
+            case LayerContents.Morel:
+                return new Morel();
+            case LayerContents.Portobello:
+                return new Portobello();
+            case LayerContents.Chanterelle:
+                return new Chanterelle();
+            case LayerContents.Flint:
+                return new Flint();
+            default:
+                return new EmptyObject();
+        }
     }
 }
 [System.Serializable]
@@ -75,7 +104,9 @@ public struct Tile
         initialized = true;
     }
     public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile)
-        : this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(), LayerContents.Foliage, LayerContents.None))
+        : this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(),
+            PX % 4 == 0 ? LayerContents.Foliage : PX % 4 == 1 ? LayerContents.Potato : PX % 4 == 2 ? LayerContents.Carrot : PX % 4 == 3 ? LayerContents.Redcap : LayerContents.None,
+            LayerContents.None))
     {
     }
     //unsure if these chunk coordinate calculations work or not

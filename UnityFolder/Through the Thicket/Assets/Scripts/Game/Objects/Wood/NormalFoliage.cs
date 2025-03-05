@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class NormalFoliage : ITileSegmentFoliageLayer, ICollectable
+public class Twigs : ITileSegmentFoliageLayer, ICollectable
 {
     public LayerContents GetContentsEnum()
     {
@@ -21,7 +21,7 @@ public class NormalFoliage : ITileSegmentFoliageLayer, ICollectable
     }
     public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {
-        return new List<TileInteractionOption> { new TileInteractionOption("Clear Foliage", new TileDestruction(tile, Layers.Foliage)) };
+        return new List<TileInteractionOption> { new TileInteractionOption("Collect twigs", new TileDestruction(tile, Layers.Foliage)) };
     }
 
     public ToolLevelRequirement GetToolLevelRequirement()
@@ -31,7 +31,7 @@ public class NormalFoliage : ITileSegmentFoliageLayer, ICollectable
 
     public Items GetItemType()
     {
-        return Items.Foliage;
+        return Items.Twigs;
     }
 
     public Texture2D GetTexture()
@@ -46,6 +46,6 @@ public class NormalFoliage : ITileSegmentFoliageLayer, ICollectable
 
     public IItem Clone()
     {
-        return new NormalFoliage();
+        return new Twigs();
     }
 }

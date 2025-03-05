@@ -5,8 +5,17 @@ using UnityEngine;
 public enum Items
 { 
     ErrorItem,
-    Stone,
-    MegaStoneTest,
+    Pebble,
+    Rock,
     Club,
-    Foliage
+    Twigs,
+    Carrot,
+    Potato,
+    Redcap,
+    Morel,
+    Chanterelle,
+    Portobello,
+    Spear,
+    Bark,
+    Flint
 }

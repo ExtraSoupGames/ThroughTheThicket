@@ -24,7 +24,7 @@ public struct Chunk
                 int height = i % 4 == 2 && j % 3 == 1 ? 1 : 0;
                 if (isCave)
                 {
-                    tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X, Y, height == 0 ? new Rock() : new Grass());
+                    tiles[i * ChunkSize() + j] = new Tile(TileX, TileY, height, X, Y, height == 0 ? new Stone() : new Grass());
                 }
                 else
                 {

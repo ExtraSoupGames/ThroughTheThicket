@@ -1,26 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class MegaStoneTesting : IItem
+public class Bark : IItem
 {
     public IItem Clone()
     {
-        return new MegaStoneTesting();
+        return new Bark();
     }
 
     public Items GetItemType()
     {
-        return Items.MegaStoneTest;
+        return Items.Bark;
     }
 
     public int GetMaxStackCount()
     {
-        return 2;
+        return 5;
     }
+
     public Texture2D GetTexture()
     {
-        return Resources.Load<Sprite>("Shaped01").texture;
+        throw new System.NotImplementedException();
     }
 }

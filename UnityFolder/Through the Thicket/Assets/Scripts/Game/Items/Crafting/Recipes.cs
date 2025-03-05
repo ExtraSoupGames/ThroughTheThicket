@@ -26,12 +26,12 @@ public class CraftingArea : StackInventory
     private List<Recipe> possibleRecipes;
     private CraftingOutputSlot[] outputSlots;
     Recipes recipes;
-    public CraftingArea(bool[,] shape) : base(shape, new HashSet<Items> {Items.Stone, Items.MegaStoneTest }, "Crafting")
+    public CraftingArea(bool[,] shape) : base(shape, ItemHelper.AllItemSet(), "Crafting")
     {
         recipes = new Recipes();
         outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, shape.GetLength(0) + 1, 0), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 1), new CraftingOutputSlot(this, shape.GetLength(0) + 1, 2) };
     }
-    public CraftingArea(List<PersistentSlot> slots, int width, int height) : base(slots, width, height, "Crafting", new HashSet<Items> { Items.Stone, Items.MegaStoneTest })
+    public CraftingArea(List<PersistentSlot> slots, int width, int height) : base(slots, width, height, "Crafting", ItemHelper.AllItemSet())
     {
         recipes = new Recipes();
         outputSlots = new CraftingOutputSlot[3] { new CraftingOutputSlot(this, width + 1, 0), new CraftingOutputSlot(this, width + 1, 1), new CraftingOutputSlot(this, width + 1, 2) };
@@ -219,8 +219,9 @@ public class Recipes
     {
         recipes = new List<Recipe>();
         //Add recipes here
-        recipes.Add(new Recipe(new StackItem(new Stone(), 3), new List<Items> { Items.Stone , Items.Stone}));
-        recipes.Add(new Recipe(new StackItem(new MegaStoneTesting(), 1), new List<Items> { Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone, Items.Stone }));
+        recipes.Add(new Recipe(new StackItem(new Rock(), 1), new List<Items> { Items.Pebble , Items.Pebble, Items.Pebble, Items.Pebble, Items.Pebble }));
+        recipes.Add(new Recipe(new StackItem(new Pebble(), 5), new List<Items> { Items.Rock }));
+        recipes.Add(new Recipe(new StackItem(new Club(), 1), new List<Items> { Items.Pebble, Items.Twigs, Items.Twigs }));
     }
     public List<Recipe> EvaluateCraftingArea(InventorySlot[,] craftingAreaSlots)
     {

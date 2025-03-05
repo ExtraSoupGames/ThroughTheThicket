@@ -38,10 +38,10 @@ public class InventoryManager : IUIState
         //testing setup for stack inventory testing
         Inventory inventory = new TestInventory(shape, "Backpack");
         //creates the held item, and places it into the inventory
-        heldItem = new StackItem(new Stone());
+        heldItem = new StackItem(new Rock());
         InventorySlot tempSlot = inventory.GetSlot(0, 1);
         inventory.ClickAt(ref heldItem, ref tempSlot);
-        heldItem = new StackItem(new Stone());
+        heldItem = new StackItem(new Rock());
         tempSlot = inventory.GetSlot(0, 2);
         inventory.ClickAt(ref heldItem, ref tempSlot);
         heldItem = new StackItem(new Club());

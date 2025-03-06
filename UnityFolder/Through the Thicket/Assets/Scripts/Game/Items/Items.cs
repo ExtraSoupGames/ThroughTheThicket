@@ -17,5 +17,6 @@ public enum Items
     Portobello,
     Spear,
     Bark,
-    Flint
+    Flint,
+    FireStarter
 }

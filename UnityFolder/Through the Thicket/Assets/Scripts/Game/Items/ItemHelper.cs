@@ -36,6 +36,8 @@ public static class ItemHelper
                 return new Potato();
             case Items.Carrot:
                 return new Carrot();
+            case Items.FireStarter:
+                return new FireStarter();
 
             default:
                 Debug.Log("Item found in enum but not in helper, add me to this method");
@@ -44,7 +46,12 @@ public static class ItemHelper
     }
     public static HashSet<Items> AllItemSet()
     {
-        return new HashSet<Items> { Items.Rock, Items.Pebble, Items.Club, Items.Twigs, Items.Chanterelle, Items.Morel, Items.Redcap, Items.Portobello, Items.Club, Items.Spear, Items.Bark, Items.Flint, Items.Potato, Items.Carrot};
+        return new HashSet<Items> { 
+            Items.FireStarter, Items.Rock, Items.Pebble, Items.Club,
+            Items.Twigs, Items.Chanterelle, Items.Morel, Items.Redcap,
+            Items.Portobello, Items.Club, Items.Spear, Items.Bark,
+            Items.Flint, Items.Potato, Items.Carrot
+        };
     }
     public static HashSet<Items> WeaponItemSet()
     {

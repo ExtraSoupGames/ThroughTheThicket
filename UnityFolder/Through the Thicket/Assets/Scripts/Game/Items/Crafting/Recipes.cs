@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 public class CraftingOutputSlot : InventorySlot
@@ -81,6 +82,10 @@ public class CraftingArea : StackInventory
     }
     private void CraftItem(CraftingOutputSlot outputSlot, ref StackItem heldItem)
     {
+        if (outputSlot.recipe == null)
+        {
+            return;
+        }
         List<Items> itemIngredients = outputSlot.recipe.ingredients;
         foreach(Items ingredient in itemIngredients)
         {
@@ -223,6 +228,7 @@ public class Recipes
         recipes.Add(new Recipe(new StackItem(new Pebble(), 5), new List<Items> { Items.Rock }));
         recipes.Add(new Recipe(new StackItem(new Club(), 1), new List<Items> { Items.Pebble, Items.Twigs, Items.Twigs }));
         recipes.Add(new Recipe(new StackItem(new Spear(), 1), new List<Items> { Items.Rock, Items.Twigs, Items.Twigs }));
+        recipes.Add(new Recipe(new StackItem(new FireStarter(), 1), new List<Items> { Items.Rock, Items.Flint}));
     }
     public List<Recipe> EvaluateCraftingArea(InventorySlot[,] craftingAreaSlots)
     {
@@ -239,8 +245,10 @@ public class Recipes
                 craftingIngredients.Add(slot.item.GetItemType());
             }
         }
+        List<Items> allIngredients = new List<Items>(craftingIngredients);
         foreach(Recipe r in recipes)
         {
+            craftingIngredients = new List<Items>( allIngredients);
             bool validRecipe = true;
             foreach(Items ingredient in r.ingredients)
             {

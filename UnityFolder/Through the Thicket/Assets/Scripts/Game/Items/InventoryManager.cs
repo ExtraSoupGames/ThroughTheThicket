@@ -41,7 +41,7 @@ public class InventoryManager : IUIState
         heldItem = new StackItem(new Rock());
         InventorySlot tempSlot = inventory.GetSlot(0, 1);
         inventory.ClickAt(ref heldItem, ref tempSlot);
-        heldItem = new StackItem(new Rock());
+        heldItem = new StackItem(new Flint(), 2);
         tempSlot = inventory.GetSlot(0, 2);
         inventory.ClickAt(ref heldItem, ref tempSlot);
         heldItem = new StackItem(new Club());

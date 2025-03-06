@@ -37,7 +37,7 @@ public class Carrot : IItem, ITileSegmentFoliageLayer, ICollectable
 
     public Texture2D GetTexture()
     {
-        return Resources.Load<Sprite>("TestSprite").texture;
+        return Resources.Load<Sprite>("Icons/Carrot").texture;
     }
 
     public ToolLevelRequirement GetToolLevelRequirement()

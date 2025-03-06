@@ -37,7 +37,7 @@ public class Flint : IItem, ITileSegmentObjectLayer
 
     public Texture2D GetTexture()
     {
-        return Resources.Load<Sprite>("TestSprite").texture;
+        return Resources.Load<Sprite>("Icons/Flint").texture;
     }
 
     public int GetTravelCost()

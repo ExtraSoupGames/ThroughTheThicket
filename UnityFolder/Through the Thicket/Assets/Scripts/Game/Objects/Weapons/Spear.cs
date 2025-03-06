@@ -21,6 +21,6 @@ public class Spear : Weapon
 
     public override Texture2D GetTexture()
     {
-        return Resources.Load<Sprite>("Shaped00").texture;
+        return Resources.Load<Sprite>("Icons/Spear").texture;
     }
 }

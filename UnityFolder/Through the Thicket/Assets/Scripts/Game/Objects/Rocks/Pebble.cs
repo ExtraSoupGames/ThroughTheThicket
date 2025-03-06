@@ -37,7 +37,7 @@ public class Pebble : IItem, ITileSegmentObjectLayer, ICollectable
 
     public Texture2D GetTexture()
     {
-        return Resources.Load<Sprite>("TestSprite").texture;
+        return Resources.Load<Sprite>("Icons/Pebbles").texture;
     }
 
     public ToolLevelRequirement GetToolLevelRequirement()

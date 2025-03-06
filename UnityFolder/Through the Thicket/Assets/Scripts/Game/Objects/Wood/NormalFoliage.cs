@@ -36,7 +36,7 @@ public class Twigs : ITileSegmentFoliageLayer, ICollectable, IItem
 
     public Texture2D GetTexture()
     {
-        return Resources.Load<Sprite>("Shaped10").texture;
+        return Resources.Load<Sprite>("Icons/Twigs").texture;
     }
 
     public int GetMaxStackCount()

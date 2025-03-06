@@ -37,7 +37,7 @@ public class Rock : IItem, ITileSegmentObjectLayer
 
     public Texture2D GetTexture()
     {
-        return Resources.Load<Sprite>("TestSprite").texture;
+        return Resources.Load<Sprite>("Icons/Rock").texture;
     }
 
     public int GetTravelCost()

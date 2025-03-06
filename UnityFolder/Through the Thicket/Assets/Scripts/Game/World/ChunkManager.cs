@@ -60,6 +60,7 @@ public abstract class ChunkManager : MonoBehaviour
         ChunkGrabber.Complete();
         tilesToLoad.Dispose();
         persistentDataPath.Dispose();
+        chunksToLoad.Dispose();
     }
     public void Tests()
     {

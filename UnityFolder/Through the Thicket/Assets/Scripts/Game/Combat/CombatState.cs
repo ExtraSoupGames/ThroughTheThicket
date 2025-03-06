@@ -45,7 +45,6 @@ public class CombatState : IUIState
     {
         if (!isPlayersGo)
         {
-            Debug.Log("Enemy attacking player");
             player.Damage(2);
             TurnSwap();
             PopulateUI();
@@ -62,10 +61,8 @@ public class CombatState : IUIState
         {
             return;
         }
-        Debug.Log("Player attacking enemy");
         int damage = LoadPlayerWeapons()[attackID].GetAttack().GetDamage();
         currentEnemy.Damage(damage);
-        Debug.Log("Damage to enemy was: " + damage);
         if (currentEnemy.IsDead())
         {
             gameManager.CloseState("Combat");
@@ -142,7 +139,8 @@ public class CombatState : IUIState
             {
                 Button attackButton = new Button();
                 attackButton.AddToClassList("weapon-button");
-                attackButton.clicked += () => AttackButtonClicked(i - 1); // punch is in first slot so we take away one to make up for it
+                int thisAttackID = i;
+                attackButton.clicked += () => AttackButtonClicked(thisAttackID);
                 attackButton.text = weapons[i].ToString();
                 attackBar.Add(attackButton);
             }

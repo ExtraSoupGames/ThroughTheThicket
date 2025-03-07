@@ -144,10 +144,6 @@ public class CombatState : IUIState
                 attackButton.text = weapons[i].ToString();
                 attackBar.Add(attackButton);
             }
-
-            VisualElement fighterSpeech = new Label("Im gonna kill you!");
-            fighterSpeech.AddToClassList("fighter-speech");
-            fighterInfoBox.Add(fighterSpeech);
         }
         else
         {

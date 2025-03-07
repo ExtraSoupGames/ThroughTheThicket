@@ -252,6 +252,7 @@ public class GameManager : MonoBehaviour
 
     public void EnterTileInteractionMode(TileInteractionMenu tileInteractionOptions, GameObject selectedObject)
     {
+        tileInteractionOptions.AddOptions(inventory.GetInteractionOptions(selectedObject));
         EnterState(tileState);
         tileState.PopulateTileInteractionMenu(tileInteractionOptions, selectedObject);
     }
@@ -268,8 +269,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    internal void SetTile(int x, int y, Layers layer, ITileSegment segment)
+    public void SetTile(int x, int y, Layers layer, ITileSegment segment)
     {
         worldState.Peek().SetTile(x, y, layer, segment);
+    }
+
+    public void TakeFromPlacablesInventory(IPlacable placer)
+    {
+        inventory.TakeFromPlacablesInventory(placer);
     }
 }

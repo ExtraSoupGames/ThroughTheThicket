@@ -47,6 +47,7 @@ public class InventoryManager : IUIState
         heldItem = new StackItem(new Club());
         tempSlot = inventory.GetSlot(0, 0);
         inventory.ClickAt(ref heldItem,ref tempSlot);
+        inventory.StuffItemIn(new StackItem(new CampFire()));
         selectedInventoryTab = 0;
 
         shape = new bool[3, 3]
@@ -73,6 +74,8 @@ public class InventoryManager : IUIState
             {true, false, true, true},
             {true, true, true, false }
         };
+        Inventory placingInventory = new TestInventory(shape, "Placables");
+        subInventories.Add(placingInventory);
         Inventory tabbedInventory = new TestInventory(shape, "Mushroom Bag");
         subInventories.Add(tabbedInventory);
 
@@ -222,5 +225,35 @@ public class InventoryManager : IUIState
         {
             gameManager.CloseState("Inventory");
         }
+    }
+
+    public List<TileInteractionOption> GetInteractionOptions(GameObject selectedObject)
+    {
+        List<TileInteractionOption> interactionOptions = new List<TileInteractionOption>();
+        LoadInventory();
+        foreach(InventorySlot slot in subInventories[1].GetSlots())
+        {
+            if(slot.item == null)
+            {
+                continue;
+            }
+            if(slot.item.GetClonedItem() is IPlacable)
+            {
+                IPlacable placing = (IPlacable)slot.item.GetClonedItem();
+                interactionOptions.Add(new TileInteractionOption("Place " + placing.ToString(), new TilePlacement(selectedObject, placing.GetLayer(), placing)));
+            }
+        }
+        return interactionOptions;
+    }
+
+    public void TakeFromPlacablesInventory(IPlacable placer)
+    {
+        LoadInventory();
+        RefreshInventory();
+        subInventories[1].Remove(placer.GetItemType());
+        //TODO give error if item not found
+        RefreshInventory();
+        SaveInventory();
+        RefreshInventory();
     }
 }

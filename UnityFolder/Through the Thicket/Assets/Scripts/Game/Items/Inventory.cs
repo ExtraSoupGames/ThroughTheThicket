@@ -204,6 +204,22 @@ public abstract class Inventory
         }
         return didItemFit;
     }
+    public bool Remove(Items itemType)
+    {
+        foreach (InventorySlot slot in slots)
+        {
+            if (slot.item == null)
+            {
+                continue;
+            }
+            if (slot.item.GetClonedItem().GetItemType() == itemType)
+            {
+                slot.Remove();
+                return true;
+            }
+        }
+        return false;
+    }
 }
 public abstract class StackInventory : Inventory
 {

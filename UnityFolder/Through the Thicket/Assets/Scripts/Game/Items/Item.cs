@@ -43,6 +43,10 @@ public class StackItem
     {
         return item.GetItemType();
     }
+    public IItem GetClonedItem()
+    {
+        return item.Clone();
+    }
     public int GetCount()
     {
         return count;

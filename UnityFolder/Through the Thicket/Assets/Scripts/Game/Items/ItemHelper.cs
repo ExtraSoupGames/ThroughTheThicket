@@ -38,7 +38,8 @@ public static class ItemHelper
                 return new Carrot();
             case Items.FireStarter:
                 return new FireStarter();
-
+            case Items.Campfire:
+                return new CampFire();
             default:
                 Debug.Log("Item found in enum but not in helper, add me to this method");
                 return null;
@@ -50,7 +51,7 @@ public static class ItemHelper
             Items.FireStarter, Items.Rock, Items.Pebble, Items.Club,
             Items.Twigs, Items.Chanterelle, Items.Morel, Items.Redcap,
             Items.Portobello, Items.Club, Items.Spear, Items.Bark,
-            Items.Flint, Items.Potato, Items.Carrot
+            Items.Flint, Items.Potato, Items.Carrot, Items.Campfire
         };
     }
     public static HashSet<Items> WeaponItemSet()

@@ -32,6 +32,23 @@ public class TileDestruction : TileInteraction
         }
     }
 }
+public class TilePlacement : TileInteraction
+{
+    private GameObject tile;
+    private Layers layer;
+    private IPlacable placer;
+    public TilePlacement(GameObject tileToPlaceAt, Layers layerToPlaceOn, IPlacable placeThis)
+    {
+        tile = tileToPlaceAt;
+        layer = layerToPlaceOn;
+        placer = placeThis;
+    }
+    public override void Execute(GameManager gameManager)
+    {
+        gameManager.SetTile(tile.GetComponent<TileDataHolder>().thisTileData.X, tile.GetComponent<TileDataHolder>().thisTileData.Y, layer, placer);
+        gameManager.TakeFromPlacablesInventory(placer);
+    }
+}
 public class TileInteractionExit : TileInteraction
 {
     public TileInteractionExit()

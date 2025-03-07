@@ -18,5 +18,6 @@ public enum Items
     Spear,
     Bark,
     Flint,
-    FireStarter
+    FireStarter,
+    Campfire
 }

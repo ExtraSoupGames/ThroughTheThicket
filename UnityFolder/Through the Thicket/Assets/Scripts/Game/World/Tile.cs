@@ -21,7 +21,8 @@ public enum LayerContents
     Morel,
     Chanterelle,
     Portobello,
-    Flint
+    Flint,
+    Campfire
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -78,6 +79,8 @@ public struct TileSegmentDataHolder
                 return new Chanterelle();
             case LayerContents.Flint:
                 return new Flint();
+            case LayerContents.Campfire:
+                return new CampFire();
             default:
                 return new EmptyObject();
         }

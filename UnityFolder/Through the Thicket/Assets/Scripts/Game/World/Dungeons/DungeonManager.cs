@@ -9,6 +9,10 @@ public class DungeonManager : ChunkManager
     {
         return Path.Combine(Application.persistentDataPath, "World", "DungeonData", "Chunks");
     }
+    protected override bool UseSurfaceGenerator()
+    {
+        return false;
+    }
     public void OtherTests()
     {
         DeleteAllChunks();

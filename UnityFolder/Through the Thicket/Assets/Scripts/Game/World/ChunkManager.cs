@@ -38,10 +38,15 @@ public abstract class ChunkManager : MonoBehaviour
     List<ChunkPos> activeChunks;
     //JobHandles to track other threads
     JobHandle ChunkGrabber;
+    //seed for the world generator
+    private int worldSeed;
     private TileDisplayGetter tileDisplayGetter;
     protected abstract string GetChunkPath();
+    protected abstract bool UseSurfaceGenerator();
     public void Awake()
     {
+        worldSeed = 5;
+        //TODO get random world seed and use persistent world seed for one world
         int tilePoolSize = (RenderDistance * 2) * (RenderDistance * 2);
         persistentDataPath = new NativeArray<char>(GetChunkPath().ToCharArray(), Allocator.Persistent);
         chunksToLoad = new NativeQueue<ChunkPos>(Allocator.Persistent);
@@ -182,7 +187,10 @@ public abstract class ChunkManager : MonoBehaviour
                 tileQueue = tilesToLoad,
                 X = newChunkPos.X,
                 Y = newChunkPos.Y,
-                persistentDataPath = persistentDataPath
+                persistentDataPath = persistentDataPath,
+                seed = worldSeed,
+                useSurfaceGenerator = UseSurfaceGenerator()
+
             };
             ChunkGrabber = newChunkJob.Schedule();
         }

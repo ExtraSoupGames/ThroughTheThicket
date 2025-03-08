@@ -9,6 +9,8 @@ public struct ChunkGrabberJob : IJob
     public NativeArray<char> persistentDataPath;
     public int X, Y;
     public NativeQueue<Tile> tileQueue;
+    public bool useSurfaceGenerator;
+    public int seed;
     public void Execute()
     {
         //search for the chunk if it already exists
@@ -39,7 +41,16 @@ public struct ChunkGrabberJob : IJob
             return;
         }
         //if the chunk does not already exist, generate it
-        //TODO GenerateChunk(X, Y, seed)
+        if (useSurfaceGenerator)
+        {
+            CellularAutomataGenerator.GenerateChunkAt(X, Y, new string(persistentDataPath.ToArray()), seed);
+            SerializableChunk chunk = LoadChunk(X, Y);
+            foreach (Tile t in chunk.tiles)
+            {
+                tileQueue.Enqueue(t);
+            }
+            return;
+        }
     }
     private SerializableChunk LoadChunk(int X, int Y)
     {

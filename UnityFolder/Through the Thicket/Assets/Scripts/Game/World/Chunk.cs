@@ -57,6 +57,12 @@ public struct SerializableChunk
 {
     public int X, Y;
     public Tile[] tiles;
+    public SerializableChunk(int pX, int pY)
+    {
+        X = pX;
+        Y = pY;
+        tiles = new Tile[Chunk.ChunkSize() * Chunk.ChunkSize()];
+    }
     public SerializableChunk(NativeArray<Tile> pTiles, int pX, int pY)
     {
         X = pX;

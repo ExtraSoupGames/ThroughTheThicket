@@ -22,7 +22,7 @@ public struct ChunkGrabberJob : IJob
             //removes the path from the filename
             string chunkLocation = chunk.Substring(chunk.IndexOf("Chunks\\chunk") + 12);
             //split the coordinates into an array of strings, and remove the .json from the end
-            string[] chunkCoordinates = chunkLocation.Substring(0, chunkLocation.IndexOf(".")).Split("-");
+            string[] chunkCoordinates = chunkLocation.Substring(0, chunkLocation.IndexOf(".")).Split(",");
             int biomeX = int.Parse(chunkCoordinates[0]);
             int biomeY = int.Parse(chunkCoordinates[1]);
             if(biomeX == X && biomeY == Y)
@@ -43,6 +43,7 @@ public struct ChunkGrabberJob : IJob
         //if the chunk does not already exist, generate it
         if (useSurfaceGenerator)
         {
+            Debug.Log("Generating chunk via cellular automata at " + X + "," + Y);
             CellularAutomataGenerator.GenerateChunkAt(X, Y, new string(persistentDataPath.ToArray()), seed);
             SerializableChunk chunk = LoadChunk(X, Y);
             foreach (Tile t in chunk.tiles)
@@ -55,12 +56,12 @@ public struct ChunkGrabberJob : IJob
     private SerializableChunk LoadChunk(int X, int Y)
     {
         string dataPathString = new string(persistentDataPath.ToArray());
-        if (!File.Exists(Path.Combine(dataPathString,"chunk" + X + "-" + Y + ".json")))
+        if (!File.Exists(Path.Combine(dataPathString,"chunk" + X + "," + Y + ".json")))
         {
             Debug.Log("Invalid chunk attempted to be loaded");
-            throw new Exception("Invalid biome load attempt made");
+            throw new Exception("Invalid chunk load attempt made");
         }
-        string chunkAsJSON = File.ReadAllText(Path.Combine(dataPathString, "chunk" + X + "-" + Y + ".json"));
+        string chunkAsJSON = File.ReadAllText(Path.Combine(dataPathString, "chunk" + X + "," + Y + ".json"));
         SerializableChunk chunk = JsonUtility.FromJson<SerializableChunk>(chunkAsJSON);
         return chunk;
     }

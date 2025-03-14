@@ -74,8 +74,8 @@ public abstract class ChunkManager : MonoBehaviour
         {
             for(int j = 0; j < 5; j++)
             {
-                Chunk chunk = new Chunk(i, j);
-                SaveChunk(chunk);
+                //Chunk chunk = new Chunk(i, j);
+                //SaveChunk(chunk);
             }
         }
     }
@@ -232,7 +232,7 @@ public abstract class ChunkManager : MonoBehaviour
         FileHelper.DirectoryCheck();
         string chunkAsJSON = JsonUtility.ToJson(chunk.GetChunkForSerialization(), true);
         string dataPathString = new string(persistentDataPath.ToArray());
-        string fileName = Path.Combine(dataPathString, "chunk" + chunk.X + "-" + chunk.Y);
+        string fileName = Path.Combine(dataPathString, "chunk" + chunk.X + "," + chunk.Y);
         File.WriteAllText(fileName + ".json", chunkAsJSON);
         chunk.Dispose();
     }

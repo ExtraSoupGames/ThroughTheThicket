@@ -34,13 +34,13 @@ public static class CellularAutomataGenerator
                 }
             }
         }
-        int iterations = 50;
+        int iterations = 5;
         for(int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles);
         }
         AutomataChunk returnChunk = new AutomataChunk(tiles, chunkX, chunkY);
-        return chunks[1,1];
+        return returnChunk;
     }
     private static AutomataChunk[,] InitialNoiseMap(int chunkX, int chunkY, int seed)
     {
@@ -182,7 +182,7 @@ public static class CellularAutomataGenerator
                     }
                 }
             }
-            return new AutomataTile(riverCount > 4 ? AutomataTileType.River : AutomataTileType.Mud);
+            return new AutomataTile(riverCount >= 4 ? AutomataTileType.Mud : AutomataTileType.River);
         }
     }
 }

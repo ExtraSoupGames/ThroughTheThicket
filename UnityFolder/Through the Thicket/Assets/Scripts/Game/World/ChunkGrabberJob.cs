@@ -43,7 +43,6 @@ public struct ChunkGrabberJob : IJob
         //if the chunk does not already exist, generate it
         if (useSurfaceGenerator)
         {
-            Debug.Log("Generating chunk via cellular automata at " + X + "," + Y);
             CellularAutomataGenerator.GenerateChunkAt(X, Y, new string(persistentDataPath.ToArray()), seed);
             SerializableChunk chunk = LoadChunk(X, Y);
             foreach (Tile t in chunk.tiles)

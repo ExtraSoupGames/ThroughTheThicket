@@ -17,7 +17,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform playerMovementTransform;
     //this should include only the player model, not the camera, otherwise entire view will move around like crazy
     [SerializeField] private Transform playerRotationTransform;
-    //The chunkManager used when the player is on the surface
+    //the player animator
+    [SerializeField] private PlayerAnimator playerAnimator;
     public void Initialize(GameManager manager)
     {
         gameManager = manager;
@@ -75,6 +76,10 @@ public class PlayerController : MonoBehaviour
         {
             Quaternion targetRotation = Quaternion.LookRotation(tileDirection);
             playerRotationTransform.localRotation = targetRotation * Quaternion.Euler(-90, 0, 0);
+
+
+            playerAnimator.WalkAnimation(tileDirection);
+
         }
         playerMovementTransform.position = tilePos;
     }

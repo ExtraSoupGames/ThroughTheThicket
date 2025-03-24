@@ -34,7 +34,7 @@ public static class CellularAutomataGenerator
                 }
             }
         }
-        int iterations = 5;
+        int iterations = 10;
         for(int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles);
@@ -57,8 +57,7 @@ public static class CellularAutomataGenerator
     }
     private static AutomataTile[,] CellularIteration(AutomataTile[,] oldTiles)
     {
-        AutomataRule rule = new TestRule();
-        //TODO implement cellular automata rule application
+        AutomataRule rule = new IslandRule();
         AutomataTile[,] newTiles = new AutomataTile[48, 48];
         for (int x = 0; x < 48; x++)
         {
@@ -80,7 +79,7 @@ public static class CellularAutomataGenerator
                 {
                     neighbourhood[xOff + 1, yOff + 1] = tiles[x + xOff, y + yOff];
                 }
-                catch (Exception e)
+                catch (Exception _)
                 {
                     neighbourhood[xOff + 1, yOff + 1] = new AutomataTile(AutomataTileType.None);
                 }
@@ -183,6 +182,40 @@ public static class CellularAutomataGenerator
                 }
             }
             return new AutomataTile(riverCount >= 4 ? AutomataTileType.Mud : AutomataTileType.River);
+        }
+    }
+    private class IslandRule : AutomataRule
+    {
+        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
+        {
+            int mudNeighbourCount = 0;
+            int riverNeighbourCount = 0;
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    if (x == 1 && y == 1)
+                    {
+                        continue;
+                    }
+                    if (tiles[x, y].type == AutomataTileType.Mud)
+                    {
+                        mudNeighbourCount++;
+                    }
+                    if (tiles[x,y].type == AutomataTileType.River)
+                    {
+                        riverNeighbourCount++;
+                    }
+                }
+            }
+            if (tiles[1,1].type == AutomataTileType.River)
+            {
+                return new AutomataTile(mudNeighbourCount >= 5 ? AutomataTileType.Mud : AutomataTileType.River);
+            }
+            else
+            {
+                return new AutomataTile(mudNeighbourCount >= 4 ? AutomataTileType.Mud : AutomataTileType.River);
+            }
         }
     }
 }

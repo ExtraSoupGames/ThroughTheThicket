@@ -22,7 +22,8 @@ public enum LayerContents
     Chanterelle,
     Portobello,
     Flint,
-    Campfire
+    Campfire,
+    River
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -44,6 +45,8 @@ public struct TileSegmentDataHolder
                 return new Grass();
             case LayerContents.Stone:
                 return new Stone();
+            case LayerContents.River:
+                return new River();
             default:
                 Debug.LogError("Tried to construct a base which had enum of none");
                 return new Grass();

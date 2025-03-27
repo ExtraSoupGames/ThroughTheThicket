@@ -39,6 +39,7 @@ public class TileDisplayGetter
         allMeshes.Add("Carrot", new LayerDisplayProperties("Carrot", new string[] { "Carrot"}));
         allMeshes.Add("Redcap", new LayerDisplayProperties("Redcap", new string[] { "Redcap1", "Redcap2"}));
         allMeshes.Add("Pebble", new LayerDisplayProperties("Pebble", new string[] { "Pebble"}));
+        allMeshes.Add("River", new LayerDisplayProperties("Grass", new string[] { "River" }));
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)
     {

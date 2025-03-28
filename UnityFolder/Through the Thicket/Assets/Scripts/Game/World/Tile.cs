@@ -24,7 +24,8 @@ public enum LayerContents
     Flint,
     Campfire,
     River,
-    TallGrass
+    TallGrass,
+    TreeStump
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -67,6 +68,8 @@ public struct TileSegmentDataHolder
                 return new Carrot();
             case LayerContents.TallGrass:
                 return new TallGrass();
+            case LayerContents.TreeStump:
+                return new TreeStump();
             default:
                 return new EmptyFoliage();
         }

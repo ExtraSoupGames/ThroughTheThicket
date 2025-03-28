@@ -190,7 +190,7 @@ public static class CellularAutomataGenerator
                         tiles[x, y].type == AutomataTileType.Mud ? new Stone() : 
                         tiles[x,y].type == AutomataTileType.River ? new River() : 
                         new Grass(),
-                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new TallGrass() :
+                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new TreeStump() :
                         new EmptyFoliage(),
                         tiles[x,y].objectType == AutomataObjectType.None ? new EmptyObject() : // TODO replace with objects when added
                         new EmptyObject());

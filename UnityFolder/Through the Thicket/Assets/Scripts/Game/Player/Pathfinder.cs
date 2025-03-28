@@ -98,6 +98,16 @@ public class Pathfinder : MonoBehaviour
             path.Add(current);
         }
         path.Reverse();
+        //check if total travel cost is below maximum (100)
+        int totalCost = 0;
+        foreach (TravelTile t in path)
+        {
+            totalCost += t.TravelCost;
+        }
+        if(totalCost > 100)
+        {
+            return null;
+        }
         return path;
     }
     private TravelTile FindTileAt(Vector2Int location, List<TravelTile> tilesToSearch)

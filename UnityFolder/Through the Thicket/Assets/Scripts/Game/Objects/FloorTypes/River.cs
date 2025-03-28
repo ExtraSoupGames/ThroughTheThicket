@@ -6,7 +6,7 @@ public class River : ITileSegmentBaseLayer
 {
     public int GetTravelCost()
     {
-        return 15;
+        return 100;
     }
     public LayerDisplayProperties GetDisplayProperties(TileDisplayGetter displayGetter)
     {

@@ -23,7 +23,8 @@ public enum LayerContents
     Portobello,
     Flint,
     Campfire,
-    River
+    River,
+    TallGrass
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -64,6 +65,8 @@ public struct TileSegmentDataHolder
                 return new Potato();
             case LayerContents.Carrot:
                 return new Carrot();
+            case LayerContents.TallGrass:
+                return new TallGrass();
             default:
                 return new EmptyFoliage();
         }

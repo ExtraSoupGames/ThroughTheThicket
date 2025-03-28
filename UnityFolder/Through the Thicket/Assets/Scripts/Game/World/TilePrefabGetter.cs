@@ -32,14 +32,15 @@ public class TileDisplayGetter
     {
         allMeshes = new Dictionary<string, LayerDisplayProperties>();
         allMeshes.Add("Empty", new LayerDisplayProperties());
-        allMeshes.Add("Grass", new LayerDisplayProperties("Grass", new string[] { "Foliage1"}));
-        allMeshes.Add("Stone", new LayerDisplayProperties("Grass", new string[] { "Foliage2"}));
+        allMeshes.Add("Grass", new LayerDisplayProperties("Cube", new string[] { "Carrot"}));
+        allMeshes.Add("Stone", new LayerDisplayProperties("Cube", new string[] { "Foliage2"}));
         allMeshes.Add("Foliage", new LayerDisplayProperties("Foliage", new string[] { "Foliage1", "Foliage2", "Foliage3"}));
         allMeshes.Add("Potato", new LayerDisplayProperties("Potato", new string[] { "Potato"}));
         allMeshes.Add("Carrot", new LayerDisplayProperties("Carrot", new string[] { "Carrot"}));
         allMeshes.Add("Redcap", new LayerDisplayProperties("Redcap", new string[] { "Redcap1", "Redcap2"}));
         allMeshes.Add("Pebble", new LayerDisplayProperties("Pebble", new string[] { "Pebble"}));
-        allMeshes.Add("River", new LayerDisplayProperties("Grass", new string[] { "River" }));
+        allMeshes.Add("River", new LayerDisplayProperties("Cube", new string[] { "River" }));
+        allMeshes.Add("TallGrass", new LayerDisplayProperties("TallGrass", new string[] { "Potato" }));
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)
     {

@@ -112,6 +112,10 @@ public struct Tile
         Layers = PLayers;
         initialized = true;
     }
+    public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile, ITileSegmentFoliageLayer foliageLayer, ITileSegmentObjectLayer objectLayer)
+: this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(), foliageLayer.GetContentsEnum(), objectLayer.GetContentsEnum()))
+    {
+    }
     public Tile(int PX, int PY, int PHeight, int PChunkX, int PChunkY, ITileSegmentBaseLayer baseTile)
     : this(PX, PY, PHeight, PChunkX, PChunkY, new TileSegmentDataHolder(baseTile.GetContentsEnum(), LayerContents.None, LayerContents.None))
     {

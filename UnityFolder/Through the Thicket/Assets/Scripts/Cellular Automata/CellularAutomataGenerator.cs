@@ -11,7 +11,6 @@ public static class CellularAutomataGenerator
     public static void GenerateChunkAt(int chunkX, int chunkY, string filePath, int seed)
     {
         AutomataChunk generatedChunk = GenerateChunk(chunkX, chunkY, seed);
-        //TODO save chunk as at filepath
         SerializableChunk chunkToSave = generatedChunk.GetChunkForSaving();
         string chunkAsJSON = JsonUtility.ToJson(chunkToSave, true);
         string fileName = Path.Combine(filePath, "chunk" + chunkToSave.X + "," + chunkToSave.Y);
@@ -34,15 +33,20 @@ public static class CellularAutomataGenerator
                 }
             }
         }
-        int iterations = 10;
+        int iterations = 8;
         for(int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles, new AdvancedIslandRule());
         }
-        iterations = 3;
+        iterations = 1;
         for (int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles, new IslandRefinerRule());
+        }
+        iterations = 5;
+        for (int i = 0; i < iterations; i++)
+        {
+            tiles = CellularIteration(tiles, new GrassPopulaterRule(seed));
         }
         AutomataChunk returnChunk = new AutomataChunk(tiles, chunkX, chunkY);
         return returnChunk;
@@ -67,25 +71,26 @@ public static class CellularAutomataGenerator
         {
             for(int y = 0; y < 48; y++)
             {
-                newTiles[x, y] = rule.ApplyRule(GetNeighbourhood(oldTiles,x, y));
+                newTiles[x, y] = rule.ApplyRule(GetNeighbourhood(oldTiles,x, y, rule.GetRange()));
             }
         }
         return newTiles;
     }
-    private static AutomataTile[,] GetNeighbourhood(AutomataTile[,] tiles, int x, int y)
+    private static AutomataTile[,] GetNeighbourhood(AutomataTile[,] tiles, int x, int y, int range)
     {
-        AutomataTile[,] neighbourhood = new AutomataTile[3, 3];
-        for(int xOff = -1;xOff < 2; xOff++)
+        int gridSize = (range * 2) + 1;
+        AutomataTile[,] neighbourhood = new AutomataTile[gridSize, gridSize];
+        for(int xOff = -range;xOff <= range; xOff++)
         {
-            for (int yOff = -1; yOff < 2; yOff++)
+            for (int yOff = -range; yOff <= range; yOff++)
             {
                 try
                 {
-                    neighbourhood[xOff + 1, yOff + 1] = tiles[x + xOff, y + yOff];
+                    neighbourhood[xOff + range, yOff + range] = tiles[x + xOff, y + yOff];
                 }
-                catch (Exception _)
+                catch (Exception)
                 {
-                    neighbourhood[xOff + 1, yOff + 1] = new AutomataTile(AutomataTileType.None);
+                    neighbourhood[xOff + range, yOff + range] = new AutomataTile(AutomataTileType.None);
                 }
             }
         }
@@ -99,12 +104,37 @@ public static class CellularAutomataGenerator
         Mud,
         River
     }
+    enum AutomataFoliageType
+    {
+        None,
+        TallGrass,
+    }
+    enum AutomataObjectType
+    {
+        None,
+    }
     private class AutomataTile
     {
         public AutomataTileType type;
+        public AutomataFoliageType foliageType;
+        public AutomataObjectType objectType;
         public AutomataTile(AutomataTileType startType)
         {
             type = startType;
+            foliageType = AutomataFoliageType.None;
+            objectType = AutomataObjectType.None;
+        }
+        public AutomataTile(AutomataTileType startType, AutomataFoliageType foliage)
+        {
+            type = startType;
+            foliageType = foliage;
+            objectType = AutomataObjectType.None;
+        }
+        public AutomataTile(AutomataTileType startType, AutomataFoliageType foliage, AutomataObjectType objType)
+        {
+            type = startType;
+            foliageType = foliage;
+            objectType = objType;
         }
     }
     private class AutomataChunk
@@ -155,7 +185,15 @@ public static class CellularAutomataGenerator
             {
                 for (int y = 0;y < 16; y++)
                 {
-                    chunk.tiles[x + (y * 16)] = new Tile(x + (chunkX * 16), y + (chunkY * 16), 0, chunkX, chunkY, tiles[x, y].type == AutomataTileType.Mud ? new Grass() : tiles[x,y].type == AutomataTileType.River ? new River() : new Stone());
+                    chunk.tiles[x + (y * 16)] = 
+                        new Tile(x + (chunkX * 16), y + (chunkY * 16), 0, chunkX, chunkY, 
+                        tiles[x, y].type == AutomataTileType.Mud ? new Stone() : 
+                        tiles[x,y].type == AutomataTileType.River ? new River() : 
+                        new Grass(),
+                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new TallGrass() :
+                        new EmptyFoliage(),
+                        tiles[x,y].objectType == AutomataObjectType.None ? new EmptyObject() : // TODO replace with objects when added
+                        new EmptyObject());
                 }
             }
             return chunk;
@@ -163,8 +201,9 @@ public static class CellularAutomataGenerator
     }
     private abstract class AutomataRule
     {
-        //Moores neighbourhood is assumed
         public abstract AutomataTile ApplyRule(AutomataTile[,] tiles);
+        //defines range of neighbourhood to request for each rule application
+        public virtual int GetRange() { return 1; }
     }
     private class TestRule : AutomataRule
     {
@@ -227,56 +266,106 @@ public static class CellularAutomataGenerator
         public override AutomataTile ApplyRule(AutomataTile[,] tiles)
         {
             int landNeighbourCount = 0;
-            int mudNeighbourCount = 0;
             int riverNeighbourCount = 0;
+            int mudNeighbourCount = 0;
+
             for (int x = 0; x < 3; x++)
             {
                 for (int y = 0; y < 3; y++)
                 {
-                    if (x == 1 && y == 1)
+                    if (x == 1 && y == 1) continue;
+
+                    if (tiles[x, y].type == AutomataTileType.Grass)
                     {
-                        continue;
-                    }
-                    if (tiles[x,y].type == AutomataTileType.Grass)
-                    {
-                        landNeighbourCount++;
-                    }
-                    if (tiles[x, y].type == AutomataTileType.Mud)
-                    {
-                        mudNeighbourCount++;
                         landNeighbourCount++;
                     }
                     if (tiles[x, y].type == AutomataTileType.River)
                     {
                         riverNeighbourCount++;
+                        landNeighbourCount++;
+                    }
+                    if (tiles[x, y].type == AutomataTileType.Mud)
+                    {
+                        mudNeighbourCount++;
                     }
                 }
             }
+
             if (tiles[1, 1].type == AutomataTileType.Grass)
             {
-                return new AutomataTile(landNeighbourCount == 0 ? AutomataTileType.Grass : AutomataTileType.Mud);
+                return new AutomataTile(landNeighbourCount == 8 ? AutomataTileType.Grass : AutomataTileType.Mud);
             }
-            if (tiles[1, 1].type == AutomataTileType.River)
+            if (tiles[1, 1].type == AutomataTileType.Mud)
             {
-                return new AutomataTile(landNeighbourCount >= 5 ? AutomataTileType.Mud : AutomataTileType.River);
-            }
-            else
-            {
-                if(mudNeighbourCount == 8)
+                if (mudNeighbourCount == 8)
                 {
                     return new AutomataTile(AutomataTileType.Grass);
                 }
-                return new AutomataTile(landNeighbourCount >= 4 ? AutomataTileType.Mud : AutomataTileType.River);
+                return new AutomataTile(riverNeighbourCount >= 5 ? AutomataTileType.River : AutomataTileType.Mud);
+            }
+            else
+            {
+                return new AutomataTile(riverNeighbourCount >= 4 ? AutomataTileType.River : AutomataTileType.Mud);
             }
         }
     }
+
     private class IslandRefinerRule : AutomataRule
     {
         public override AutomataTile ApplyRule(AutomataTile[,] tiles)
         {
             int landNeighbourCount = 0;
-            int mudNeighbourCount = 0;
             int riverNeighbourCount = 0;
+            int mudNeighbourCount = 0;
+
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    if (x == 1 && y == 1) continue;
+
+                    if (tiles[x, y].type == AutomataTileType.Grass)
+                    {
+                        landNeighbourCount++;
+                    }
+                    if (tiles[x, y].type == AutomataTileType.River)
+                    {
+                        riverNeighbourCount++;
+                        landNeighbourCount++;
+                    }
+                    if (tiles[x, y].type == AutomataTileType.Mud)
+                    {
+                        mudNeighbourCount++;
+                    }
+                }
+            }
+
+            if (tiles[1, 1].type == AutomataTileType.Grass)
+            {
+                return new AutomataTile(mudNeighbourCount <= 4 ? AutomataTileType.Grass : AutomataTileType. Mud);
+            }
+            if (tiles[1, 1].type == AutomataTileType.Mud)
+            {
+                return new AutomataTile(riverNeighbourCount >= 5 ? AutomataTileType.River : AutomataTileType.Mud);
+            }
+            else
+            {
+                return new AutomataTile(AutomataTileType.River);
+            }
+        }
+    }
+    private class GrassPopulaterRule : AutomataRule
+    {
+        private Unity.Mathematics.Random rand;
+
+        public GrassPopulaterRule(int seed)
+        {
+            rand = new Unity.Mathematics.Random((uint)seed);
+        }
+
+        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
+        {
+            int tallGrassNeighbourCount = 0;
             for (int x = 0; x < 3; x++)
             {
                 for (int y = 0; y < 3; y++)
@@ -285,33 +374,25 @@ public static class CellularAutomataGenerator
                     {
                         continue;
                     }
-                    if (tiles[x, y].type == AutomataTileType.Grass)
+                    if (tiles[x, y].foliageType == AutomataFoliageType.TallGrass)
                     {
-                        landNeighbourCount++;
-                    }
-                    if (tiles[x, y].type == AutomataTileType.Mud)
-                    {
-                        mudNeighbourCount++;
-                        landNeighbourCount++;
-                    }
-                    if (tiles[x, y].type == AutomataTileType.River)
-                    {
-                        riverNeighbourCount++;
+                        tallGrassNeighbourCount++;
                     }
                 }
             }
-            if (tiles[1, 1].type == AutomataTileType.Grass)
+            if (tiles[1,1].type != AutomataTileType.Grass)
             {
-                return new AutomataTile(mudNeighbourCount <= 4 ? AutomataTileType.Grass : AutomataTileType.Mud);
+                return new AutomataTile(tiles[1,1].type, tiles[1,1].foliageType, tiles[1,1].objectType);
             }
-            if (tiles[1, 1].type == AutomataTileType.River)
+            if(tallGrassNeighbourCount < 2)
             {
-                return new AutomataTile(landNeighbourCount >= 5 ? AutomataTileType.Mud : AutomataTileType.River);
+                if(rand.NextInt(1,3) == 1)
+                {
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[1, 1].objectType);
+                }
+                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[1,1].objectType);
             }
-            else
-            {
-                return new AutomataTile(AutomataTileType.Mud);
-            }
+            return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[1, 1].objectType);
         }
     }
 }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using TreeEditor;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -33,17 +35,32 @@ public static class CellularAutomataGenerator
                 }
             }
         }
-        int iterations = 8;
+
+        int iterations = 1;
+        RiverRule rule = new RiverRule();
         for(int i = 0; i < iterations; i++)
+        {
+            AutomataTile[,] newTiles = new AutomataTile[48, 48];
+            for (int x = 0; x < 48; x++)
+            {
+                for (int y = 0; y < 48; y++)
+                {
+                    newTiles[x, y] = rule.ApplyRule((chunkX * 16) - 16 + x, (chunkY * 16) - 16 + y);
+                }
+            }
+            tiles =  newTiles;
+        }
+        iterations = 2;
+        for(int i = 0; i < iterations; i++)
+        {
+            tiles = CellularIteration(tiles, new RiverExpander());
+        }
+        iterations = 2;
+        for (int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles, new AdvancedIslandRule());
         }
         iterations = 1;
-        for (int i = 0; i < iterations; i++)
-        {
-            tiles = CellularIteration(tiles, new IslandRefinerRule());
-        }
-        iterations = 5;
         for (int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles, new GrassPopulaterRule(seed));
@@ -153,7 +170,7 @@ public static class CellularAutomataGenerator
             {
                 for(int y = 0; y < 16; y++)
                 {
-                    tiles[x, y] = new AutomataTile(random.NextInt(1, 3) == 1 ? AutomataTileType.Mud : AutomataTileType.River);
+                    tiles[x, y] = new AutomataTile(AutomataTileType.Mud);
                 }
             }
             this.chunkX = chunkX;
@@ -394,6 +411,58 @@ public static class CellularAutomataGenerator
                 return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[1,1].objectType);
             }
             return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[1, 1].objectType);
+        }
+    }
+    private class RiverRule : AutomataRule
+    {
+
+        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
+        {
+            throw new Exception("Do not use default method for river rule, use method with tile coordinates instead");
+        }
+
+        public AutomataTile ApplyRule(int tileX, int tileY)
+        {
+
+            // Sample noise (optionally add fractal layers)
+            float noiseValue = noise.snoise(new float2(tileX * 0.02f, tileY * 0.02f));
+
+            // Narrow band for rivers (adjust thresholds as needed)
+            bool isRiver = noiseValue > 0.45f && noiseValue < 0.55f;
+            return new AutomataTile(isRiver ? AutomataTileType.River : AutomataTileType.Mud);
+        }
+    }
+    private class RiverExpander : AutomataRule
+    {
+        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
+        {
+            int riverNeighbourCount = 0;
+
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    if (x == 1 && y == 1) continue;
+                    if (tiles[x, y].type == AutomataTileType.River)
+                    {
+                        riverNeighbourCount++;
+                    }
+                }
+            }
+
+
+            if (tiles[1, 1].type == AutomataTileType.River)
+            {
+                return new AutomataTile(AutomataTileType.River);
+            }
+            else
+            {
+                if(riverNeighbourCount > 2)
+                {
+                    return new AutomataTile(AutomataTileType.River);
+                }
+                return new AutomataTile(AutomataTileType.Mud);
+            }
         }
     }
 }

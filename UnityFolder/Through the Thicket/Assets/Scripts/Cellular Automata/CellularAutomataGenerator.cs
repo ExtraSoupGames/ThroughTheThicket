@@ -190,9 +190,10 @@ public static class CellularAutomataGenerator
                         tiles[x, y].type == AutomataTileType.Mud ? new Stone() : 
                         tiles[x,y].type == AutomataTileType.River ? new River() : 
                         new Grass(),
-                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new TreeStump() :
+                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new EmptyFoliage() :
                         new EmptyFoliage(),
-                        tiles[x,y].objectType == AutomataObjectType.None ? new EmptyObject() : // TODO replace with objects when added
+                        //This is currently comparing foliage type just for testing, in future this will query the object type to get the object
+                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new CaveEntrance() : // TODO replace with objects when added
                         new EmptyObject());
                 }
             }

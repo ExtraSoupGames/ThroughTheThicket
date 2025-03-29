@@ -60,6 +60,13 @@ public class TileInteractionExit : TileInteraction
         //does nothing lol
     }
 }
+public class EnterCaveOption : TileInteraction
+{
+    public override void Execute(GameManager gameManager)
+    {
+        gameManager.OpenState("Dungeon");
+    }
+}
 public class TileInteractionOption
 {
     string displayText;

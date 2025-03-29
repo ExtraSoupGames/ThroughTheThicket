@@ -25,7 +25,8 @@ public enum LayerContents
     Campfire,
     River,
     TallGrass,
-    TreeStump
+    TreeStump,
+    CaveEntrance
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -90,6 +91,8 @@ public struct TileSegmentDataHolder
                 return new Flint();
             case LayerContents.Campfire:
                 return new CampFire();
+            case LayerContents.CaveEntrance:
+                return new CaveEntrance();
             default:
                 return new EmptyObject();
         }

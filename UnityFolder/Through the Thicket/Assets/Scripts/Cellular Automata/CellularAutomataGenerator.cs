@@ -7,6 +7,7 @@ using TreeEditor;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.XR;
 
 public static class CellularAutomataGenerator
 {
@@ -60,7 +61,12 @@ public static class CellularAutomataGenerator
         {
             tiles = CellularIteration(tiles, new AdvancedIslandRule());
         }
-        iterations = 1;
+        iterations = 7;
+        for (int i = 0; i < iterations; i++)
+        {
+            tiles = CellularIteration(tiles, new TreePopulaterRule(seed));
+        }
+        iterations = 11;
         for (int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles, new GrassPopulaterRule(seed));
@@ -125,6 +131,7 @@ public static class CellularAutomataGenerator
     {
         None,
         TallGrass,
+        TreeStump
     }
     enum AutomataObjectType
     {
@@ -202,15 +209,14 @@ public static class CellularAutomataGenerator
             {
                 for (int y = 0;y < 16; y++)
                 {
-                    chunk.tiles[x + (y * 16)] = 
-                        new Tile(x + (chunkX * 16), y + (chunkY * 16), 0, chunkX, chunkY, 
-                        tiles[x, y].type == AutomataTileType.Mud ? new Stone() : 
-                        tiles[x,y].type == AutomataTileType.River ? new River() : 
+                    chunk.tiles[x + (y * 16)] =
+                        new Tile(x + (chunkX * 16), y + (chunkY * 16), 0, chunkX, chunkY,
+                        tiles[x, y].type == AutomataTileType.Mud ? new Stone() :
+                        tiles[x, y].type == AutomataTileType.River ? new River() :
                         new Grass(),
-                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new EmptyFoliage() :
+                        tiles[x, y].foliageType == AutomataFoliageType.TallGrass ? new TallGrass() :
+                        tiles[x, y].foliageType == AutomataFoliageType.TreeStump ? new TreeStump() :
                         new EmptyFoliage(),
-                        //This is currently comparing foliage type just for testing, in future this will query the object type to get the object
-                        tiles[x,y].foliageType == AutomataFoliageType.TallGrass ? new CaveEntrance() : // TODO replace with objects when added
                         new EmptyObject());
                 }
             }
@@ -372,23 +378,28 @@ public static class CellularAutomataGenerator
             }
         }
     }
-    private class GrassPopulaterRule : AutomataRule
+    private class TreePopulaterRule : AutomataRule
     {
         private Unity.Mathematics.Random rand;
 
-        public GrassPopulaterRule(int seed)
+        public TreePopulaterRule(int seed)
         {
             rand = new Unity.Mathematics.Random((uint)seed);
+        }
+        public override int GetRange()
+        {
+            return 2;
         }
 
         public override AutomataTile ApplyRule(AutomataTile[,] tiles)
         {
             int tallGrassNeighbourCount = 0;
-            for (int x = 0; x < 3; x++)
+            int treeNeighbourCount = 0;
+            for (int x = 0; x < 5; x++)
             {
-                for (int y = 0; y < 3; y++)
+                for (int y = 0; y < 5; y++)
                 {
-                    if (x == 1 && y == 1)
+                    if (x == 2 && y == 2)
                     {
                         continue;
                     }
@@ -396,24 +407,117 @@ public static class CellularAutomataGenerator
                     {
                         tallGrassNeighbourCount++;
                     }
+                    if (tiles[x,y].foliageType == AutomataFoliageType.TreeStump)
+                    {
+                        treeNeighbourCount++;
+                    }
                 }
             }
-            if (tiles[1,1].type != AutomataTileType.Grass)
+            if (tiles[2, 2].type != AutomataTileType.Grass)
             {
-                return new AutomataTile(tiles[1,1].type, tiles[1,1].foliageType, tiles[1,1].objectType);
+                return new AutomataTile(tiles[2, 2].type, tiles[2, 2].foliageType, tiles[2, 2].objectType);
             }
-            if(tallGrassNeighbourCount < 2)
+            if (tiles[2,2].foliageType == AutomataFoliageType.TreeStump)
             {
-                if(rand.NextInt(1,3) == 1)
+                if(treeNeighbourCount > 1)
                 {
-                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[1, 1].objectType);
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
                 }
-                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[1,1].objectType);
+                if (rand.NextInt(1, 19) != 1)
+                {
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
+                }
+                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TreeStump, tiles[2, 2].objectType);
             }
-            return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[1, 1].objectType);
+            if(rand.NextInt(1,25) == 1)
+            {
+                if(treeNeighbourCount == 0)
+                {
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TreeStump, tiles[2, 2].objectType);
+                }
+            }
+            return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
         }
     }
-    private class RiverRule : AutomataRule
+    private class GrassPopulaterRule : AutomataRule
+    {
+        private Unity.Mathematics.Random rand;
+        public GrassPopulaterRule(int seed)
+        {
+            rand = new Unity.Mathematics.Random((uint)seed);
+        }
+        public override int GetRange()
+        {
+            return 2;
+        }
+        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
+        {
+            int tallGrassNeighbourCount = 0;
+            int treeNeighbourCount = 0;
+            for (int x = 0; x < 5; x++)
+            {
+                for (int y = 0; y < 5; y++)
+                {
+                    if (x == 2 && y == 2)
+                    {
+                        continue;
+                    }
+                    if (tiles[x, y].foliageType == AutomataFoliageType.TallGrass)
+                    {
+                        tallGrassNeighbourCount++;
+                    }
+                    if (tiles[x, y].foliageType == AutomataFoliageType.TreeStump)
+                    {
+                        treeNeighbourCount++;
+                    }
+                }
+            }
+            if (tiles[2, 2].type != AutomataTileType.Grass)
+            {
+                return new AutomataTile(tiles[2, 2].type, tiles[2, 2].foliageType, tiles[2, 2].objectType);
+            }
+            if (tiles[2, 2].foliageType == AutomataFoliageType.TallGrass)
+            {
+                if (tallGrassNeighbourCount < 2)
+                {
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
+                }
+                if(treeNeighbourCount == 0)
+                {
+                    if(tallGrassNeighbourCount > 5)
+                    {
+                        return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
+                    }
+                }
+                if(tallGrassNeighbourCount > 8)
+                {
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
+                }
+                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[2, 2].objectType);
+            }
+            if (tiles[2, 2].foliageType == AutomataFoliageType.TreeStump)
+            {
+                if (treeNeighbourCount > 1)
+                {
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
+                }
+                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TreeStump, tiles[2, 2].objectType);
+            }
+            if (tallGrassNeighbourCount < 9 && tallGrassNeighbourCount > 3)
+            {
+                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[2, 2].objectType);
+            }
+            if(treeNeighbourCount > 0)
+            {
+                if(tallGrassNeighbourCount < 15)
+                {
+                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[2, 2].objectType);
+                }
+            }
+            return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
+        }
+}
+private class RiverRule : AutomataRule
     {
 
         public override AutomataTile ApplyRule(AutomataTile[,] tiles)

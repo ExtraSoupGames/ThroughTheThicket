@@ -472,51 +472,25 @@ public static class CellularAutomataGenerator
                     }
                 }
             }
-            if (tiles[2, 2].type != AutomataTileType.Grass)
+            if (tiles[2, 2].type != AutomataTileType.Grass || tiles[2,2].foliageType == AutomataFoliageType.TreeStump)
             {
                 return new AutomataTile(tiles[2, 2].type, tiles[2, 2].foliageType, tiles[2, 2].objectType);
             }
-            if (tiles[2, 2].foliageType == AutomataFoliageType.TallGrass)
-            {
-                if (tallGrassNeighbourCount < 2)
-                {
-                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
-                }
-                if(treeNeighbourCount == 0)
-                {
-                    if(tallGrassNeighbourCount > 5)
-                    {
-                        return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
-                    }
-                }
-                if(tallGrassNeighbourCount > 8)
-                {
-                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
-                }
-                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[2, 2].objectType);
-            }
-            if (tiles[2, 2].foliageType == AutomataFoliageType.TreeStump)
-            {
-                if (treeNeighbourCount > 1)
-                {
-                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
-                }
-                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TreeStump, tiles[2, 2].objectType);
-            }
-            if (tallGrassNeighbourCount < 9 && tallGrassNeighbourCount > 3)
-            {
-                return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[2, 2].objectType);
-            }
             if(treeNeighbourCount > 0)
             {
-                if(tallGrassNeighbourCount < 15)
+                if(rand.NextInt(1, 3) == 1)
                 {
-                    return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.TallGrass, tiles[2, 2].objectType);
+                    return new AutomataTile(tiles[2, 2].type, AutomataFoliageType.TallGrass);
                 }
+                return new AutomataTile(tiles[2, 2].type, AutomataFoliageType.None);
             }
-            return new AutomataTile(AutomataTileType.Grass, AutomataFoliageType.None, tiles[2, 2].objectType);
+            if(rand.NextInt(1,6) == 1)
+            {
+                return new AutomataTile(tiles[2, 2].type, AutomataFoliageType.TallGrass);
+            }
+            return new AutomataTile(tiles[2, 2].type, AutomataFoliageType.None);
         }
-}
+    }
 private class RiverRule : AutomataRule
     {
 

@@ -71,6 +71,11 @@ public static class CellularAutomataGenerator
         {
             tiles = CellularIteration(tiles, new GrassPopulaterRule(seed));
         }
+        iterations = 3;
+        for(int i = 0; i < iterations; i++)
+        {
+            tiles = CellularIteration(tiles, new MushroomPopulaterRule());
+        }
         AutomataChunk returnChunk = new AutomataChunk(tiles, chunkX, chunkY);
         return returnChunk;
     }
@@ -131,7 +136,8 @@ public static class CellularAutomataGenerator
     {
         None,
         TallGrass,
-        TreeStump
+        TreeStump,
+        Mushroom
     }
     enum AutomataObjectType
     {
@@ -216,6 +222,7 @@ public static class CellularAutomataGenerator
                         new Grass(),
                         tiles[x, y].foliageType == AutomataFoliageType.TallGrass ? new TallGrass() :
                         tiles[x, y].foliageType == AutomataFoliageType.TreeStump ? new TreeStump() :
+                        tiles[x, y].foliageType == AutomataFoliageType.Mushroom ? new Redcap() :
                         new EmptyFoliage(),
                         new EmptyObject());
                 }
@@ -489,6 +496,49 @@ public static class CellularAutomataGenerator
                 return new AutomataTile(tiles[2, 2].type, AutomataFoliageType.TallGrass);
             }
             return new AutomataTile(tiles[2, 2].type, AutomataFoliageType.None);
+        }
+    }
+    private class MushroomPopulaterRule : AutomataRule
+    {
+        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
+        {
+            int treeNeighbourCount = 0;
+            int mushroomNeighbourCount = 0;
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    if (x == 1 && y == 1)
+                    {
+                        continue;
+                    }
+                    if (tiles[x, y].foliageType == AutomataFoliageType.Mushroom)
+                    {
+                        mushroomNeighbourCount++;
+                    }
+                    if (tiles[x, y].foliageType == AutomataFoliageType.TreeStump)
+                    {
+                        treeNeighbourCount++;
+                    }
+                }
+            }
+            if (tiles[1,1].type != AutomataTileType.Grass || tiles[1,1].foliageType != AutomataFoliageType.None)
+            {
+                return new AutomataTile(tiles[1,1].type, tiles[1,1].foliageType, tiles[1,1].objectType);
+            }
+            if(treeNeighbourCount > 0)
+            {
+                if(mushroomNeighbourCount == 0)
+                {
+                    return new AutomataTile(tiles[1,1].type, AutomataFoliageType.Mushroom);
+                }
+                return new AutomataTile(tiles[1,1].type, AutomataFoliageType.None);
+            }
+            if(mushroomNeighbourCount > 0 && mushroomNeighbourCount < 1)
+            {
+                return new AutomataTile(tiles[1, 1].type, AutomataFoliageType.Mushroom);
+            }
+            return new AutomataTile(tiles[1, 1].type, AutomataFoliageType.None);
         }
     }
 private class RiverRule : AutomataRule

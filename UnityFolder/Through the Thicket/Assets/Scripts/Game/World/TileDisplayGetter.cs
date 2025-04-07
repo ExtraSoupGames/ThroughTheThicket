@@ -37,7 +37,7 @@ public class TileDisplayGetter
         allMeshes.Add("Foliage", new LayerDisplayProperties("Foliage", new string[] { "Foliage1", "Foliage2", "Foliage3"}));
         allMeshes.Add("Potato", new LayerDisplayProperties("Potato", new string[] { "Potato"}));
         allMeshes.Add("Carrot", new LayerDisplayProperties("Carrot", new string[] { "Carrot"}));
-        allMeshes.Add("Redcap", new LayerDisplayProperties("Carrot", new string[] { "Redcap1", "Redcap2"}));
+        allMeshes.Add("Redcap", new LayerDisplayProperties("Redcap", new string[] { "Redcap2", "Redcap1"}));
         allMeshes.Add("Pebble", new LayerDisplayProperties("Pebble", new string[] { "Pebble"}));
         allMeshes.Add("River", new LayerDisplayProperties("Cube", new string[] { "River" }));
         allMeshes.Add("TallGrass", new LayerDisplayProperties("TallGrass", new string[] { "Potato" }));

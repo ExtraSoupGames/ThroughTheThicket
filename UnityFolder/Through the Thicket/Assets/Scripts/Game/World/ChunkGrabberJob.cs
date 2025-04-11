@@ -51,6 +51,16 @@ public struct ChunkGrabberJob : IJob
             }
             return;
         }
+        else
+        {
+            WaveFunctionCollapse.GenerateDungeon(0, 10, new string(persistentDataPath.ToArray()), seed);
+            SerializableChunk chunk = LoadChunk(0, 0);
+            foreach(Tile t in chunk.tiles)
+            {
+                tileQueue.Enqueue(t);
+            }
+            return;
+        }
     }
     private SerializableChunk LoadChunk(int X, int Y)
     {

@@ -237,7 +237,7 @@ public static class CellularAutomataGenerator
                         tiles[x, y].foliageType == AutomataFoliageType.Mushroom ? new Redcap() :
                         tiles[x,y].foliageType == AutomataFoliageType.Foliage ? new Twigs() :
                         new EmptyFoliage(),
-                        tiles[x, y].foliageType == AutomataFoliageType.Pebble ? new Pebble() :
+                        tiles[x, y].foliageType == AutomataFoliageType.Pebble ? new CaveEntrance() : //TODO change this back to new Pebble()
                         new EmptyObject());
                 }
             }

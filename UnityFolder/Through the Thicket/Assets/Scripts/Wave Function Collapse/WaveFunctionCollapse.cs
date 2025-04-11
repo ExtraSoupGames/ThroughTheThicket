@@ -8,6 +8,10 @@ using UnityEngine.Assertions;
 
 public class WaveFunctionCollapse : MonoBehaviour
 {
+    private static int2[] NeighbourOffsets()
+    {
+        return new int2[] { new int2(-1, 0), new int2(1, 0), new int2(0, 1), new int2(0,-1)};
+    }
     public static void GenerateDungeon(int ID, int size)
     {
         //Initialize a random number engine for collapsing tiles
@@ -33,7 +37,8 @@ public class WaveFunctionCollapse : MonoBehaviour
         tiles[size, size] = new WFCTile(WFCTileType.Entrance);
         //Update the entropy grid accordingly
         entropies[size, size] = tiles[size, size].CalculateEntropy();
-
+        //TODO get rules
+        WFCRuleSet rules;
         //Just for testing we iterate a fixed number of times
         //Eventually there will be a win condition
         for(int i = 0; i < 100; i++)
@@ -43,9 +48,43 @@ public class WaveFunctionCollapse : MonoBehaviour
             int x = lowestEntropyPosition.x;
             int y = lowestEntropyPosition.y;
             tiles[x, y].Collapse(randomEngine);
+            //update possible tiles for surrounding tiles repeatedly until all tiles have been updated and any resultant changes have been updated
+            UpdateAllPossibilities(tiles, new int2(x, y), rules);
 
-            //TODO update possible tiles for surrounding tiles based on ruleset generated from input
         }
+    }
+    private static void UpdateAllPossibilities(WFCTile[,] tiles, int2 updateAt, WFCRuleSet rules)
+    {
+        if (tiles[updateAt.x, updateAt.y] == null)
+        {
+            return;
+        }
+        if (tiles[updateAt.x, updateAt.y].IsCollapsed())
+        {
+            return;
+        }
+        WFCTile[] neighbours = new WFCTile[4];//get neighbours
+        int neighbourIndex = 0;
+        foreach(int2 offset in NeighbourOffsets())
+        {
+            try
+            {
+                neighbours[neighbourIndex] = tiles[updateAt.x + offset.x, updateAt.y + offset.y];
+            }
+            catch
+            {
+                neighbours[neighbourIndex] = null;
+            }
+        }
+        //update neighbour possibilities
+        if (tiles[updateAt.x, updateAt.y].UpdatePossibilities(rules, neighbours))
+        {
+            foreach(int2 offset in NeighbourOffsets())
+            {
+                UpdateAllPossibilities(tiles, updateAt + offset, rules);
+            }
+        }
+        return;
     }
     private static int2 UpdateAllEntropies(WFCTile[,] tiles, int[,] entropies)
     {
@@ -108,8 +147,34 @@ public class WaveFunctionCollapse : MonoBehaviour
         }
         public void Collapse(Unity.Mathematics.Random randomEngine)
         {
-            int collapseResultIndex = randomEngine.NextInt(1, collapsePossibilities.Count);
+            int collapseResultIndex = randomEngine.NextInt(0, collapsePossibilities.Count - 1);
             collapsePossibilities = new List<CollapsedTile> { collapsePossibilities[collapseResultIndex] };
+        }
+        public bool IsCollapsed()
+        {
+            return collapsePossibilities.Count == 1;
+        }
+        //Update the possible neighbours
+        // rules - the ruleset with which to update the possibilities
+        // neighbours, the 4 adjacent WFCTiles, in order Up, Left, Down, Right. Null for tiles outside the range
+        //returns true if only one possibility remains (I.E tile was collapsed by rules of adjacent neighbours rather than by random chance)
+        public bool UpdatePossibilities(WFCRuleSet rules, WFCTile[] neighbours)
+        {
+            collapsePossibilities = rules.GetPossibilities(neighbours);
+            if (IsCollapsed()) return true;
+            return false;
+        }
+    }
+    private class WFCRuleSet
+    {
+        public WFCRuleSet()
+        {
+            //TODO implement ruleset generation from input bitmap/tilemap
+        }
+        public List<CollapsedTile> GetPossibilities(WFCTile[] neighbours)
+        {
+            //TODO implement a sample ruleset
+            return new List<CollapsedTile> { new CollapsedTile(WFCTileType.Entrance),new CollapsedTile(WFCTileType.None)};
         }
     }
 }

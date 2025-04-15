@@ -5,6 +5,7 @@ using Unity.Jobs;
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 public struct ChunkPos
 {
     public int X;
@@ -41,6 +42,10 @@ public abstract class ChunkManager : MonoBehaviour
     //seed for the world generator
     private int worldSeed;
     private TileDisplayGetter tileDisplayGetter;
+
+    private static readonly object fileAccessLock = new object();
+    private Dictionary<Vector2Int, Chunk> chunkCache = new Dictionary<Vector2Int, Chunk>();
+
     protected abstract string GetChunkPath();
     protected abstract bool UseSurfaceGenerator();
     public void Awake()
@@ -70,14 +75,6 @@ public abstract class ChunkManager : MonoBehaviour
     public void Tests()
     {
         DeleteAllChunks();
-        for(int i = 0; i < 5; i++)
-        {
-            for(int j = 0; j < 5; j++)
-            {
-                //Chunk chunk = new Chunk(i, j);
-                //SaveChunk(chunk);
-            }
-        }
     }
     public void ShowWorld()
     {
@@ -101,7 +98,7 @@ public abstract class ChunkManager : MonoBehaviour
         UpdateRequiredChunks();
     }
     //Update the list of chunks to keep only required chunks loaded
-    private void UpdateRequiredChunks()
+    protected void UpdateRequiredChunks()
     {
         //add all chunks that are needed but not active
         ChunkPos[] neededChunks = GetNeededChunks();
@@ -143,7 +140,7 @@ public abstract class ChunkManager : MonoBehaviour
         RemoveTilesFromChunk(chunkToRemove);
     }
     //remove the tiles associated with a single chunk
-    private void RemoveTilesFromChunk(ChunkPos chunkToRemoveTiles)
+    protected void RemoveTilesFromChunk(ChunkPos chunkToRemoveTiles)
     {
         int removalChunkX = chunkToRemoveTiles.X;
         int removalChunkY = chunkToRemoveTiles.Y;
@@ -181,6 +178,10 @@ public abstract class ChunkManager : MonoBehaviour
     {
         if(chunksToLoad.Count > 0)
         {
+            //Ensure path exists
+            FileHelper.DirectoryCheckChunk(GetChunkPath());
+            persistentDataPath.Dispose();
+            persistentDataPath = new NativeArray<char>(GetChunkPath().ToCharArray(), Allocator.Persistent);
             ChunkPos newChunkPos = chunksToLoad.Dequeue();
             ChunkGrabberJob newChunkJob = new ChunkGrabberJob()
             {
@@ -229,18 +230,52 @@ public abstract class ChunkManager : MonoBehaviour
     //save a chunk
     protected void SaveChunk(Chunk chunk)
     {
-        FileHelper.DirectoryCheck();
-        string chunkAsJSON = JsonUtility.ToJson(chunk.GetChunkForSerialization(), true);
-        string dataPathString = new string(persistentDataPath.ToArray());
-        string fileName = Path.Combine(dataPathString, "chunk" + chunk.X + "," + chunk.Y);
-        File.WriteAllText(fileName + ".json", chunkAsJSON);
-        chunk.Dispose();
+        lock (fileAccessLock)
+        {
+            try
+            {
+                string path = GetChunkPath();
+                Directory.CreateDirectory(path); // Ensure directory exists
+
+                string fileName = Path.Combine(path, $"chunk_{chunk.X},{chunk.Y}.json");
+                string tempFileName = fileName + ".tmp";
+
+                // Write to temp file first
+                using (FileStream fs = new FileStream(tempFileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                using (StreamWriter sw = new StreamWriter(fs))
+                {
+                    sw.Write(JsonUtility.ToJson(chunk.GetChunkForSerialization(), true));
+                }
+
+                // Atomic replace
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+                File.Move(tempFileName, fileName);
+
+                // Update cache
+                var chunkKey = new Vector2Int(chunk.X, chunk.Y);
+                if (chunkCache.ContainsKey(chunkKey))
+                {
+                    chunkCache[chunkKey] = chunk;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to save chunk: {ex.Message}");
+            }
+            finally
+            {
+                chunk.Dispose();
+            }
+        }
     }
     //clear the chunks directory
     protected void DeleteAllChunks()
     {
         FileHelper.DirectoryCheck();
-        string path = new string(persistentDataPath.ToArray());
+        string path = new string(GetChunkPath().ToArray());
         // Delete all files
         string[] files = Directory.GetFiles(path);
         foreach (string file in files)
@@ -316,14 +351,93 @@ public abstract class ChunkManager : MonoBehaviour
                     if (tileData != null && tileData.initialized && tileData.thisTileData.X == x && tileData.thisTileData.Y == y)
                     {
                         updatedTile.ApplyTileProperties(tile, tileDisplayGetter);
+                        //Save the chunk with the changes
+                        UpdateChunkFile(x, y, layer, segment.GetContentsEnum());
                         return;
                     }
                 }
-
                 return;
             }
         }
-
-        Debug.LogWarning($"Tile at {x}, {y} not found in loadedTiles.");
     }
+    private void UpdateChunkFile(int x, int y, Layers layer, LayerContents contents)
+    {
+        if (UseSurfaceGenerator())
+        {
+            // Existing surface generation logic
+        }
+        else
+        {
+            lock (fileAccessLock)
+            {
+                try
+                {
+                    string path = GetChunkPath();
+                    string fullPath = Path.Combine(path, $"chunk0,0.json"); // Dungeon uses single chunk file
+
+                    // Read file with shared read access
+                    SerializableChunk chunk;
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (StreamReader sr = new StreamReader(fs))
+                    {
+                        chunk = JsonUtility.FromJson<SerializableChunk>(sr.ReadToEnd());
+                    }
+
+                    // Modify the chunk data
+                    int tileIndex = 0;
+                    foreach (Tile t in chunk.tiles)
+                    {
+                        if (t.X == x && t.Y == y)
+                        {
+                            switch (layer)
+                            {
+                                case Layers.Base:
+                                    chunk.tiles[tileIndex].Layers = new TileSegmentDataHolder(contents,
+                                        chunk.tiles[tileIndex].Layers.foliageType,
+                                        chunk.tiles[tileIndex].Layers.objectType);
+                                    break;
+                                case Layers.Foliage:
+                                    chunk.tiles[tileIndex].Layers = new TileSegmentDataHolder(
+                                        chunk.tiles[tileIndex].Layers.baseType,
+                                        contents,
+                                        chunk.tiles[tileIndex].Layers.objectType);
+                                    break;
+                                case Layers.Object:
+                                    chunk.tiles[tileIndex].Layers = new TileSegmentDataHolder(
+                                        chunk.tiles[tileIndex].Layers.baseType,
+                                        chunk.tiles[tileIndex].Layers.foliageType,
+                                        contents);
+                                    break;
+                            }
+                            break;
+                        }
+                        tileIndex++;
+                    }
+
+                    // Write with exclusive access
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    {
+                        sw.Write(JsonUtility.ToJson(chunk, true));
+                    }
+
+                    // Update cache
+                    var chunkKey = new Vector2Int(0, 0);
+                    if (chunkCache.ContainsKey(chunkKey))
+                    {
+                        chunkCache[chunkKey] = chunk.ToChunk();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to update chunk file: {ex.Message}");
+                }
+            }
+        }
+    }
+    protected void ClearActiveChunks()
+    {
+        activeChunks = new List<ChunkPos>();
+    }
+
 }

@@ -121,7 +121,7 @@ public class Pathfinder : MonoBehaviour
 
         if (tile == null)
         {
-            Debug.Log($"Tile at {location} not found in path context.");
+            //Debug.Log($"Tile at {location} not found in path context.");
         }
 
         return tile;

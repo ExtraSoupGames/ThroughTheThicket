@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CaveEntrance : ITileSegmentObjectLayer
 {
+    public int caveID;
     public LayerContents GetContentsEnum()
     {
         return LayerContents.CaveEntrance;
@@ -16,7 +17,12 @@ public class CaveEntrance : ITileSegmentObjectLayer
 
     public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {
-        return new List<TileInteractionOption>() { new TileInteractionOption("Enter Cave", new EnterCaveOption()) };
+        return GetInteractionOptions(tile, this);
+    }
+
+    public List<TileInteractionOption> GetInteractionOptions(GameObject tile, CaveEntrance entrance)
+    {
+        return new List<TileInteractionOption>() { new TileInteractionOption("Enter Cave", new EnterCaveOption(caveID, ref entrance)) };
     }
 
     public int GetTravelCost()

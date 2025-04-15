@@ -278,4 +278,9 @@ public class GameManager : MonoBehaviour
     {
         inventory.TakeFromPlacablesInventory(placer);
     }
+    public void SetDungeonID(int dungeonID)
+    {
+        Debug.Log("Setting dungeon ID to " + dungeonID);
+        dungeonState.SetDungeonID(dungeonID);
+    }
 }

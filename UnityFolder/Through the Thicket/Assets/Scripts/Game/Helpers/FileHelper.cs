@@ -26,4 +26,11 @@ public static class FileHelper
             }
         }
     }
+    public static void DirectoryCheckChunk(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Directory.CreateDirectory(filePath);
+        }
+    }
 }

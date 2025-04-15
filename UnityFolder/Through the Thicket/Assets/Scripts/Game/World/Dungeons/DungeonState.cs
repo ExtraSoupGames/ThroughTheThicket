@@ -18,7 +18,6 @@ public class DungeonState : IWorldState
 
     public override void Initialize(GameManager manager)
     {
-        dungeonManager.OtherTests();
         dungeonManager.HideWorld();
         gameManager = manager;
     }
@@ -45,6 +44,7 @@ public class DungeonState : IWorldState
     public override void SetTile(int x, int y, Layers layer, ITileSegment segment)
     {
         dungeonManager.SetTile(x, y, layer, segment);
+        dungeonManager.ClearDungeon();
     }
 
     public override void TakeInput(Inputs input)
@@ -77,5 +77,10 @@ public class DungeonState : IWorldState
         
         dungeonManager.QueueManage();
         tileSelector.UpdateWhenOpen();
+    }
+    public void SetDungeonID(int id)
+    {
+        dungeonManager.SetID(id);
+        dungeonManager.ClearDungeon();
     }
 }

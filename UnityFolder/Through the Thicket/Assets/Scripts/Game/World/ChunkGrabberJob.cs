@@ -15,51 +15,81 @@ public struct ChunkGrabberJob : IJob
     {
         //search for the chunk if it already exists
         string dataPathString = new string(persistentDataPath.ToArray());
-        string[] allChunks = Directory.GetFiles(dataPathString);
-        bool found = false;
-        foreach (string chunk in allChunks)
-        {
-            //removes the path from the filename
-            string chunkLocation = chunk.Substring(chunk.IndexOf("Chunks\\chunk") + 12);
-            //split the coordinates into an array of strings, and remove the .json from the end
-            string[] chunkCoordinates = chunkLocation.Substring(0, chunkLocation.IndexOf(".")).Split(",");
-            int biomeX = int.Parse(chunkCoordinates[0]);
-            int biomeY = int.Parse(chunkCoordinates[1]);
-            if(biomeX == X && biomeY == Y)
-            {
-                found = true;
-            }
-        }
-        //if the chunk already exists, enqueue its tiles
-        if (found)
-        {
-            SerializableChunk chunk = LoadChunk(X, Y);
-            foreach (Tile t in chunk.tiles)
-            {
-                tileQueue.Enqueue(t);
-            }
-            return;
-        }
-        //if the chunk does not already exist, generate it
         if (useSurfaceGenerator)
         {
-            CellularAutomataGenerator.GenerateChunkAt(X, Y, new string(persistentDataPath.ToArray()), seed);
-            SerializableChunk chunk = LoadChunk(X, Y);
-            foreach (Tile t in chunk.tiles)
+            string[] allChunks = Directory.GetFiles(dataPathString);
+            bool found = false;
+            foreach (string chunk in allChunks)
             {
-                tileQueue.Enqueue(t);
+                //removes the path from the filename
+                string chunkLocation = chunk.Substring(chunk.IndexOf("Chunks\\chunk") + 12);
+                //split the coordinates into an array of strings, and remove the .json from the end
+                string[] chunkCoordinates = chunkLocation.Substring(0, chunkLocation.IndexOf(".")).Split(",");
+                int biomeX = int.Parse(chunkCoordinates[0]);
+                int biomeY = int.Parse(chunkCoordinates[1]);
+                if (biomeX == X && biomeY == Y)
+                {
+                    found = true;
+                }
             }
-            return;
+            //if the chunk already exists, enqueue its tiles
+            if (found)
+            {
+                SerializableChunk chunk = LoadChunk(X, Y);
+                foreach (Tile t in chunk.tiles)
+                {
+                    tileQueue.Enqueue(t);
+                }
+                return;
+            }
+            //if the chunk does not already exist, generate it
+            if (useSurfaceGenerator)
+            {
+                CellularAutomataGenerator.GenerateChunkAt(X, Y, new string(persistentDataPath.ToArray()), seed);
+                SerializableChunk chunk = LoadChunk(X, Y);
+                foreach (Tile t in chunk.tiles)
+                {
+                    tileQueue.Enqueue(t);
+                }
+                return;
+            }
         }
         else
         {
-            WaveFunctionCollapse.GenerateDungeon(0, 10, new string(persistentDataPath.ToArray()), seed);
-            SerializableChunk chunk = LoadChunk(0, 0);
-            foreach(Tile t in chunk.tiles)
+            //for dungeons, we only have one chunk file (0,0)
+            string dungeonChunkPath = Path.Combine(dataPathString, "chunk0,0.json");
+
+            try
             {
-                tileQueue.Enqueue(t);
+                //use FileShare.ReadWrite to allow concurrent reads
+                string chunkAsJson;
+                using (FileStream fs = new FileStream(dungeonChunkPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader sr = new StreamReader(fs))
+                {
+                    chunkAsJson = sr.ReadToEnd();
+                }
+
+                SerializableChunk chunk = JsonUtility.FromJson<SerializableChunk>(chunkAsJson);
+                foreach (Tile t in chunk.tiles)
+                {
+                    tileQueue.Enqueue(t);
+                }
             }
-            return;
+            catch (Exception ex)
+            {
+                Debug.Log($"Failed to load dungeon chunk: {ex.Message}");
+                //generate new dungeon if loading fails
+                WaveFunctionCollapse.GenerateDungeon(0, 10, dataPathString, seed);
+
+                //retry loading
+                //TODO use proper file loading for this too
+                string chunkAsJson = File.ReadAllText(dungeonChunkPath);
+                SerializableChunk chunk = JsonUtility.FromJson<SerializableChunk>(chunkAsJson);
+                foreach (Tile t in chunk.tiles)
+                {
+                    tileQueue.Enqueue(t);
+                }
+            }
         }
     }
     private SerializableChunk LoadChunk(int X, int Y)
@@ -70,8 +100,13 @@ public struct ChunkGrabberJob : IJob
             Debug.Log("Invalid chunk attempted to be loaded");
             throw new Exception("Invalid chunk load attempt made");
         }
-        string chunkAsJSON = File.ReadAllText(Path.Combine(dataPathString, "chunk" + X + "," + Y + ".json"));
-        SerializableChunk chunk = JsonUtility.FromJson<SerializableChunk>(chunkAsJSON);
+        string chunkAsJson;
+        using (FileStream fs = new FileStream(Path.Combine(dataPathString, "chunk" + X + "," + Y + ".json"), FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (StreamReader sr = new StreamReader(fs))
+        {
+            chunkAsJson = sr.ReadToEnd();
+        }
+        SerializableChunk chunk = JsonUtility.FromJson<SerializableChunk>(chunkAsJson);
         return chunk;
     }
 }

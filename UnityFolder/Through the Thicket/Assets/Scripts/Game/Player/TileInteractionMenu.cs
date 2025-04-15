@@ -62,8 +62,21 @@ public class TileInteractionExit : TileInteraction
 }
 public class EnterCaveOption : TileInteraction
 {
+    int id;
+    static int NextCaveID = 0;
+    public EnterCaveOption(int caveID, ref CaveEntrance entrance)
+    {
+        id = caveID;
+        if(id == 0)
+        {
+            NextCaveID++;   
+            id = NextCaveID;
+            entrance.caveID = id;
+        }
+    }
     public override void Execute(GameManager gameManager)
     {
+        gameManager.SetDungeonID(id);
         gameManager.OpenState("Dungeon");
     }
 }

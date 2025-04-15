@@ -5,24 +5,23 @@ using System.IO;
 
 public class DungeonManager : ChunkManager
 {
+    int dungeonID;
     protected override string GetChunkPath()
     {
-        return Path.Combine(Application.persistentDataPath, "World", "DungeonData", "Chunks");
+        return Path.Combine(Application.persistentDataPath, "World", "DungeonData", "Chunks", dungeonID.ToString());
     }
     protected override bool UseSurfaceGenerator()
     {
         return false;
     }
-    public void OtherTests()
+    public void SetID(int ID)
     {
-        DeleteAllChunks();
-        for (int i = 0; i < 5; i++)
-        {
-            for (int j = 0; j < 5; j++)
-            {
-                Chunk chunk = new Chunk(i, j, true);
-                SaveChunk(chunk);
-            }
-        }
+        dungeonID = ID;
+    }
+    public void ClearDungeon()
+    {
+        RemoveTilesFromChunk(new ChunkPos(0, 0));
+        ClearActiveChunks();
+        UpdateRequiredChunks();
     }
 }

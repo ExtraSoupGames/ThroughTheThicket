@@ -183,7 +183,6 @@ public class WaveFunctionCollapse : MonoBehaviour
         {
             if (IsCollapsed()) return;
             int collapseResultIndex = randomEngine.NextInt(0, collapsePossibilities.Count);
-            Debug.Log($"Collapsing a tile 0 is min, {collapsePossibilities.Count} is max, and {collapseResultIndex} is result");
             collapsePossibilities = new List<CollapsedTile> { collapsePossibilities[collapseResultIndex] };
         }
         public bool IsCollapsed()

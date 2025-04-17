@@ -52,8 +52,8 @@ public class WaveFunctionCollapse : MonoBehaviour
             //update possible tiles for surrounding tiles repeatedly until all tiles have been updated and any resultant changes have been updated
             UpdateAllPossibilities(tiles, new int2(x, y), rules);
         }
+        FileHelper.DirectoryCheckChunk(filePath);
         // write dungeon to relevant file
-
         SerializableChunk chunkToSave = GetFinalDungeon(tiles, sideLength);
         string chunkAsJSON = JsonUtility.ToJson(chunkToSave, true);
         string fileName = Path.Combine(filePath, "chunk" + chunkToSave.X + "," + chunkToSave.Y);

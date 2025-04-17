@@ -31,11 +31,16 @@ public class PlayerController : MonoBehaviour
         Vector2Int playerPosition = new Vector2Int((int)gameObject.transform.position.x, (int)gameObject.transform.position.z);
         Vector2Int targetPosition = new Vector2Int(tileSelector.GetSelectedTile().X, tileSelector.GetSelectedTile().Y);
         List<TravelTile> pathFound = pathFinder.FindPath(playerPosition, targetPosition);
+        if(pathFound == null)
+        {
+            Debug.Log("Invalid movement path");
+            return;
+        }
         foreach(TravelTile tile in pathFound)
         {
             path.Enqueue(tile.tile);
         }
-        moveTimer = 0.5f;
+        moveTimer = 0.1f;
     }
     public void SetToWorld(TileSelector tileSelector, Pathfinder pathFinder)
     {

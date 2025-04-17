@@ -86,6 +86,7 @@ public static class CellularAutomataGenerator
         {
             tiles = CellularIteration(tiles, new PebblePopulaterRule());
         }
+        tiles = CellularIteration(tiles, new CaveEntranceGenerator(seed));
         AutomataChunk returnChunk = new AutomataChunk(tiles, chunkX, chunkY);
         return returnChunk;
     }
@@ -149,7 +150,8 @@ public static class CellularAutomataGenerator
         TreeStump,
         Mushroom,
         Foliage,
-        Pebble
+        Pebble,
+        Entrance
     }
     enum AutomataObjectType
     {
@@ -237,7 +239,8 @@ public static class CellularAutomataGenerator
                         tiles[x, y].foliageType == AutomataFoliageType.Mushroom ? new Redcap() :
                         tiles[x,y].foliageType == AutomataFoliageType.Foliage ? new Twigs() :
                         new EmptyFoliage(),
-                        tiles[x, y].foliageType == AutomataFoliageType.Pebble ? new CaveEntrance() : //TODO change this back to new Pebble()
+                        tiles[x, y].foliageType == AutomataFoliageType.Pebble ? new Pebble() : //TODO change this back to new Pebble()
+                        tiles[x,y].foliageType == AutomataFoliageType.Entrance ? new CaveEntrance() :
                         new EmptyObject());
                 }
             }
@@ -700,6 +703,29 @@ public static class CellularAutomataGenerator
                     return new AutomataTile(AutomataTileType.River);
                 }
                 return new AutomataTile(AutomataTileType.Mud);
+            }
+        }
+    }
+    private class CaveEntranceGenerator : AutomataRule
+    {
+        private Unity.Mathematics.Random rand;
+        public CaveEntranceGenerator(int seed)
+        {
+            rand = new Unity.Mathematics.Random((uint)seed);
+        }
+        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
+        {
+            if (tiles[1, 1].type == AutomataTileType.River)
+            {
+                return new AutomataTile(AutomataTileType.River, tiles[1,1].foliageType, tiles[1, 1].objectType);
+            }
+            else
+            {
+                if(rand.NextInt(1,100) == 1)
+                {
+                    return new AutomataTile(tiles[1, 1].type, AutomataFoliageType.Entrance);
+                }
+                return new AutomataTile(tiles[1,1].type, tiles[1,1].foliageType, tiles[1,1].objectType);
             }
         }
     }

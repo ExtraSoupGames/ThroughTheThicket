@@ -22,7 +22,9 @@ public class CaveEntrance : ITileSegmentObjectLayer
 
     public List<TileInteractionOption> GetInteractionOptions(GameObject tile, CaveEntrance entrance)
     {
-        return new List<TileInteractionOption>() { new TileInteractionOption("Enter Cave", new EnterCaveOption(caveID, ref entrance)) };
+        int X = tile.GetComponent<TileDataHolder>().thisTileData.X;
+        int Y = tile.GetComponent<TileDataHolder>().thisTileData.Y;
+        return new List<TileInteractionOption>() { new TileInteractionOption("Enter Cave", new EnterCaveOption(caveID, ref entrance, X, Y)) };
     }
 
     public int GetTravelCost()

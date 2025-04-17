@@ -64,7 +64,9 @@ public class EnterCaveOption : TileInteraction
 {
     int id;
     static int NextCaveID = 0;
-    public EnterCaveOption(int caveID, ref CaveEntrance entrance)
+    int X;
+    int Y;
+    public EnterCaveOption(int caveID, ref CaveEntrance entrance, int entranceX, int entranceY)
     {
         id = caveID;
         if(id == 0)
@@ -72,12 +74,20 @@ public class EnterCaveOption : TileInteraction
             NextCaveID++;   
             id = NextCaveID;
             entrance.caveID = id;
+            X = entranceX;
+            Y = entranceY;
         }
+    }
+    public static void SetCurrentDungeonID(int id)
+    {
+        NextCaveID = id;
     }
     public override void Execute(GameManager gameManager)
     {
+        gameManager.SetTile(X, Y, Layers.Object, new EmptyObject()); // TODO change to some sort of a collapsed cave or smth
         gameManager.SetDungeonID(id);
         gameManager.OpenState("Dungeon");
+        gameManager.SaveGlobalVariables(id);
     }
 }
 public class TileInteractionOption

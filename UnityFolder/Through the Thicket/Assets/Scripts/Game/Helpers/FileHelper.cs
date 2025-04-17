@@ -33,4 +33,13 @@ public static class FileHelper
             Directory.CreateDirectory(filePath);
         }
     }
+    public static bool DirectoryCheckGlobal()
+    {
+        if(!File.Exists(Path.Combine(Application.persistentDataPath, "World", "SaveData.json")))
+        {
+            File.Create(Path.Combine(Application.persistentDataPath, "World", "SaveData.json"));
+            return false;
+        }
+        return true;
+    }
 }

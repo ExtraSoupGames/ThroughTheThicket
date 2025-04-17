@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -30,6 +31,7 @@ public class GameManager : MonoBehaviour
         tileState.Initialize(this);
         EnterState(baseState);
         EnterState(surfaceState);
+        LoadGlobalVariables();
     }
     private void FixedUpdate()
     {
@@ -73,7 +75,6 @@ public class GameManager : MonoBehaviour
                 break;
             case "Dungeon":
                 EnterState(dungeonState);
-                Debug.Log("DUNGEONS STATE ENTERED");
                 break;
             case "Inventory":
                 EnterState(inventory);
@@ -282,5 +283,32 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Setting dungeon ID to " + dungeonID);
         dungeonState.SetDungeonID(dungeonID);
+    }
+    private void LoadGlobalVariables()
+    {
+        //directory check returns true if the file existed, otherwise it creates it and returns false
+        //if the file has just been created there is no need to read it
+        if (FileHelper.DirectoryCheckGlobal())
+        {
+            //The only value stored in SaveData.json should be the current dungeon ID
+            string text = File.ReadAllText(Path.Combine(Application.persistentDataPath, "World","SaveData.json"));
+            try
+            {
+                int.TryParse(text, out var value);
+                EnterCaveOption.SetCurrentDungeonID(value);
+            }
+            catch (Exception)
+            {
+                Debug.LogError("Couldn't load save data, hopefully none exists :)");
+            }
+        }
+    }
+    public void SaveGlobalVariables(int caveID)
+    {
+        if (FileHelper.DirectoryCheckGlobal())
+        {
+            //The only value stored in SaveData.json should be the current dungeon ID
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, "World", "SaveData.json"), caveID.ToString());
+        }
     }
 }

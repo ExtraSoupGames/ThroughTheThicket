@@ -18,7 +18,6 @@ public class SurfaceState : IWorldState
 
     public override void Initialize(GameManager manager)
     {
-        surfaceManager.Tests();
         surfaceManager.HideWorld();
         gameManager = manager;
     }

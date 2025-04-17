@@ -72,10 +72,6 @@ public abstract class ChunkManager : MonoBehaviour
         persistentDataPath.Dispose();
         chunksToLoad.Dispose();
     }
-    public void Tests()
-    {
-        DeleteAllChunks();
-    }
     public void ShowWorld()
     {
         tileParent.gameObject.SetActive(true);
@@ -352,7 +348,7 @@ public abstract class ChunkManager : MonoBehaviour
                     {
                         updatedTile.ApplyTileProperties(tile, tileDisplayGetter);
                         //Save the chunk with the changes
-                        UpdateChunkFile(x, y, layer, segment.GetContentsEnum());
+                        UpdateChunkFile(x, y, layer, segment.GetContentsEnum(), updatedTile.ChunkX, updatedTile.ChunkY);
                         return;
                     }
                 }
@@ -360,11 +356,69 @@ public abstract class ChunkManager : MonoBehaviour
             }
         }
     }
-    private void UpdateChunkFile(int x, int y, Layers layer, LayerContents contents)
+    private void UpdateChunkFile(int x, int y, Layers layer, LayerContents contents, int chunkX = 0, int chunkY = 0)
     {
         if (UseSurfaceGenerator())
         {
-            // Existing surface generation logic
+            lock (fileAccessLock)
+            {
+                try
+                {
+                    string path = GetChunkPath();
+                    string fullPath = Path.Combine(path, $"chunk{chunkX},{chunkY}.json");
+
+                    // Read file with shared read access
+                    SerializableChunk chunk;
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (StreamReader sr = new StreamReader(fs))
+                    {
+                        chunk = JsonUtility.FromJson<SerializableChunk>(sr.ReadToEnd());
+                    }
+
+                    // Modify the chunk data
+                    int tileIndex = 0;
+                    foreach (Tile t in chunk.tiles)
+                    {
+                        if (t.X == x && t.Y == y)
+                        {
+                            switch (layer)
+                            {
+                                case Layers.Base:
+                                    chunk.tiles[tileIndex].Layers = new TileSegmentDataHolder(contents,
+                                        chunk.tiles[tileIndex].Layers.foliageType,
+                                        chunk.tiles[tileIndex].Layers.objectType);
+                                    break;
+                                case Layers.Foliage:
+                                    chunk.tiles[tileIndex].Layers = new TileSegmentDataHolder(
+                                        chunk.tiles[tileIndex].Layers.baseType,
+                                        contents,
+                                        chunk.tiles[tileIndex].Layers.objectType);
+                                    break;
+                                case Layers.Object:
+                                    chunk.tiles[tileIndex].Layers = new TileSegmentDataHolder(
+                                        chunk.tiles[tileIndex].Layers.baseType,
+                                        chunk.tiles[tileIndex].Layers.foliageType,
+                                        contents);
+                                    break;
+                            }
+                            break;
+                        }
+                        tileIndex++;
+                    }
+
+                    // Write with exclusive access
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    {
+                        sw.Write(JsonUtility.ToJson(chunk, true));
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to update chunk file: {ex.Message}");
+                }
+            }
         }
         else
         {

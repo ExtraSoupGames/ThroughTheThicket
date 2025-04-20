@@ -11,6 +11,8 @@ public struct ChunkGrabberJob : IJob
     public NativeQueue<Tile> tileQueue;
     public bool useSurfaceGenerator;
     public int seed;
+    public NativeArray<Color> WFCInputPixels;
+    public int WFCInputWidth;
     public void Execute()
     {
         //search for the chunk if it already exists
@@ -79,7 +81,18 @@ public struct ChunkGrabberJob : IJob
             {
                 Debug.Log($"Failed to load dungeon chunk: {ex.Message}");
                 //generate new dungeon if loading fails
-                WaveFunctionCollapse.GenerateDungeon(0, 10, dataPathString, seed);
+
+                int imageWidth = WFCInputWidth;
+                int imageHeight = WFCInputPixels.Length / imageWidth;
+                Color[,] inputImagePixels = new Color[imageWidth, imageHeight];
+                for (int x = 0; x < imageWidth; x++)
+                {
+                    for (int y = 0; y < imageHeight; y++)
+                    {
+                        inputImagePixels[x,y] = WFCInputPixels[x + (imageWidth * y)];
+                    }
+                }
+                WaveFunctionCollapse.GenerateDungeon(0, 10, dataPathString, seed, inputImagePixels);
 
                 //retry loading
                 //TODO use proper file loading for this too

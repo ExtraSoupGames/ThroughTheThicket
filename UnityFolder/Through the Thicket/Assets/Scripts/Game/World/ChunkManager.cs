@@ -179,6 +179,8 @@ public abstract class ChunkManager : MonoBehaviour
             persistentDataPath.Dispose();
             persistentDataPath = new NativeArray<char>(GetChunkPath().ToCharArray(), Allocator.Persistent);
             ChunkPos newChunkPos = chunksToLoad.Dequeue();
+            int imageWidth = 0;
+            NativeArray<Color> WFCInputColours = GetWFCInputColours(ref imageWidth);
             ChunkGrabberJob newChunkJob = new ChunkGrabberJob()
             {
                 tileQueue = tilesToLoad,
@@ -186,12 +188,32 @@ public abstract class ChunkManager : MonoBehaviour
                 Y = newChunkPos.Y,
                 persistentDataPath = persistentDataPath,
                 seed = worldSeed,
-                useSurfaceGenerator = UseSurfaceGenerator()
-
+                useSurfaceGenerator = UseSurfaceGenerator(),
+                WFCInputPixels = WFCInputColours,
+                WFCInputWidth = imageWidth
             };
+
             ChunkGrabber = newChunkJob.Schedule();
         }
     }
+
+    private NativeArray<Color> GetWFCInputColours(ref int imageWidth)
+    {
+        Texture2D inputTexture = Resources.Load<Texture2D>("WFCRuleInput");
+        int width = inputTexture.width;
+        int height = inputTexture.height;
+        NativeArray<Color> output = new NativeArray<Color>(height * width, Allocator.Persistent);
+        for(int x = 0;x < width; x++)
+        {
+            for(int y = 0; y < height; y++)
+            {
+                output[x +(width * y)] = inputTexture.GetPixel(x, y);
+            }
+        }
+        imageWidth = width;
+        return output;
+    }
+
     private void ManageTileRenderQueue()
     {
         ChunkGrabber.Complete();

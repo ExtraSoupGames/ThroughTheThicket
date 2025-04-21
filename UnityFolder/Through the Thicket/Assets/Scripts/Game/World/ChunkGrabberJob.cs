@@ -92,7 +92,7 @@ public struct ChunkGrabberJob : IJob
                         inputImagePixels[x,y] = WFCInputPixels[x + (imageWidth * y)];
                     }
                 }
-                WaveFunctionCollapse.GenerateDungeon(0, 10, dataPathString, seed, inputImagePixels);
+                WaveFunctionCollapse.GenerateDungeon(0, 3, dataPathString, seed, inputImagePixels);
 
                 //retry loading
                 //TODO use proper file loading for this too

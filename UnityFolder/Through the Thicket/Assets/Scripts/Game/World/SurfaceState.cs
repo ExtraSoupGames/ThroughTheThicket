@@ -9,9 +9,13 @@ public class SurfaceState : IWorldState
     [SerializeField] private TileSelector tileSelector;
     [SerializeField] private Pathfinder pathFinder;
     [SerializeField] private SurfaceManager surfaceManager;
+    private Vector3 playerPosition;
+    private Quaternion playerRotation;
     private GameManager gameManager;
     public override void Close()
     {
+        playerPosition = playerController.transform.position;
+        playerRotation = playerController.transform.rotation;
         surfaceManager.HideWorld();
         base.Close();
     }
@@ -27,6 +31,7 @@ public class SurfaceState : IWorldState
         playerController.SetToWorld(tileSelector, pathFinder);
         surfaceManager.ShowWorld();
         player.transform.SetParent(this.transform);
+        player.transform.SetPositionAndRotation(playerPosition, playerRotation);
         base.Open();
     }
 

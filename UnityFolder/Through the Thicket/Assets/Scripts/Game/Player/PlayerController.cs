@@ -44,6 +44,8 @@ public class PlayerController : MonoBehaviour
     }
     public void SetToWorld(TileSelector tileSelector, Pathfinder pathFinder)
     {
+        //cancel any ongoing movement as not to mess up new movement location
+        path = new Queue<ProcessedTileData>();
         this.tileSelector = tileSelector;
         this.pathFinder = pathFinder;
     }

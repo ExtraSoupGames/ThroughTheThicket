@@ -27,6 +27,7 @@ public class DungeonState : IWorldState
         playerController.SetToWorld(tileSelector, pathFinder);
         dungeonManager.ShowWorld();
         player.transform.SetParent(this.transform);
+        player.transform.SetPositionAndRotation(new Vector3(0, 0, 0), Quaternion.identity);
         base.Open();
     }
 

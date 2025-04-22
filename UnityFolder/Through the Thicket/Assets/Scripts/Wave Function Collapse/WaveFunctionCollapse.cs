@@ -171,6 +171,7 @@ public class WaveFunctionCollapse : MonoBehaviour
     {
         None,
         Entrance,
+        Hole
     }
     private class CollapsedTile
     {

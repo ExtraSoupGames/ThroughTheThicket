@@ -13,6 +13,7 @@ public static class CellularAutomataGenerator
 {
     public static void GenerateChunkAt(int chunkX, int chunkY, string filePath, int seed)
     {
+        //Generate a chunk at the given coordinates and save it
         AutomataChunk generatedChunk = GenerateChunk(chunkX, chunkY, seed);
         SerializableChunk chunkToSave = generatedChunk.GetChunkForSaving();
         string chunkAsJSON = JsonUtility.ToJson(chunkToSave, true);
@@ -21,8 +22,11 @@ public static class CellularAutomataGenerator
     }
     private static AutomataChunk GenerateChunk(int chunkX, int chunkY, int seed)
     {
+        //Create the initial noise map
         AutomataChunk[,] chunks = InitialNoiseMap(chunkX, chunkY, seed);
+        //Initialize our tile array, 48 x 48 is chosen so cellular iterations from neighbouring chunks can affect the ones in this chunk to ensure seamlessness
         AutomataTile[,] tiles = new AutomataTile[48, 48];
+        //Populate the array with the tiles from all 9 of the 16x16 chunks
         for (int cX = 0; cX < 3; cX++)
         {
             for (int cY = 0; cY < 3; cY++)
@@ -36,11 +40,13 @@ public static class CellularAutomataGenerator
                 }
             }
         }
-
+        //Create and iterate through the river rule
+        //The river rule is different as it uses a simplex noise function so it needs the tileX and tileY to be passed in when the rule is being applied
         int iterations = 1;
         RiverRule rule = new RiverRule();
         for(int i = 0; i < iterations; i++)
         {
+            //Go through all the tiles in the chunks and apply the rule
             AutomataTile[,] newTiles = new AutomataTile[48, 48];
             for (int x = 0; x < 48; x++)
             {
@@ -51,6 +57,7 @@ public static class CellularAutomataGenerator
             }
             tiles =  newTiles;
         }
+        //Go through each rule a specified number of times, applying the rule each time
         iterations = 2;
         for(int i = 0; i < iterations; i++)
         {
@@ -234,11 +241,13 @@ public static class CellularAutomataGenerator
                         tiles[x, y].type == AutomataTileType.Mud ? new Stone() :
                         tiles[x, y].type == AutomataTileType.River ? new River() :
                         new Grass(),
+
                         tiles[x, y].foliageType == AutomataFoliageType.TallGrass ? new TallGrass() :
                         tiles[x, y].foliageType == AutomataFoliageType.TreeStump ? new TreeStump() :
                         tiles[x, y].foliageType == AutomataFoliageType.Mushroom ? new Redcap() :
                         tiles[x,y].foliageType == AutomataFoliageType.Foliage ? new Twigs() :
                         new EmptyFoliage(),
+
                         tiles[x, y].foliageType == AutomataFoliageType.Pebble ? new Pebble() :
                         tiles[x,y].foliageType == AutomataFoliageType.Entrance ? new CaveEntrance() :
                         new EmptyObject());
@@ -247,34 +256,14 @@ public static class CellularAutomataGenerator
             return chunk;
         }
     }
+    //Abstract rule
     private abstract class AutomataRule
     {
         public abstract AutomataTile ApplyRule(AutomataTile[,] tiles);
         //defines range of neighbourhood to request for each rule application
         public virtual int GetRange() { return 1; }
     }
-    private class TestRule : AutomataRule
-    {
-        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
-        {
-            int riverCount = 0;
-            for (int x = 0; x < 3; x++)
-            {
-                for (int y = 0; y < 3; y++)
-                {
-                    if(x == 1 && y == 1)
-                    {
-                        continue;
-                    }
-                    if (tiles[x,y].type == AutomataTileType.River)
-                    {
-                        riverCount++;
-                    }
-                }
-            }
-            return new AutomataTile(riverCount >= 4 ? AutomataTileType.Mud : AutomataTileType.River);
-        }
-    }
+    //Here we define all of our rules
     private class IslandRule : AutomataRule
     {
         public override AutomataTile ApplyRule(AutomataTile[,] tiles)

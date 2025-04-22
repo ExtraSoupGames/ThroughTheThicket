@@ -105,15 +105,20 @@ public class WaveFunctionCollapse : MonoBehaviour
                 foreach (int2 offset in NeighbourOffsets())
                 {
                     int2 neighbourPos = currentPos + offset;
-                    if (PositionIsInBounds(neighbourPos, tiles.GetLength(0)))
+                    if (!PositionIsInBounds(neighbourPos, tiles.GetLength(0)))
                     {
-                        if (!processed.Contains(neighbourPos))
-                        {
-                            updateQueue.Enqueue(neighbourPos);
-                            processed.Add(neighbourPos);
-                        }
-
+                        continue;
                     }
+                    if (processed.Contains(neighbourPos))
+                    {
+                        continue;
+                    }
+                    if (tiles[neighbourPos.x, neighbourPos.y].IsImpossible())
+                    {
+                        continue;
+                    }
+                    updateQueue.Enqueue(neighbourPos);
+                    processed.Add(neighbourPos);
                 }
             }
         }
@@ -242,31 +247,6 @@ public class WaveFunctionCollapse : MonoBehaviour
                 Debug.Log("Impossible Tile detected! backtracking should occur");
                 //TODO implement backtracking
             }
-            /*
-            Debug.Log($"Updating tile at ({x},{y})");
-            for (int i = 0; i < 4; i++)
-            {
-                var dir = new[] { "Up", "Left", "Down", "Right" }[i];
-                var neighbor = neighbours[i];
-                if (neighbor == null)
-                    Debug.Log($"Neighbor {dir}: NULL (out of bounds)");
-                else
-                    Debug.Log($"Neighbor {dir}: {string.Join(",", neighbor.GetPossibilities())}");
-            }
-            if (changed)
-            {
-                Debug.Log($"Neighbours constrained this tile to {collapsePossibilities.Count} possibilities");
-                if (IsCollapsed())
-                {
-                    Debug.Log($"Tle is now collapsed as {collapsePossibilities[0].type.ToString()}");
-                }
-            }
-            else
-            {
-                Debug.Log($"didnt change from {previousPossibilities} possibilities");
-            }
-            */
-
             return changed;
         }
         public Tile GetCollapsedTile()
@@ -396,6 +376,11 @@ public class WaveFunctionCollapse : MonoBehaviour
                 foreach (WFCTile neighbour in neighbours)
                 {
                     if(neighbour == null)
+                    {
+                        neighbourIndex++;
+                        continue;
+                    }
+                    if (neighbour.IsImpossible())
                     {
                         neighbourIndex++;
                         continue;

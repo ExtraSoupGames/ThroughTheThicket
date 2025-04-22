@@ -27,7 +27,7 @@ public class TileDestruction : TileInteraction
                 gameManager.SetTile(tile.GetComponent<TileDataHolder>().thisTileData.X, tile.GetComponent<TileDataHolder>().thisTileData.Y, Layers.Foliage, new EmptyFoliage());
                 break;
             case Layers.Base:
-                Debug.Log("Dont be mining the floor now");
+                Debug.Log("Dont mine the floor please :)");
                 break;
         }
     }
@@ -57,30 +57,30 @@ public class TileInteractionExit : TileInteraction
     }
     public override void Execute(GameManager gameManager)
     {
-        //does nothing lol
+        //does nothing
     }
 }
-public class EnterCaveOption : TileInteraction
+public class EnterDungeonOption : TileInteraction
 {
     int id;
-    static int NextCaveID = 0;
+    static int nextDungeonID = 0;
     int X;
     int Y;
-    public EnterCaveOption(int caveID, ref CaveEntrance entrance, int entranceX, int entranceY)
+    public EnterDungeonOption(int dungeonID, ref DungeonEntrance entrance, int entranceX, int entranceY)
     {
-        id = caveID;
+        id = dungeonID;
         if(id == 0)
         {
-            NextCaveID++;   
-            id = NextCaveID;
-            entrance.caveID = id;
+            nextDungeonID++;   
+            id = nextDungeonID;
+            entrance.dungeonID = id;
             X = entranceX;
             Y = entranceY;
         }
     }
     public static void SetCurrentDungeonID(int id)
     {
-        NextCaveID = id;
+        nextDungeonID = id;
     }
     public override void Execute(GameManager gameManager)
     {
@@ -88,6 +88,16 @@ public class EnterCaveOption : TileInteraction
         gameManager.SetDungeonID(id);
         gameManager.OpenState("Dungeon");
         gameManager.SaveGlobalVariables(id);
+    }
+}
+public class ExitDungeonOption : TileInteraction
+{
+    public ExitDungeonOption()
+    {
+    }
+    public override void Execute(GameManager gameManager)
+    {
+        gameManager.CloseState("Dungeon");
     }
 }
 public class TileInteractionOption

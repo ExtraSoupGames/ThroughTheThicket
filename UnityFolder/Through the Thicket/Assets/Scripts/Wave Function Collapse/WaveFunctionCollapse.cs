@@ -38,12 +38,18 @@ public class WaveFunctionCollapse : MonoBehaviour
         }
         WFCRuleSet rules = new WFCRuleSet(inputImagePixels);
 
-        //set the middle tile to an entrance tile
-        tiles[size, size] = new WFCTile(WFCTileType.Entrance);
-        UpdateAllPossibilities(ref tiles, new int2(size,size), rules);
+        //set the entrance and exits TODO make these locations random (or atleast the exit)
+        int2 entrancePos = new int2(0, 0);
+        int2 exitPos = new int2(size, size);
+        tiles[entrancePos.x, entrancePos.y] = new WFCTile(WFCTileType.Entrance, entrancePos.x, entrancePos.y);
+        //sets a tile a little away to an exit
+        tiles[exitPos.x, exitPos.y] = new WFCTile(WFCTileType.Exit, exitPos.x, exitPos.y);
+        UpdateAllPossibilities(ref tiles, new int2(entrancePos.x, entrancePos.y), rules);
+        UpdateAllPossibilities(ref tiles, new int2(exitPos.x, exitPos.y), rules);
         //Update the entropy grid accordingly
-        entropies[size, size] = tiles[size, size].CalculateEntropy();
-        while(!AllTilesCollapsed(tiles))
+        entropies[entrancePos.x, entrancePos.y] = tiles[entrancePos.x, entrancePos.y].CalculateEntropy();
+        entropies[exitPos.x, exitPos.y] = tiles[exitPos.x, exitPos.y].CalculateEntropy();
+        while (!AllTilesCollapsed(tiles))
         {
             //Update all entropies and collapse the tile with the smallest entropy
             int2 lowestEntropyPosition = UpdateAllEntropies(tiles, entropies);
@@ -73,6 +79,10 @@ public class WaveFunctionCollapse : MonoBehaviour
     {
         Queue<int2> updateQueue = new Queue<int2>();
         HashSet<int2> processed = new HashSet<int2>();
+        if (tiles[startPos.x, startPos.y].IsCollapsed())
+        {
+            return; // if the tile is already collapsed we shouldnt update it any further
+        }
         updateQueue.Enqueue(startPos);
         processed.Add(startPos);
 
@@ -170,8 +180,13 @@ public class WaveFunctionCollapse : MonoBehaviour
     private enum WFCTileType
     {
         None,
+        Grassy,
         Entrance,
-        Hole
+        Exit
+    }
+    private static List<WFCTileType> GetRandomTiles()
+    {
+        return new List<WFCTileType> { WFCTileType.None, WFCTileType.Grassy};
     }
     private class CollapsedTile
     {
@@ -190,7 +205,7 @@ public class WaveFunctionCollapse : MonoBehaviour
         public WFCTile(int tileX, int tileY)
         {
             collapsePossibilities = new List<CollapsedTile>();
-            foreach(WFCTileType type in Enum.GetValues(typeof(WFCTileType)))
+            foreach(WFCTileType type in GetRandomTiles())
             {
                 collapsePossibilities.Add(new CollapsedTile(type));
             }
@@ -198,9 +213,11 @@ public class WaveFunctionCollapse : MonoBehaviour
             y = tileY;
         }
         //Used for instantiating definite tiles (tiles decided by the designer not by the algorithm)
-        public WFCTile(WFCTileType type)
+        public WFCTile(WFCTileType type, int tileX, int tileY)
         {
             collapsePossibilities = new List<CollapsedTile> { new CollapsedTile(type) };
+            x = tileX;
+            y = tileY;
         }
         public int CalculateEntropy()
         {
@@ -256,13 +273,21 @@ public class WaveFunctionCollapse : MonoBehaviour
             {
                 return new Tile(x, y, 0, 0, 0, new Stone());
             }
-            if (collapsePossibilities[0].type == WFCTileType.Entrance)
+            if (collapsePossibilities[0].type == WFCTileType.None)
             {
                 return new Tile(x, y, 0, 0, 0, new Grass());
             }
-            if (collapsePossibilities[0].type == WFCTileType.None)
+            if (collapsePossibilities[0].type == WFCTileType.Grassy)
             {
                 return new Tile(x,y,0,0,0,new Grass(), new TallGrass(), new EmptyObject());
+            }
+            if (collapsePossibilities[0].type == WFCTileType.Exit)
+            {
+                return new Tile(x, y, 0, 0, 0, new Grass(), new EmptyFoliage(), new DungeonExit());
+            }
+            if (collapsePossibilities[0].type == WFCTileType.Entrance)
+            {
+                return new Tile(x, y, 0, 0, 0, new Grass(), new Carrot(), new EmptyObject());
             }
             return new Tile(x, y, 0, 0, 0, new Stone());
         }
@@ -420,9 +445,9 @@ public class WaveFunctionCollapse : MonoBehaviour
                 pixelColor.g <= threshold &&
                 pixelColor.b <= threshold)
             {
-                return WFCTileType.Entrance;
+                return WFCTileType.None;
             }
-            return WFCTileType.None;
+            return WFCTileType.Grassy;
         }
         private bool IsPairAllowed(WFCTileType centre, WFCTileType neighbour, int neighbourIndex)
         {

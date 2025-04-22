@@ -42,7 +42,8 @@ public class TileDisplayGetter
         allMeshes.Add("River", new LayerDisplayProperties("Cube", new string[] { "River" }));
         allMeshes.Add("TallGrass", new LayerDisplayProperties("TallGrass", new string[] { "Potato" }));
         allMeshes.Add("TreeStump", new LayerDisplayProperties("TreeStump", new string[] { "Foliage1" }));
-        allMeshes.Add("CaveEntrance", new LayerDisplayProperties("TreeStump", new string[] { "Potato" }));
+        allMeshes.Add("DungeonEntrance", new LayerDisplayProperties("TreeStump", new string[] { "Potato" }));
+        allMeshes.Add("DungeonExit", new LayerDisplayProperties("TreeStump", new string[] { "Foliage3" }));
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)
     {

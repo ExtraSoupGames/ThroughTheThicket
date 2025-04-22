@@ -295,7 +295,7 @@ public class GameManager : MonoBehaviour
             try
             {
                 int.TryParse(text, out var value);
-                EnterCaveOption.SetCurrentDungeonID(value);
+                EnterDungeonOption.SetCurrentDungeonID(value);
             }
             catch (Exception)
             {

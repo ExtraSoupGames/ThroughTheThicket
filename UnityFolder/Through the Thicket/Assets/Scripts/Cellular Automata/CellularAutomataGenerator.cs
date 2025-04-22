@@ -249,7 +249,7 @@ public static class CellularAutomataGenerator
                         new EmptyFoliage(),
 
                         tiles[x, y].foliageType == AutomataFoliageType.Pebble ? new Pebble() :
-                        tiles[x,y].foliageType == AutomataFoliageType.Entrance ? new CaveEntrance() :
+                        tiles[x,y].foliageType == AutomataFoliageType.Entrance ? new DungeonEntrance() :
                         new EmptyObject());
                 }
             }

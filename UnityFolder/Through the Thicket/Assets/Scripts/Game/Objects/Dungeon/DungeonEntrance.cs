@@ -2,17 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CaveEntrance : ITileSegmentObjectLayer
+public class DungeonEntrance : ITileSegmentObjectLayer
 {
-    public int caveID;
+    public int dungeonID;
     public LayerContents GetContentsEnum()
     {
-        return LayerContents.CaveEntrance;
+        return LayerContents.DungeonEntrance;
     }
 
     public LayerDisplayProperties GetDisplayProperties(TileDisplayGetter displayGetter)
     {
-        return displayGetter.GetDisplayProperties("CaveEntrance");
+        return displayGetter.GetDisplayProperties("DungeonEntrance");
     }
 
     public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
@@ -20,11 +20,11 @@ public class CaveEntrance : ITileSegmentObjectLayer
         return GetInteractionOptions(tile, this);
     }
 
-    public List<TileInteractionOption> GetInteractionOptions(GameObject tile, CaveEntrance entrance)
+    public List<TileInteractionOption> GetInteractionOptions(GameObject tile, DungeonEntrance entrance)
     {
         int X = tile.GetComponent<TileDataHolder>().thisTileData.X;
         int Y = tile.GetComponent<TileDataHolder>().thisTileData.Y;
-        return new List<TileInteractionOption>() { new TileInteractionOption("Enter Cave", new EnterCaveOption(caveID, ref entrance, X, Y)) };
+        return new List<TileInteractionOption>() { new TileInteractionOption("Enter Dungeon", new EnterDungeonOption(dungeonID, ref entrance, X, Y)) };
     }
 
     public int GetTravelCost()

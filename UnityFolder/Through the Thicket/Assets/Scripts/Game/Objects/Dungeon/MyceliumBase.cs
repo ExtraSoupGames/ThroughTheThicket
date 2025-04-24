@@ -11,8 +11,6 @@ public class MyceliumBase : ITileSegmentBaseLayer
 
     public LayerDisplayProperties GetDisplayProperties(TileDisplayGetter displayGetter)
     {
-        LayerDisplayProperties displayProperties = displayGetter.GetDisplayProperties("MyceliumBase");
-        Debug.Log("Display properties for mycelium: " + displayProperties.LayerMesh.ToString() + " -> " + displayProperties.LayerMats.Length.ToString());
         return displayGetter.GetDisplayProperties("MyceliumBase");
     }
 

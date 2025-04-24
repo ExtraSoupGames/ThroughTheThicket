@@ -78,13 +78,7 @@ public class WaveFunctionCollapse : MonoBehaviour
     private static void UpdateAllPossibilities(ref WFCTile[,] tiles, int2 startPos, WFCRuleSet rules)
     {
         Queue<int2> updateQueue = new Queue<int2>();
-        HashSet<int2> processed = new HashSet<int2>();
-        if (tiles[startPos.x, startPos.y].IsCollapsed())
-        {
-            return; // if the tile is already collapsed we shouldnt update it any further
-        }
         updateQueue.Enqueue(startPos);
-        processed.Add(startPos);
 
         while (updateQueue.Count > 0)
         {
@@ -94,6 +88,10 @@ public class WaveFunctionCollapse : MonoBehaviour
             if (!PositionIsInBounds(currentPos, tiles.GetLength(0))) continue;
             WFCTile currentTile = tiles[currentPos.x, currentPos.y];
             if (currentTile == null) continue;
+            //skip impossible and collapsed tiles
+            if (currentTile.IsImpossible()) continue;
+
+
 
             // Get current neighbors
             WFCTile[] neighbours = new WFCTile[4];
@@ -119,17 +117,17 @@ public class WaveFunctionCollapse : MonoBehaviour
                     {
                         continue;
                     }
-                    if (processed.Contains(neighbourPos))
-                    {
-                        continue;
-                    }
                     if (tiles[neighbourPos.x, neighbourPos.y].IsImpossible())
                     {
                         continue;
                     }
                     updateQueue.Enqueue(neighbourPos);
-                    processed.Add(neighbourPos);
                 }
+            }
+            if(updateQueue.Count > 1000)
+            {
+                Debug.LogError("Maximum queue count reached!!");
+                break;
             }
         }
     }
@@ -180,7 +178,6 @@ public class WaveFunctionCollapse : MonoBehaviour
     private enum WFCTileType
     {
         None,
-        Mud,
         Moss,
         Mycelium,
         Entrance,
@@ -188,7 +185,7 @@ public class WaveFunctionCollapse : MonoBehaviour
     }
     private static List<WFCTileType> GetRandomTiles()
     {
-        return new List<WFCTileType> { WFCTileType.None, WFCTileType.Moss, WFCTileType.Mud, WFCTileType.Mycelium};
+        return new List<WFCTileType> { WFCTileType.None, WFCTileType.Moss, WFCTileType.Mycelium};
     }
     private class WFCTile
     {
@@ -230,7 +227,7 @@ public class WaveFunctionCollapse : MonoBehaviour
         public void Collapse(ref Unity.Mathematics.Random randomEngine)
         {
             if (IsCollapsed()) return;
-            if (collapsePossibilities.Count == 0) return;
+            if (IsImpossible()) return;
             int collapseResultIndex = randomEngine.NextInt(0, collapsePossibilities.Count);
             collapsePossibilities = new List<WFCTileType> { collapsePossibilities[collapseResultIndex] };
             Debug.Log("Collapsing tile at " + x + " " + y + " into " + collapsePossibilities[0].ToString());
@@ -248,12 +245,12 @@ public class WaveFunctionCollapse : MonoBehaviour
         //Update the possible neighbours
         // rules - the ruleset with which to update the possibilities
         // neighbours, the 4 adjacent WFCTiles, in order Up, Left, Down, Right. Null for tiles outside the range
-        //returns true if only one possibility remains (I.E tile was collapsed by rules of adjacent neighbours rather than by random chance)
+        //returns true if tile was changed from previous
         public bool UpdatePossibilities(WFCRuleSet rules, WFCTile[] neighbours)
         {
             int previousPossibilities = collapsePossibilities.Count;
             collapsePossibilities = rules.GetPossibilities(neighbours, collapsePossibilities);
-            bool changed = collapsePossibilities.Count == previousPossibilities;
+            bool changed = collapsePossibilities.Count != previousPossibilities;
             if(changed && collapsePossibilities.Count == 0)
             {
                 Debug.Log("Impossible Tile detected! backtracking should occur");
@@ -271,8 +268,8 @@ public class WaveFunctionCollapse : MonoBehaviour
             {
                 case WFCTileType.None:
                     return new Tile(x, y, 0, 0, 0, new Grass());
-                case WFCTileType.Mud:
-                    return new Tile(x, y, 0, 0, 0, new Grass(), new EmptyFoliage(), new EmptyObject());
+                //case WFCTileType.Mud:
+                    //return new Tile(x, y, 0, 0, 0, new Grass(), new EmptyFoliage(), new EmptyObject());
                 case WFCTileType.Moss:
                     return new Tile(x, y, 0, 0, 0, new Grass(), new Moss(), new EmptyObject());
                 case WFCTileType.Mycelium:
@@ -303,7 +300,7 @@ public class WaveFunctionCollapse : MonoBehaviour
                 type2 = PixelColorToTileType(p2);
                 isHorizontal = horizontal;
             }
-            public bool IsAllowed(WFCTileType t1, WFCTileType t2, int neighbourIndex)
+            public bool IsAllowed(WFCTileType centre, WFCTileType neighbour, int neighbourIndex)
             {
                 //neighbourIndex: up = 0 left = 1 down = 2 right = 3
                 if(isHorizontal) {
@@ -313,9 +310,9 @@ public class WaveFunctionCollapse : MonoBehaviour
                         case 2:
                             return false;
                         case 1:
-                            return t1 == type2 && t2 == type1;
+                            return centre == type2 && neighbour == type1;
                         case 3:
-                            return t1 == type1 && t2 == type2;
+                            return centre == type1 && neighbour == type2;
                     }
                 }
                 else
@@ -326,9 +323,9 @@ public class WaveFunctionCollapse : MonoBehaviour
                         case 3:
                             return false;
                         case 0:
-                            return t1 == type2 && t2 == type1;
+                            return centre == type2 && neighbour == type1;
                         case 2:
-                            return t1 == type1 && t2 == type2;
+                            return centre == type1 && neighbour == type2;
                     }
                 }
                 return false; // strict adjacency rules
@@ -351,6 +348,7 @@ public class WaveFunctionCollapse : MonoBehaviour
             constraints = new List<WFCConstraint>();
             //For this example we will use a 2d image to represent our floor, each pixel will represent one tile
             ProcessConstraints(inputImagePixels, inputImagePixels.GetLength(0), inputImagePixels.GetLength(1), ref constraints);
+            Debug.Log("Constraints constructed, length: " + constraints.Count);
         }
         private void ProcessConstraints(Color[,] inputImagePixels, int inputImageWidth, int inputImageHeight, ref List<WFCConstraint> constraints)
         {
@@ -365,6 +363,7 @@ public class WaveFunctionCollapse : MonoBehaviour
                     if (!constraints.Contains(newConstraint))
                     {
                         constraints.Add(newConstraint);
+                        Debug.Log($"Loaded constraint: {newConstraint.type1} can be {(newConstraint.isHorizontal ? "left of" : "above")} {newConstraint.type2}");
                     }
                 }
             }
@@ -377,6 +376,7 @@ public class WaveFunctionCollapse : MonoBehaviour
                     if (!constraints.Contains(newConstraint))
                     {
                         constraints.Add(newConstraint);
+                        Debug.Log($"Loaded constraint: {newConstraint.type1} can be {(newConstraint.isHorizontal ? "left of" : "above")} {newConstraint.type2}");
 
                     }
                 }
@@ -428,15 +428,21 @@ public class WaveFunctionCollapse : MonoBehaviour
         }
         private static WFCTileType PixelColorToTileType(Color pixelColor)
         {
-            const float threshold = 0.01f;// TODO fix this being needed 
-
-
-
-            if (pixelColor.r <= threshold &&
-                pixelColor.g <= threshold &&
-                pixelColor.b <= threshold)
+            if (pixelColor == new Color(0, 0, 0))
             {
                 return WFCTileType.None;
+            }
+            if (pixelColor == new Color(1, 1, 1))
+            {
+                return WFCTileType.Mycelium;
+            }
+            if(pixelColor == new Color(1, 0, 0))
+            {
+                return WFCTileType.Entrance;
+            }
+            if (pixelColor == new Color(0, 1, 0))
+            {
+                return WFCTileType.Exit;
             }
             return WFCTileType.Moss;
         }

@@ -311,4 +311,10 @@ public class GameManager : MonoBehaviour
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "World", "SaveData.json"), caveID.ToString());
         }
     }
+
+    public void GivePlayerMyceliumBoost()
+    {
+        //TODO implement
+        throw new NotImplementedException();
+    }
 }

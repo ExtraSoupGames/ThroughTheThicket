@@ -27,7 +27,10 @@ public enum LayerContents
     TallGrass,
     TreeStump,
     DungeonEntrance,
-    DungeonExit
+    DungeonExit,
+    Moss,
+    MyceliumBase,
+    MyceliumTopper
 }
 [System.Serializable]
 public struct TileSegmentDataHolder
@@ -51,6 +54,8 @@ public struct TileSegmentDataHolder
                 return new Stone();
             case LayerContents.River:
                 return new River();
+            case LayerContents.MyceliumBase:
+                return new MyceliumBase();
             default:
                 Debug.LogError("Tried to construct a base which had enum of none");
                 return new Grass();
@@ -72,6 +77,10 @@ public struct TileSegmentDataHolder
                 return new TallGrass();
             case LayerContents.TreeStump:
                 return new TreeStump();
+            case LayerContents.Moss:
+                return new Moss();
+            case LayerContents.MyceliumTopper:
+                return new MyceliumTopper();
             default:
                 return new EmptyFoliage();
         }

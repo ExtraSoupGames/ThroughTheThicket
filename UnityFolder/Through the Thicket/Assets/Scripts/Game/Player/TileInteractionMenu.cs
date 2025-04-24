@@ -100,6 +100,23 @@ public class ExitDungeonOption : TileInteraction
         gameManager.CloseState("Dungeon");
     }
 }
+public class MyceliumBoostOption : TileInteraction
+{
+    int X;
+    int Y;
+
+    public MyceliumBoostOption(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    public override void Execute(GameManager gameManager)
+    {
+        gameManager.SetTile(X, Y, Layers.Foliage, new EmptyFoliage()); // removes the mycelium
+        gameManager.GivePlayerMyceliumBoost();
+    }
+}
 public class TileInteractionOption
 {
     string displayText;

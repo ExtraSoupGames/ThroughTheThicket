@@ -180,13 +180,15 @@ public class WaveFunctionCollapse : MonoBehaviour
     private enum WFCTileType
     {
         None,
-        Grassy,
+        Mud,
+        Moss,
+        Mycelium,
         Entrance,
         Exit
     }
     private static List<WFCTileType> GetRandomTiles()
     {
-        return new List<WFCTileType> { WFCTileType.None, WFCTileType.Grassy};
+        return new List<WFCTileType> { WFCTileType.None, WFCTileType.Moss, WFCTileType.Mud, WFCTileType.Mycelium};
     }
     private class CollapsedTile
     {
@@ -277,9 +279,17 @@ public class WaveFunctionCollapse : MonoBehaviour
             {
                 return new Tile(x, y, 0, 0, 0, new Grass());
             }
-            if (collapsePossibilities[0].type == WFCTileType.Grassy)
+            if (collapsePossibilities[0].type == WFCTileType.Mud)
             {
-                return new Tile(x,y,0,0,0,new Grass(), new TallGrass(), new EmptyObject());
+                return new Tile(x,y,0,0,0,new Grass(), new EmptyFoliage(), new EmptyObject());
+            }
+            if (collapsePossibilities[0].type == WFCTileType.Moss)
+            {
+                return new Tile(x, y,0,0,0, new Grass(), new Moss(), new EmptyObject());
+            }
+            if (collapsePossibilities[0].type == WFCTileType.Mycelium)
+            {
+                return new Tile(x, y, 0, 0, 0, new MyceliumBase(), new MyceliumTopper(), new EmptyObject());
             }
             if (collapsePossibilities[0].type == WFCTileType.Exit)
             {
@@ -447,7 +457,7 @@ public class WaveFunctionCollapse : MonoBehaviour
             {
                 return WFCTileType.None;
             }
-            return WFCTileType.Grassy;
+            return WFCTileType.Moss;
         }
         private bool IsPairAllowed(WFCTileType centre, WFCTileType neighbour, int neighbourIndex)
         {

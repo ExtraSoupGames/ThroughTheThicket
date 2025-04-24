@@ -44,6 +44,9 @@ public class TileDisplayGetter
         allMeshes.Add("TreeStump", new LayerDisplayProperties("TreeStump", new string[] { "Foliage1" }));
         allMeshes.Add("DungeonEntrance", new LayerDisplayProperties("TreeStump", new string[] { "Potato" }));
         allMeshes.Add("DungeonExit", new LayerDisplayProperties("TreeStump", new string[] { "Foliage3" }));
+        allMeshes.Add("Moss", new LayerDisplayProperties("Moss", new string[] { "Moss"}));
+        allMeshes.Add("MyceliumBase", new LayerDisplayProperties("MyceliumBase", new string[] { "Redcap2"}));
+        allMeshes.Add("MyceliumTopper", new LayerDisplayProperties("MyceliumTopper", new string[] { "Redcap2" }));
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)
     {

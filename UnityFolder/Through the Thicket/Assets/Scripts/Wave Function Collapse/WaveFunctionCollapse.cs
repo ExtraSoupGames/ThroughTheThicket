@@ -275,31 +275,23 @@ public class WaveFunctionCollapse : MonoBehaviour
             {
                 return new Tile(x, y, 0, 0, 0, new Stone());
             }
-            if (collapsePossibilities[0].type == WFCTileType.None)
+            switch (collapsePossibilities[0].type)
             {
-                return new Tile(x, y, 0, 0, 0, new Grass());
+                case WFCTileType.None:
+                    return new Tile(x, y, 0, 0, 0, new Grass());
+                case WFCTileType.Mud:
+                    return new Tile(x, y, 0, 0, 0, new Grass(), new EmptyFoliage(), new EmptyObject());
+                case WFCTileType.Moss:
+                    return new Tile(x, y, 0, 0, 0, new Grass(), new Moss(), new EmptyObject());
+                case WFCTileType.Mycelium:
+                    return new Tile(x, y, 0, 0, 0, new MyceliumBase(), new MyceliumTopper(), new EmptyObject());
+                case WFCTileType.Exit:
+                    return new Tile(x, y, 0, 0, 0, new Grass(), new EmptyFoliage(), new DungeonExit());
+                case WFCTileType.Entrance:
+                    return new Tile(x, y, 0, 0, 0, new Grass(), new Carrot(), new EmptyObject());
+                default:
+                    return new Tile(x, y, 0, 0, 0, new Stone());
             }
-            if (collapsePossibilities[0].type == WFCTileType.Mud)
-            {
-                return new Tile(x,y,0,0,0,new Grass(), new EmptyFoliage(), new EmptyObject());
-            }
-            if (collapsePossibilities[0].type == WFCTileType.Moss)
-            {
-                return new Tile(x, y,0,0,0, new Grass(), new Moss(), new EmptyObject());
-            }
-            if (collapsePossibilities[0].type == WFCTileType.Mycelium)
-            {
-                return new Tile(x, y, 0, 0, 0, new MyceliumBase(), new MyceliumTopper(), new EmptyObject());
-            }
-            if (collapsePossibilities[0].type == WFCTileType.Exit)
-            {
-                return new Tile(x, y, 0, 0, 0, new Grass(), new EmptyFoliage(), new DungeonExit());
-            }
-            if (collapsePossibilities[0].type == WFCTileType.Entrance)
-            {
-                return new Tile(x, y, 0, 0, 0, new Grass(), new Carrot(), new EmptyObject());
-            }
-            return new Tile(x, y, 0, 0, 0, new Stone());
         }
         public List<WFCTileType> GetPossibilities()
         {

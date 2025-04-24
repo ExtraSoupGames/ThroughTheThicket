@@ -190,26 +190,18 @@ public class WaveFunctionCollapse : MonoBehaviour
     {
         return new List<WFCTileType> { WFCTileType.None, WFCTileType.Moss, WFCTileType.Mud, WFCTileType.Mycelium};
     }
-    private class CollapsedTile
-    {
-        public WFCTileType type;
-        public CollapsedTile(WFCTileType t)
-        {
-            type = t;
-        }
-    }
     private class WFCTile
     {
         public int x;
         public int y;
-        private List<CollapsedTile> collapsePossibilities;
+        private List<WFCTileType> collapsePossibilities;
         //Instantiate a tile with all possibilities
         public WFCTile(int tileX, int tileY)
         {
-            collapsePossibilities = new List<CollapsedTile>();
+            collapsePossibilities = new List<WFCTileType>();
             foreach(WFCTileType type in GetRandomTiles())
             {
-                collapsePossibilities.Add(new CollapsedTile(type));
+                collapsePossibilities.Add(type);
             }
             x = tileX;
             y = tileY;
@@ -217,7 +209,7 @@ public class WaveFunctionCollapse : MonoBehaviour
         //Used for instantiating definite tiles (tiles decided by the designer not by the algorithm)
         public WFCTile(WFCTileType type, int tileX, int tileY)
         {
-            collapsePossibilities = new List<CollapsedTile> { new CollapsedTile(type) };
+            collapsePossibilities = new List<WFCTileType> { type };
             x = tileX;
             y = tileY;
         }
@@ -240,8 +232,8 @@ public class WaveFunctionCollapse : MonoBehaviour
             if (IsCollapsed()) return;
             if (collapsePossibilities.Count == 0) return;
             int collapseResultIndex = randomEngine.NextInt(0, collapsePossibilities.Count);
-            collapsePossibilities = new List<CollapsedTile> { collapsePossibilities[collapseResultIndex] };
-            Debug.Log("Collapsing tile at " + x + " " + y + " into " + collapsePossibilities[0].type.ToString());
+            collapsePossibilities = new List<WFCTileType> { collapsePossibilities[collapseResultIndex] };
+            Debug.Log("Collapsing tile at " + x + " " + y + " into " + collapsePossibilities[0].ToString());
         }
         public bool IsCollapsed()
         {
@@ -275,7 +267,7 @@ public class WaveFunctionCollapse : MonoBehaviour
             {
                 return new Tile(x, y, 0, 0, 0, new Stone());
             }
-            switch (collapsePossibilities[0].type)
+            switch (collapsePossibilities[0])
             {
                 case WFCTileType.None:
                     return new Tile(x, y, 0, 0, 0, new Grass());
@@ -295,9 +287,7 @@ public class WaveFunctionCollapse : MonoBehaviour
         }
         public List<WFCTileType> GetPossibilities()
         {
-            List<WFCTileType> tiles = new List<WFCTileType>();
-            foreach (var tile in collapsePossibilities) tiles.Add(tile.type);
-            return tiles;
+            return collapsePossibilities;
         }
     }
     private class WFCRuleSet
@@ -392,13 +382,12 @@ public class WaveFunctionCollapse : MonoBehaviour
                 }
             }
         }
-        public List<CollapsedTile> GetPossibilities(WFCTile[] neighbours, List<CollapsedTile> currentPossibilities)
+        public List<WFCTileType> GetPossibilities(WFCTile[] neighbours, List<WFCTileType> currentPossibilities)
         {
-            List<CollapsedTile> possibilities = new List<CollapsedTile>();
+            List<WFCTileType> possibilities = new List<WFCTileType>();
             //neighbours are in order up left down right
-            foreach(CollapsedTile t in currentPossibilities)
+            foreach(WFCTileType tileType in currentPossibilities)
             {
-                WFCTileType tileType = t.type;
                 bool tileIsAllowed = true;
                 int neighbourIndex = 0;
                 foreach (WFCTile neighbour in neighbours)
@@ -432,7 +421,7 @@ public class WaveFunctionCollapse : MonoBehaviour
                 }
                 if (tileIsAllowed)
                 {
-                    possibilities.Add(new CollapsedTile(tileType));
+                    possibilities.Add(tileType);
                 }
             }
             return possibilities;

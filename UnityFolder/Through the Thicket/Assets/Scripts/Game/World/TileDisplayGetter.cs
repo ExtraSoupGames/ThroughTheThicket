@@ -10,9 +10,7 @@ public class LayerDisplayProperties
     public LayerDisplayProperties()
     {
         isEmpty = true;
-
     }
-    //TODO make these all switch based on the type provided and fetch the required mesh and materials
     public LayerDisplayProperties(string meshName, string[] materialNames)
     {
         isEmpty = false;
@@ -45,7 +43,7 @@ public class TileDisplayGetter
         allMeshes.Add("DungeonEntrance", new LayerDisplayProperties("TreeStump", new string[] { "Potato" }));
         allMeshes.Add("DungeonExit", new LayerDisplayProperties("TreeStump", new string[] { "Foliage3" }));
         allMeshes.Add("Moss", new LayerDisplayProperties("Moss", new string[] { "Moss"}));
-        allMeshes.Add("MyceliumBase", new LayerDisplayProperties("MyceliumBase", new string[] { "Redcap2"}));
+        allMeshes.Add("MyceliumBase", new LayerDisplayProperties("Cube", new string[] { "Redcap2"}));
         allMeshes.Add("MyceliumTopper", new LayerDisplayProperties("MyceliumTopper", new string[] { "Redcap2" }));
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)

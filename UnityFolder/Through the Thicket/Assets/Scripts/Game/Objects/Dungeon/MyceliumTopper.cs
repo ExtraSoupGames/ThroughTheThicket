@@ -16,7 +16,13 @@ public class MyceliumTopper : ITileSegmentFoliageLayer
 
     public List<TileInteractionOption> GetInteractionOptions(GameObject tile)
     {
-        return new List<TileInteractionOption> { new TileInteractionOption("Get Mushroom Boost!", new MyceliumBoostOption(tile.GetComponent<TileDataHolder>().thisTileData.X, tile.GetComponent<TileDataHolder>().thisTileData.Y)) };
+        return GetInteractionOptions(tile, this);
+    }
+    private List<TileInteractionOption> GetInteractionOptions(GameObject tile, MyceliumTopper topper)
+    {
+        int X = tile.GetComponent<TileDataHolder>().thisTileData.X;
+        int Y = tile.GetComponent<TileDataHolder>().thisTileData.Y;
+        return new List<TileInteractionOption> { new TileInteractionOption("Get Mushroom Boost!", new MyceliumBoostOption(X, Y)) };
     }
 
     public int GetTravelCost()

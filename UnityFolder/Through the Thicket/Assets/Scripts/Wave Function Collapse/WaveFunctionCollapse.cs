@@ -49,6 +49,7 @@ public class WaveFunctionCollapse : MonoBehaviour
         //Update the entropy grid accordingly
         entropies[entrancePos.x, entrancePos.y] = tiles[entrancePos.x, entrancePos.y].CalculateEntropy();
         entropies[exitPos.x, exitPos.y] = tiles[exitPos.x, exitPos.y].CalculateEntropy();
+
         while (!AllTilesCollapsed(tiles))
         {
             //Update all entropies and collapse the tile with the smallest entropy
@@ -59,6 +60,7 @@ public class WaveFunctionCollapse : MonoBehaviour
             //update possible tiles for surrounding tiles repeatedly until all tiles have been updated and any resultant changes have been updated
             UpdateAllPossibilities(ref tiles, new int2(x, y), rules);
         }
+
         FileHelper.DirectoryCheckChunk(filePath);
         // write dungeon to relevant file
         SerializableChunk chunkToSave = GetFinalDungeon(tiles, sideLength);
@@ -352,7 +354,7 @@ public class WaveFunctionCollapse : MonoBehaviour
         }
         private void ProcessConstraints(Color[,] inputImagePixels, int inputImageWidth, int inputImageHeight, ref List<WFCConstraint> constraints)
         {
-            //TODO bi-directional constraints
+            //Only one directional constraints
             //Horizontal constraints first
 
             for (int y = 0; y < inputImageHeight; y++)

@@ -13,6 +13,7 @@ public struct ChunkGrabberJob : IJob
     public int seed;
     public NativeArray<Color> WFCInputPixels;
     public int WFCInputWidth;
+    public int dungeonID;
     public void Execute()
     {
         //search for the chunk if it already exists
@@ -92,7 +93,7 @@ public struct ChunkGrabberJob : IJob
                         inputImagePixels[x,y] = WFCInputPixels[x + (imageWidth * y)];
                     }
                 }
-                WaveFunctionCollapse.GenerateDungeon(0, 5, dataPathString, seed, inputImagePixels);
+                WaveFunctionCollapse.GenerateDungeon(0, 10, dataPathString, seed + dungeonID, inputImagePixels);
 
                 //retry loading
                 //TODO use proper file loading for this too

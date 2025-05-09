@@ -50,7 +50,8 @@ public abstract class ChunkManager : MonoBehaviour
     protected abstract bool UseSurfaceGenerator();
     public void Awake()
     {
-        worldSeed = 5;
+        worldSeed = GameParams.GetActiveWorldSeed();
+        Debug.Log("Starting new world with seed:" + worldSeed);
         //TODO get random world seed and use persistent world seed for one world
         int tilePoolSize = (RenderDistance * 2) * (RenderDistance * 2);
         persistentDataPath = new NativeArray<char>(GetChunkPath().ToCharArray(), Allocator.Persistent);
@@ -190,7 +191,8 @@ public abstract class ChunkManager : MonoBehaviour
                 seed = worldSeed,
                 useSurfaceGenerator = UseSurfaceGenerator(),
                 WFCInputPixels = WFCInputColours,
-                WFCInputWidth = imageWidth
+                WFCInputWidth = imageWidth,
+                dungeonID = GetSeedModifier()
             };
 
             ChunkGrabber = newChunkJob.Schedule();
@@ -202,7 +204,7 @@ public abstract class ChunkManager : MonoBehaviour
         Texture2D inputTexture = Resources.Load<Texture2D>("WFCRuleInput");
         int width = inputTexture.width;
         int height = inputTexture.height;
-        NativeArray<Color> output = new NativeArray<Color>(height * width, Allocator.Persistent);
+        NativeArray<Color> output = new NativeArray<Color>(height * width, Allocator.TempJob);
         for(int x = 0;x < width; x++)
         {
             for(int y = 0; y < height; y++)
@@ -515,5 +517,5 @@ public abstract class ChunkManager : MonoBehaviour
     {
         activeChunks = new List<ChunkPos>();
     }
-
+    protected abstract int GetSeedModifier();
 }

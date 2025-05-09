@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/MainMenu.uss?fileID=7433441132597879392&amp;guid=3b7e0efe1cd6b2b4b91e93f2c9d2c237&amp;type=3#MainMenu" />
+    <ui:VisualElement name="VisualElement" class="main-menu" style="justify-content: center; height: 100%; width: 100%;">
+        <ui:VisualElement name="VisualElement" style="flex-grow: 1; position: absolute; left: 0; top: 0; right: 0; bottom: 0; width: 100%; height: 100%; border-left-color: rgb(101, 49, 26); border-right-color: rgb(101, 49, 26); border-top-color: rgb(101, 49, 26); border-bottom-color: rgb(101, 49, 26); background-color: rgb(101, 67, 52); color: rgb(255, 255, 255); -unity-text-outline-color: rgba(255, 255, 255, 0);" />
+        <ui:Button text="Play" parse-escape-sequences="true" display-tooltip-when-elided="true" name="startButton" class="menu-button" />
+        <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" picking-mode="Ignore" class="menu-button" />
+        <ui:Button text="Quit" parse-escape-sequences="true" display-tooltip-when-elided="true" class="menu-button" />
+        <ui:IntegerField label="Seed:" value="20" style="position: absolute; width: 241px; justify-content: flex-start; align-items: stretch; align-self: center;" />
+    </ui:VisualElement>
+</ui:UXML>

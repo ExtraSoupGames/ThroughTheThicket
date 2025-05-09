@@ -45,6 +45,9 @@ public class TileDisplayGetter
         allMeshes.Add("Moss", new LayerDisplayProperties("Moss", new string[] { "Moss"}));
         allMeshes.Add("MyceliumBase", new LayerDisplayProperties("Cube", new string[] { "Redcap2"}));
         allMeshes.Add("MyceliumTopper", new LayerDisplayProperties("MyceliumTopper", new string[] { "Redcap2" }));
+        allMeshes.Add("MuddyRoot", new LayerDisplayProperties("Cube", new string[] { "Muddy Root"}));
+        allMeshes.Add("Root", new LayerDisplayProperties("Cube", new string[] { "Root" }));
+
     }
     public LayerDisplayProperties GetDisplayProperties(string layerName)
     {

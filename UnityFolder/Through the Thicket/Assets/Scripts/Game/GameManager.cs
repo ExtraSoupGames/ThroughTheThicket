@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TileInteractionState tileState;
     private Stack<IWorldState> worldState;
     private Stack<IUIState> uiState;
+    [SerializeField] private FogController fog;
     public void Start()
     {
         worldState = new Stack<IWorldState>();
@@ -31,6 +32,7 @@ public class GameManager : MonoBehaviour
         tileState.Initialize(this);
         EnterState(baseState);
         EnterState(surfaceState);
+        fog.EnableFogSurface();
         LoadGlobalVariables();
     }
     private void FixedUpdate()
@@ -71,9 +73,11 @@ public class GameManager : MonoBehaviour
                 EnterState(baseState);
                 break;
             case "Exploring":
+                fog.EnableFogSurface();
                 EnterState(surfaceState);
                 break;
             case "Dungeon":
+                fog.EnableFogCave();
                 EnterState(dungeonState);
                 break;
             case "Inventory":
@@ -94,9 +98,11 @@ public class GameManager : MonoBehaviour
                 ExitState(baseState);
                 break;
             case "Exploring":
+                fog.DisableFog();
                 ExitState(surfaceState);
                 break;
             case "Dungeon":
+                fog.DisableFog();
                 ExitState(dungeonState);
                 break;
             case "Inventory":

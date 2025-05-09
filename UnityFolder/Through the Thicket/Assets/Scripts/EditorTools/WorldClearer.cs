@@ -22,4 +22,8 @@ public class WorldClearer : MonoBehaviour
         }
 
     }
+    public static void ResetWorld()
+    {
+        ClearWorldFile();
+    }
 }

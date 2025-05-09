@@ -42,4 +42,13 @@ public static class FileHelper
         }
         return true;
     }
+    public static bool DirectoryCheckTesting()
+    {
+        if (!Directory.Exists(Path.Combine(Application.persistentDataPath, "TestingChunks")))
+        {
+            Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "TestingChunks"));
+            return false;
+        }
+        return true;
+    }
 }

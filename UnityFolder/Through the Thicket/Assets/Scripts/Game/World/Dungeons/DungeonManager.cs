@@ -24,4 +24,8 @@ public class DungeonManager : ChunkManager
         ClearActiveChunks();
         UpdateRequiredChunks();
     }
+    protected override int GetSeedModifier()
+    {
+        return dungeonID;
+    }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using TreeEditor;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -23,42 +24,11 @@ public static class CellularAutomataGenerator
     private static AutomataChunk GenerateChunk(int chunkX, int chunkY, int seed)
     {
         //Create the initial noise map
-        AutomataChunk[,] chunks = InitialNoiseMap(chunkX, chunkY, seed);
-        //Initialize our tile array, 48 x 48 is chosen so cellular iterations from neighbouring chunks can affect the ones in this chunk to ensure seamlessness
-        AutomataTile[,] tiles = new AutomataTile[48, 48];
-        //Populate the array with the tiles from all 9 of the 16x16 chunks
-        for (int cX = 0; cX < 3; cX++)
-        {
-            for (int cY = 0; cY < 3; cY++)
-            {
-                for (int tileX = 0; tileX < 16; tileX++)
-                {
-                    for (int tileY = 0; tileY < 16; tileY++)
-                    {
-                        tiles[cX * 16 + tileX, cY * 16 + tileY] = chunks[cX, cY].GetTile(tileX, tileY);
-                    }
-                }
-            }
-        }
-        //Create and iterate through the river rule
-        //The river rule is different as it uses a simplex noise function so it needs the tileX and tileY to be passed in when the rule is being applied
-        int iterations = 1;
-        RiverRule rule = new RiverRule();
-        for(int i = 0; i < iterations; i++)
-        {
-            //Go through all the tiles in the chunks and apply the rule
-            AutomataTile[,] newTiles = new AutomataTile[48, 48];
-            for (int x = 0; x < 48; x++)
-            {
-                for (int y = 0; y < 48; y++)
-                {
-                    newTiles[x, y] = rule.ApplyRule((chunkX * 16) - 16 + x, (chunkY * 16) - 16 + y);
-                }
-            }
-            tiles =  newTiles;
-        }
+        AutomataTile[,] tiles = InitialEmptyGrid(chunkX, chunkY, seed);
+
+        
         //Go through each rule a specified number of times, applying the rule each time
-        iterations = 2;
+        int iterations = 2;
         for(int i = 0; i < iterations; i++)
         {
             tiles = CellularIteration(tiles, new RiverExpander());
@@ -97,18 +67,29 @@ public static class CellularAutomataGenerator
         AutomataChunk returnChunk = new AutomataChunk(tiles, chunkX, chunkY);
         return returnChunk;
     }
-    private static AutomataChunk[,] InitialNoiseMap(int chunkX, int chunkY, int seed)
+    private static AutomataTile[,] InitialEmptyGrid(int chunkOffsetX, int chunkOffsetY, int seed)
     {
         //we need a grid of 9 chunks so we can simulate all surrounding tile generation
-        AutomataChunk[,] noiseChunks = new AutomataChunk[3, 3];
+        AutomataTile[,] tiles = new AutomataTile[48, 48];
         for(int x = 0; x < 3; x++)
         {
             for(int y = 0; y < 3; y++)
             {
-                noiseChunks[x, y] = new AutomataChunk(chunkX, chunkY, seed);
+                for(int inChunkX = 0; inChunkX <16; inChunkX++)
+                {
+                    for (int inChunkY = 0; inChunkY < 16; inChunkY++)
+                    {
+                        int tileX = inChunkX + (x + chunkOffsetX) * 16;
+                        int tileY = inChunkY + (y + chunkOffsetY) * 16;
+                        float2 noiseOffset = new float2(Mathf.Pow(seed, 5), Mathf.Pow(seed, 5));
+                        float noiseValue = noise.snoise(new float2(tileX * 0.02f + noiseOffset.x, tileY * 0.02f + noiseOffset.y));
+                        bool isRiver = noiseValue > 0.45f && noiseValue < 0.55f;
+                        tiles[x * 16 + inChunkX, y * 16 + inChunkY] = new AutomataTile(isRiver ? AutomataTileType.River : AutomataTileType.Mud);
+                    }
+                }
             }
         }
-        return noiseChunks;
+        return tiles;
     }
     private static AutomataTile[,] CellularIteration(AutomataTile[,] oldTiles, AutomataRule rule)
     {
@@ -192,24 +173,6 @@ public static class CellularAutomataGenerator
     {
         private AutomataTile[,] tiles;
         int chunkX, chunkY;
-        //This generates the chunk as a random noise map
-        public AutomataChunk(int chunkX, int chunkY, int seed)
-        {
-            //reset the seed and multiply by the chunkX and chunkY so each chunk will have a unique seed
-            uint chunkSeed = (uint)((chunkX + 500) * (chunkY + 500) * seed);
-            Unity.Mathematics.Random random = new Unity.Mathematics.Random(chunkSeed);
-            tiles = new AutomataTile[Chunk.ChunkSize(), Chunk.ChunkSize()];
-
-            for (int x  = 0; x < 16;x++)
-            {
-                for(int y = 0; y < 16; y++)
-                {
-                    tiles[x, y] = new AutomataTile(AutomataTileType.Mud);
-                }
-            }
-            this.chunkX = chunkX;
-            this.chunkY = chunkY;
-        }
         //this constructor generates the chunk using a 48x48 array of tiles, and extracts the tile data from the centre 16x16 of that
         public AutomataChunk(AutomataTile[,] sourceTiles, int chunkX, int chunkY)
         {
@@ -224,10 +187,6 @@ public static class CellularAutomataGenerator
             }
             this.chunkX = chunkX;
             this.chunkY = chunkY;
-        }
-        public AutomataTile GetTile(int x, int y)
-        {
-            return tiles[x, y];
         }
         public SerializableChunk GetChunkForSaving()
         {
@@ -264,40 +223,6 @@ public static class CellularAutomataGenerator
         public virtual int GetRange() { return 1; }
     }
     //Here we define all of our rules
-    private class IslandRule : AutomataRule
-    {
-        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
-        {
-            int mudNeighbourCount = 0;
-            int riverNeighbourCount = 0;
-            for (int x = 0; x < 3; x++)
-            {
-                for (int y = 0; y < 3; y++)
-                {
-                    if (x == 1 && y == 1)
-                    {
-                        continue;
-                    }
-                    if (tiles[x, y].type == AutomataTileType.Mud)
-                    {
-                        mudNeighbourCount++;
-                    }
-                    if (tiles[x,y].type == AutomataTileType.River)
-                    {
-                        riverNeighbourCount++;
-                    }
-                }
-            }
-            if (tiles[1,1].type == AutomataTileType.River)
-            {
-                return new AutomataTile(mudNeighbourCount >= 5 ? AutomataTileType.Mud : AutomataTileType.River);
-            }
-            else
-            {
-                return new AutomataTile(mudNeighbourCount >= 4 ? AutomataTileType.Mud : AutomataTileType.River);
-            }
-        }
-    }
     private class AdvancedIslandRule : AutomataRule
     {
         public override AutomataTile ApplyRule(AutomataTile[,] tiles)
@@ -347,50 +272,6 @@ public static class CellularAutomataGenerator
         }
     }
 
-    private class IslandRefinerRule : AutomataRule
-    {
-        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
-        {
-            int landNeighbourCount = 0;
-            int riverNeighbourCount = 0;
-            int mudNeighbourCount = 0;
-
-            for (int x = 0; x < 3; x++)
-            {
-                for (int y = 0; y < 3; y++)
-                {
-                    if (x == 1 && y == 1) continue;
-
-                    if (tiles[x, y].type == AutomataTileType.Grass)
-                    {
-                        landNeighbourCount++;
-                    }
-                    if (tiles[x, y].type == AutomataTileType.River)
-                    {
-                        riverNeighbourCount++;
-                        landNeighbourCount++;
-                    }
-                    if (tiles[x, y].type == AutomataTileType.Mud)
-                    {
-                        mudNeighbourCount++;
-                    }
-                }
-            }
-
-            if (tiles[1, 1].type == AutomataTileType.Grass)
-            {
-                return new AutomataTile(mudNeighbourCount <= 4 ? AutomataTileType.Grass : AutomataTileType. Mud);
-            }
-            if (tiles[1, 1].type == AutomataTileType.Mud)
-            {
-                return new AutomataTile(riverNeighbourCount >= 5 ? AutomataTileType.River : AutomataTileType.Mud);
-            }
-            else
-            {
-                return new AutomataTile(AutomataTileType.River);
-            }
-        }
-    }
     private class TreePopulaterRule : AutomataRule
     {
         private Unity.Mathematics.Random rand;
@@ -641,25 +522,6 @@ public static class CellularAutomataGenerator
                 return new AutomataTile(tiles[1, 1].type, AutomataFoliageType.Pebble);
             }
             return new AutomataTile(tiles[1, 1].type, AutomataFoliageType.None);
-        }
-    }
-    private class RiverRule : AutomataRule
-    {
-
-        public override AutomataTile ApplyRule(AutomataTile[,] tiles)
-        {
-            throw new Exception("Do not use default method for river rule, use method with tile coordinates instead");
-        }
-
-        public AutomataTile ApplyRule(int tileX, int tileY)
-        {
-
-            // Sample noise (optionally add fractal layers)
-            float noiseValue = noise.snoise(new float2(tileX * 0.02f, tileY * 0.02f));
-
-            // Narrow band for rivers (adjust thresholds as needed)
-            bool isRiver = noiseValue > 0.45f && noiseValue < 0.55f;
-            return new AutomataTile(isRiver ? AutomataTileType.River : AutomataTileType.Mud);
         }
     }
     private class RiverExpander : AutomataRule

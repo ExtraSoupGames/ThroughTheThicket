@@ -1,0 +1,25 @@
+.menu-button {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: rgba(0, 0, 0, 0);
+    width: 256px;
+    height: 64px;
+    position: relative;
+    background-image: resource('Button');
+    font-size: 15px;
+    color: rgb(255, 255, 255);
+}
+
+.main-menu {
+    align-items: center;
+}
+
+IntegerField > .unity-base-text-field__input {
+    background-image: resource('Button');
+    background-color: rgba(0, 0, 0, 0);
+    width: 128px;
+    height: 32px;
+    color: pink;
+}

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -298,6 +299,7 @@ public class GameManager : MonoBehaviour
         {
             //The only value stored in SaveData.json should be the current dungeon ID
             string text = File.ReadAllText(Path.Combine(Application.persistentDataPath, "World","SaveData.json"));
+            text = text.Split(",")[1];
             try
             {
                 int.TryParse(text, out var value);
@@ -314,7 +316,7 @@ public class GameManager : MonoBehaviour
         if (FileHelper.DirectoryCheckGlobal())
         {
             //The only value stored in SaveData.json should be the current dungeon ID
-            File.WriteAllText(Path.Combine(Application.persistentDataPath, "World", "SaveData.json"), caveID.ToString());
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, "World", "SaveData.json"), surfaceState.GetWorldSeed() + "," + caveID.ToString());
         }
     }
 

@@ -80,5 +80,8 @@ public class SurfaceState : IWorldState
         surfaceManager.QueueManage();
         tileSelector.UpdateWhenOpen();
     }
-
+    public int GetWorldSeed()
+    {
+        return surfaceManager.GetWorldSeed();
+    }
 }

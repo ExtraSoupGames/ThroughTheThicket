@@ -16,13 +16,20 @@ public class MenuManager : MonoBehaviour
     void StartClicked()
     {
         VisualElement root = menuUI.rootVisualElement;
-        IntegerField seed = root.Q<IntegerField>();
-        int seedValue = seed.value;
-        if(seedValue == 0)
+        Toggle startNewToggle = root.Q<Toggle>();
+        bool startNew = startNewToggle.value;
+        if (startNew)
         {
-            seedValue = Random.Range(0, 1);
+            IntegerField seed = root.Q<IntegerField>();
+            int seedValue = seed.value;
+            if (seedValue == 0)
+            {
+                seedValue = Random.Range(0, 1);
+            }
+            StartNewWorld(seedValue);
+            return;
         }
-        StartNewWorld(seedValue);
+        OpenSave();
     }
     void StartNewWorld(int seed)
     {
@@ -31,9 +38,9 @@ public class MenuManager : MonoBehaviour
         GameParams.openingNewWorld = true;
         SceneManager.LoadScene("Game");
     }
-    void OpenSave(int save)
+    void OpenSave()
     {
-        GameParams.worldSave = save;
+        GameParams.worldSeed = FileHelper.GetSaveSeed();
         GameParams.openingNewWorld = false;
         SceneManager.LoadScene("Game");
     }

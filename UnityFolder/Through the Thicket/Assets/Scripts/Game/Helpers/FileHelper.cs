@@ -51,4 +51,12 @@ public static class FileHelper
         }
         return true;
     }
+    public static int GetSaveSeed()
+    {
+        DirectoryCheckGlobal();
+        string text = File.ReadAllText(Path.Combine(Application.persistentDataPath, "World", "SaveData.json"));
+        text = text.Split(",")[0];
+        int.TryParse(text, out var value);
+        return value;
+    }
 }

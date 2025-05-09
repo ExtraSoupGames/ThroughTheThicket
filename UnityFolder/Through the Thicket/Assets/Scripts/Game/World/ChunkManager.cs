@@ -40,7 +40,7 @@ public abstract class ChunkManager : MonoBehaviour
     //JobHandles to track other threads
     JobHandle ChunkGrabber;
     //seed for the world generator
-    private int worldSeed;
+    protected int worldSeed;
     private TileDisplayGetter tileDisplayGetter;
 
     private static readonly object fileAccessLock = new object();

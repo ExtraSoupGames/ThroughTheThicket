@@ -6,5 +6,6 @@
         <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" picking-mode="Ignore" class="menu-button" />
         <ui:Button text="Quit" parse-escape-sequences="true" display-tooltip-when-elided="true" class="menu-button" />
         <ui:IntegerField label="Seed:" value="20" style="position: absolute; width: 241px; justify-content: flex-start; align-items: stretch; align-self: center;" />
+        <ui:Toggle label="Create new world?" />
     </ui:VisualElement>
 </ui:UXML>

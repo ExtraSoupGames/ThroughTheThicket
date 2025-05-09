@@ -18,4 +18,8 @@ public class SurfaceManager : ChunkManager
     {
         return 0;
     }
+    public int GetWorldSeed()
+    {
+        return worldSeed;
+    }
 }
